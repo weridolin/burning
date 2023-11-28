@@ -18,7 +18,7 @@ func RegisterActionRouter(r *gin.RouterGroup) {
 }
 
 func RegisterUsersRouter(r *gin.RouterGroup) {
-	g := gin.Default().Group("/history")
+	g := gin.Default().Group("/users")
 	g.Use(users.AuthMiddleware(true))
 	r.GET("/users/profile", users.GetUserProfile)
 	r.PUT("/users/profile/:id", users.UpdateUserProfile)
@@ -32,15 +32,30 @@ func RegisterUsersRouter(r *gin.RouterGroup) {
 func RegisterHistoryRouter(r *gin.RouterGroup) {
 	g := gin.Default().Group("/history")
 	g.Use(users.AuthMiddleware(true))
+	//训练历史记录
 	r.GET("/history/train", history.GetTrainHistory)
-	r.GET("/history/train/:id", history.GetTrainHistoryDetail)
+	r.GET("/history/train/:train_id", history.GetTrainHistoryDetail)
 	r.POST("/history/train", history.AddNewTrainHistory)
-	r.PUT("/history/train/:id", history.UpdateTrainHistory)
-	r.DELETE("/history/train/:id", history.DeleteTrainHistory)
+	r.PUT("/history/train/:train_id", history.UpdateTrainHistory)
+	r.DELETE("/history/train/:train_id", history.DeleteTrainHistory)
 
+	//训练历史记录内容
+	r.POST("/history/train/:train_id/content", history.AddNewTrainContent)
+	r.PUT("/history/train/:train_id/content/:content_id", history.UpdateTrainContent)
+	r.DELETE("/history/train/:train_id/content/:content_id", history.DeleteTrainContent)
+
+	//饮食历史记录
 	r.GET("/history/diet", history.GetDietHistory)
-	r.GET("/history/diet/:id", history.GetDietHistoryDetail)
+	r.GET("/history/diet/:diet_id", history.GetDietHistoryDetail)
 	r.POST("/history/diet", history.AddNewDietHistory)
-	r.PUT("/history/diet/:id", history.UpdateDietHistory)
-	r.DELETE("/history/diet/:id", history.DeleteDietHistory)
+	r.PUT("/history/diet/:diet_id", history.UpdateDietHistory)
+	r.DELETE("/history/diet/:diet_id", history.DeleteDietHistory)
+}
+
+func RegisterHomePageRouter(r *gin.RouterGroup) {
+	g := gin.Default().Group("/home")
+	g.Use(users.AuthMiddleware(false))
+	// r.GET("/video", users.GetHomePage)
+	// r.GET("/video/:id", users.GetVideoDetail)
+	// r.POST("/music", users.AddVideo)
 }

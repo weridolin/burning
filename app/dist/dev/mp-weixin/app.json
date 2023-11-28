@@ -1,0 +1,52 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/history/index",
+    "pages/person/index",
+    "pages/action/index"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#3cc51f",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "position": "bottom",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/icons/home.png",
+        "selectedIconPath": "static/icons/home_select.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "iconPath": "static/icons/history.png",
+        "selectedIconPath": "static/icons/history_select.png",
+        "text": "历史"
+      },
+      {
+        "pagePath": "pages/action/index",
+        "iconPath": "static/icons/actions.png",
+        "selectedIconPath": "static/icons/actions_select.png",
+        "text": "动作"
+      },
+      {
+        "pagePath": "pages/person/index",
+        "iconPath": "static/icons/person.png",
+        "selectedIconPath": "static/icons/person_select.png",
+        "text": "个人"
+      }
+    ],
+    "midButton": {
+      "text": "开始训练"
+    }
+  },
+  "usingComponents": {}
+}

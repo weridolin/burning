@@ -1,0 +1,17 @@
+{
+    "id": "left-swipe-tab",
+    "displayName": "tab左侧导航",
+    "version": "1.0.4",
+    "description": "tab左侧导航",
+    "keywords": [
+        "tab",
+        "导航",
+        "选项卡"
+    ],
+    "dcloudext": {
+        "category": [
+            "前端组件",
+            "通用组件"
+        ]
+    }
+}

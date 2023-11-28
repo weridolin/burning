@@ -151,6 +151,8 @@ func GetTrainHistoryDetail(c *gin.Context) {
 
 // 训练内容
 func AddNewTrainContent(c *gin.Context) {
+	id := c.Param("id")
+	fmt.Println("add train content, id -> ", id)
 	var trainContent *models.TrainingContentDetail
 	if err := c.ShouldBindQuery(&trainContent); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
