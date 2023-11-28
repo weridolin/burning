@@ -77,16 +77,17 @@
   </view>
 </template>
 
-<script>
-import cover from "@/conpoments/actions/cover";
+
+<script lang="ts">
+import Vue from "vue";
+import cover from "../../conpoments/actions/cover.vue";
 // import ActionCover from "@/components/actions/cover";
 import {GetActionList} from "./apis";
-import type {Action} from "@/pages/action/apis.ts";
-export default {
+import  {Action} from "./apis";
+export default Vue.extend( {
   data() {
-
-    var action_list:{[key:string]:{[key:string]:Action[]}} 
-
+    var actionsList:{[key:string]:{[key:string]:Action[]}}={}
+    var selectActionsList: {[key:string]:Action[]}={}
     return {
 
       list: [],
@@ -111,7 +112,7 @@ export default {
       my_hua_dong_num: 0,
 
       navScroll: "",
-      selectActionsList: {},
+      selectActionsList,
       actionsList,
       currentSelectType: "",
     };
@@ -129,9 +130,10 @@ export default {
     this._onReadyApi();
   },
   methods: {
-    onNav(e, kk) {
-      console.log("选择了" + kk);
-      this.currentSelectType = kk;
+    change(){},
+    onNav(e:any, kk:string|number) {
+      console.log("选择了" + kk,e);
+      this.currentSelectType = kk as string;
       this.selectActionsList = this.actionsList[kk];
 
     },
@@ -150,8 +152,8 @@ export default {
         // this.actionsList = res;
         for (let index = 0; index < res.length; index++) {
           const element = res[index];
-          if (element.action_type in this.actionsList.keys()) {
-            if element.action_instrument in this.actionsList[element.action_type].keys() {
+          if (element.action_type in this.actionsList) {
+            if (element.action_instrument in this.actionsList[element.action_type]) {
               this.actionsList[element.action_type][element.action_instrument].push(element);
             } else {
               this.actionsList[element.action_type][element.action_instrument] = [element];
@@ -166,7 +168,7 @@ export default {
   components: {
     cover,
   },
-};
+});
 </script>
 
 <style>
