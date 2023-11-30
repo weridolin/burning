@@ -10,10 +10,11 @@ import (
 var DB *gorm.DB
 
 func InitDb(dsn string) *gorm.DB {
-	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	_DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println("failed to connect database", err)
 		panic(err)
 	}
-	return DB
+	DB = _DB
+	return _DB
 }

@@ -12,8 +12,18 @@ import (
 
 // 训练记录
 func AddNewTrainHistory(c *gin.Context) {
+	user_id := c.Request.Header.Get("user_id")
+	if user_id == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"msg":  "user_id is empty",
+			"data": nil,
+			"code": 401,
+		})
+		return
+	}
+	_user_id, _ := strconv.Atoi(user_id)
 	new := models.TrainingHistory{}
-	if err := c.ShouldBindQuery(&new); err != nil {
+	if err := c.ShouldBindJSON(&new); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
 			"data": nil,
@@ -21,6 +31,8 @@ func AddNewTrainHistory(c *gin.Context) {
 		})
 		return
 	}
+	new.UserID = _user_id
+	fmt.Println("add train history, new -> ", new)
 	new, err := models.CreateTrainingHistory(new, common.DB)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -33,9 +45,20 @@ func AddNewTrainHistory(c *gin.Context) {
 }
 
 func DeleteTrainHistory(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("train_id")
 	fmt.Println("delete train history, id -> ", id)
 	_id, _ := strconv.Atoi(id)
+	user_id := c.Request.Header.Get("user_id")
+	_user_id, _ := strconv.Atoi(user_id)
+	history, _ := models.QueryTrainingHistory(map[string]interface{}{"id": _id}, common.DB)
+	if history[0].UserID != _user_id {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg":  "当前用户无权操作",
+			"data": nil,
+			"code": "403",
+		})
+		return
+	}
 	err := models.DeleteTrainingHistory(_id, common.DB)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -48,10 +71,10 @@ func DeleteTrainHistory(c *gin.Context) {
 }
 
 func UpdateTrainHistory(c *gin.Context) {
-	id := c.Param("id")
-	fmt.Println("update train history, id -> ", id)
+	id := c.Param("train_id")
+	fmt.Println("update train history, train id -> ", id)
 	var params map[string]interface{}
-	if err := c.ShouldBindQuery(&params); err != nil {
+	if err := c.ShouldBindJSON(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
 			"data": nil,
@@ -60,7 +83,37 @@ func UpdateTrainHistory(c *gin.Context) {
 		return
 	}
 	_id, _ := strconv.Atoi(id)
-	err := models.UpdateTrainHistory(_id, params, common.DB)
+	fmt.Println("update train history, params -> ", params)
+	history, err := models.QueryTrainingHistory(map[string]interface{}{"id": _id}, common.DB)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg":  err.Error(),
+			"data": nil,
+			"code": "400",
+		})
+		return
+	}
+	user_id := c.Request.Header.Get("user_id")
+	if user_id == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"msg":  "请先登录",
+			"data": nil,
+			"code": 401,
+		})
+		return
+	}
+
+	_user_id, _ := strconv.Atoi(user_id)
+	if history[0].UserID != _user_id {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg":  "当前用户无权操作",
+			"data": nil,
+			"code": "403",
+		})
+		return
+	}
+
+	err = models.UpdateTrainHistory(_id, params, common.DB)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
@@ -82,7 +135,7 @@ func GetTrainHistory(c *gin.Context) {
 		})
 		return
 	}
-	var params map[string]interface{}
+	var params map[string][]string
 	if err := c.ShouldBindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
@@ -91,10 +144,15 @@ func GetTrainHistory(c *gin.Context) {
 		})
 		return
 	}
+	conditions := map[string]interface{}{}
+	for k, v := range params {
+		conditions[k] = v
+	}
+
 	var data []TrainHistoryContentItem
 	_user_id, _ := strconv.Atoi(user_id)
-	params["UserID"] = _user_id
-	trainHistory, err := models.QueryTrainingHistory(params, common.DB)
+	conditions["user_id"] = _user_id
+	trainHistory, err := models.QueryTrainingHistory(conditions, common.DB)
 	if err != nil {
 		fmt.Println("query train history error -> ", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -151,10 +209,23 @@ func GetTrainHistoryDetail(c *gin.Context) {
 
 // 训练内容
 func AddNewTrainContent(c *gin.Context) {
-	id := c.Param("id")
-	fmt.Println("add train content, id -> ", id)
+	train_id := c.Param("train_id")
+	fmt.Println("add train content, id -> ", train_id)
+	_train_id, _ := strconv.Atoi(train_id)
+	// 查询训练历史记录
+	// history, err := models.QueryTrainingHistory(map[string]interface{}{"id": _train_id}, common.DB)
+	// if len(history) == 0 {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"msg":  "train history not found",
+	// 		"data": nil,
+	// 		"code": 400,
+	// 	})
+	// 	return
+	// }
+	user_id := c.Request.Header.Get("user_id")
+
 	var trainContent *models.TrainingContentDetail
-	if err := c.ShouldBindQuery(&trainContent); err != nil {
+	if err := c.ShouldBindJSON(&trainContent); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
 			"data": nil,
@@ -162,6 +233,8 @@ func AddNewTrainContent(c *gin.Context) {
 		})
 		return
 	}
+	trainContent.UserID = common.Str2Int(user_id)
+	trainContent.TrainingHistoryId = _train_id
 	trainContent, err := models.CreateTrainingContentDetail(trainContent, common.DB)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -179,10 +252,10 @@ func AddNewTrainContent(c *gin.Context) {
 }
 
 func UpdateTrainContent(c *gin.Context) {
-	id := c.Param("id")
-	fmt.Println("update train content, id -> ", id)
+	id := c.Param("content_id")
+	fmt.Println("update train content, content id -> ", id)
 	var params map[string]interface{}
-	if err := c.ShouldBindQuery(&params); err != nil {
+	if err := c.ShouldBindJSON(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
 			"data": nil,
@@ -190,6 +263,7 @@ func UpdateTrainContent(c *gin.Context) {
 		})
 		return
 	}
+
 	_id, _ := strconv.Atoi(id)
 	err := models.UpdateTrainContent(_id, params, common.DB)
 	if err != nil {
@@ -203,8 +277,8 @@ func UpdateTrainContent(c *gin.Context) {
 }
 
 func DeleteTrainContent(c *gin.Context) {
-	id := c.Param("id")
-	fmt.Println("delete train content, id -> ", id)
+	id := c.Param("content_id")
+	fmt.Println("delete train content, content id -> ", id)
 	_id, _ := strconv.Atoi(id)
 	err := models.DeleteTrainingContent(_id, common.DB)
 	if err != nil {

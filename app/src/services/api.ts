@@ -1,22 +1,27 @@
 export const BurningApis = {
   auth: {
     login: {
-      method: "get",
-      url: "todo",
-      authenticated: false,
-    },
-    register: {
-      method: "get",
-      url: "todo",
+      method: "post",
+      url: "/usercenter/api/v1/login",
       authenticated: false,
     },
     logout: {
-      method: "get",
-      url: "todo",
+      method: "post",
+      url: "/usercenter/api/v1/logout",
       authenticated: true,
+    },
+    register: {
+      method: "post",
+      url: "/usercenter/api/v1/register",
+      authenticated: false,
     },
     getProfile:{
       method: "get",
+      url: "/mini/burning/api/profile",
+      authenticated: true,
+    },
+    updateProfile:{
+      method: "put",
       url: "/mini/burning/api/profile",
       authenticated: true,
     },

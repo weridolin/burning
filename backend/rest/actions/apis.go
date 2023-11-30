@@ -11,8 +11,9 @@ import (
 )
 
 func GetActions(c *gin.Context) {
-	var condition = map[string]interface{}{}
-	if err := c.ShouldBindQuery(&condition); err != nil {
+	var queryParams = map[string][]string{}
+	if err := c.ShouldBindQuery(&queryParams); err != nil {
+		fmt.Println("get query actions condition err -> ", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": "400",
 			"msg":  err.Error(),
@@ -20,6 +21,12 @@ func GetActions(c *gin.Context) {
 		})
 		return
 	}
+	var condition = map[string]interface{}{}
+	for k, v := range queryParams {
+		condition[k] = v
+	}
+	fmt.Println("query actions,condition -> ", condition)
+
 	actions, err := models.QueryActions(condition, common.DB)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -29,6 +36,7 @@ func GetActions(c *gin.Context) {
 		})
 		return
 	}
+	fmt.Println("actions -> ", actions)
 	c.JSON(http.StatusOK, gin.H{
 		"code": "200",
 		"msg":  "success",
@@ -48,12 +56,12 @@ func AddAction(c *gin.Context) {
 		return
 	}
 	NewAction := models.Actions{
-		ActionsName:       Request.ActionsName,
-		ActionsType:       Request.ActionsType,
-		ActionsDesc:       Request.ActionsDesc,
-		ActionsImg:        Request.ActionsImg,
-		ActionsVideoUri:   Request.ActionsVideoUri,
-		ActionsInstrument: Request.ActionsInstrument,
+		ActionName:       Request.ActionName,
+		ActionType:       Request.ActionType,
+		ActionDesc:       Request.ActionDesc,
+		ActionImg:        Request.ActionImg,
+		ActionVideoUri:   Request.ActionVideoUri,
+		ActionInstrument: Request.ActionInstrument,
 	}
 	NewAction, err := models.CreateActions(NewAction, common.DB)
 	if err != nil {

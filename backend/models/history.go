@@ -48,15 +48,15 @@ type FoodHistory struct {
 
 type TrainingContentDetail struct {
 	BaseModel
-	ActionsName       string `json:"actions_name" yaml:"actions_name" comment:"动作名称"`
+	ActionName        string `json:"action_name" yaml:"action_name" comment:"动作名称"`
 	LeftWeight        string `json:"left_weight" yaml:"left_weight" comment:"左侧重量(kg)"`
 	RightWeight       string `json:"right_weight" yaml:"right_weight" comment:"右侧重量(kg)"`
 	TotalWeight       string `json:"total_weight" yaml:"total_weight" comment:"总重量(kg)"`
 	Number            int    `json:"number" yaml:"number" comment:"动作次数"`
 	UserID            int    `json:"user_id" yaml:"user_id" comment:"用户ID" gorm:"index" column:"user_id"`
 	TrainingHistoryId int    `json:"training_history_id" yaml:"training_history_id" comment:"训练历史ID" gorm:"index" column:"training_history_id"`
-	ActionsType       string `json:"actions_type" yaml:"actions_type" comment:"动作类型"`
-	ActionsInstrument string `json:"action_instrument" yaml:"action_instrument" comment:"动作器械"`
+	ActionType        string `json:"action_type" yaml:"action_type" comment:"动作类型"`
+	ActionInstrument  string `json:"action_instrument" yaml:"action_instrument" comment:"动作器械"`
 	Finish            bool   `json:"finish" yaml:"finish" comment:"是否完成"`
 	ConsumeTime       int    `json:"consume_time" yaml:"consume_time" comment:"消耗时间(s)"`
 }

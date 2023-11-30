@@ -1,0 +1,3 @@
+[submodule "usercenter"]
+	path = usercenter
+	url = git@github.com:weridolin/site-usercenter.git
