@@ -45,7 +45,7 @@ class BaseApi {
     config.headers["Content-Type"] = config.contentType || "application/json";
     if (config.requiredLogin) {
       config.headers["Authorization"] = `Bearer ${getToken()?.access_token}`;
-      config.headers["user_id"] = "1";
+      config.headers["user_id"] = "111";
     }
     // return new Promise((resolve, reject) => {
     //   this.axiosInstance

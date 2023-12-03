@@ -140,7 +140,7 @@ func GetTrainHistory(c *gin.Context) {
 		})
 		return
 	}
-	var params map[string][]string
+	var params = map[string][]string{}
 	if err := c.ShouldBindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
@@ -149,15 +149,19 @@ func GetTrainHistory(c *gin.Context) {
 		})
 		return
 	}
-	conditions := map[string]interface{}{}
-	for k, v := range params {
-		conditions[k] = v
-	}
 
+	fmt.Println("get train history, conditions -> ", params)
+
+	// conditions := map[string]interface{}{}
+	// for k, v := range params {
+	// 	conditions[k] = v
+	// }
+
+	condition_string := "created_at > '" + params["start_time"][0] + "' and created_at < '" + params["end_time"][0] + "' and user_id = '" + user_id + "'"
 	var data []TrainHistoryContentItem
-	_user_id, _ := strconv.Atoi(user_id)
-	conditions["user_id"] = _user_id
-	trainHistory, err := models.QueryTrainingHistory(conditions, common.DB)
+	// _user_id, _ := strconv.Atoi(user_id)
+	// conditions["user_id"] = _user_id
+	trainHistory, err := models.QueryTrainingHistory(condition_string, common.DB)
 	if err != nil {
 		fmt.Println("query train history error -> ", err)
 		c.JSON(http.StatusBadRequest, gin.H{

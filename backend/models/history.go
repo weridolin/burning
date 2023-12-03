@@ -107,7 +107,7 @@ func CreateTrainingHistory(history TrainingHistory, DB *gorm.DB) (TrainingHistor
 	return history, err
 }
 
-func QueryTrainingHistory(params map[string]interface{}, DB *gorm.DB) ([]TrainingHistory, error) {
+func QueryTrainingHistory(params interface{}, DB *gorm.DB) ([]TrainingHistory, error) {
 	var history []TrainingHistory
 	err := DB.Where(params).Find(&history).Error
 	return history, err

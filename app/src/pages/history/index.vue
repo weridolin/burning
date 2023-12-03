@@ -91,6 +91,15 @@ export default Vue.extend({
       ],
       status: "",
       trainHistoryId: 0,
+      test: [{
+						date: "2023-12-03",
+						info: '打卡'
+					},
+					{
+						date: getDate(new Date(),-1).fullDate,
+						info: '已打卡'
+					}
+				]
     };
   },
   onLoad() {
@@ -104,6 +113,13 @@ export default Vue.extend({
   },
   onUnload() {
     uni.$off("finishTrain");
+  },
+  onShow(){
+    uni.showLoading({
+      title: "获取训练记录中...",
+    });
+    console.log(">>>>>",getDate(new Date(),-2).fullDate)
+    this.getHistory()
   },
   methods: {
     change(e: any) {
@@ -130,17 +146,21 @@ export default Vue.extend({
       GetTrainHistory(
         (res) => {
           console.log("get train history", res);
-          for (let i = 0; i < res.length; i++) {
-            let item = res[i];
+          uni.hideLoading();
+          for (let i = 0; i < res.data.length; i++) {
+            let item = res.data[i];
             this.trainHistoryMap[item.created_at] = item;
+            let n_date = new Date(item.train_history.CreatedAt);
             this.transHistory.push({
-              date: item.created_at,
-              info: item.title,
+              date: getDate(n_date, 0).fullDate,
+              info: item.train_history.title,
             });
           }
+          console.log("transHistory", this.transHistory)
         },
         (err) => {
           console.log("get train history err", err);
+          uni.hideLoading();
         }
       );
     },

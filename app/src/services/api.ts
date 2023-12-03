@@ -41,7 +41,7 @@ export const BurningApis = {
   history: {
     getHistory: {
       method: "GET",
-      url: "/mini/burning/api/v1/train/history",
+      url: "/mini/burning/api/v1/history/train",
       authenticated: true,
     },
     addHistory: {
