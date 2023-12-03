@@ -109,7 +109,7 @@ export default Vue.extend({
   },
   onLoad() {
     // this.getDate();
-    this.getFoodRecord();
+    // this.getFoodRecord();
   },
   methods: {
     getDate() {
@@ -139,16 +139,20 @@ export default Vue.extend({
     },
     changeVideoList(e:any){
       console.log("change video info page",e)
-      GetVideoInfo(this.getVideoInfoRequest).then((res)=>{
+      GetVideoInfo(this.getVideoInfoRequest,(res)=>{
         console.log("get video info",res) 
         // this.video_info=res.data #TODO
+      },(err)=>{
+        console.log("get video info err",err)
       })
     },
     getFoodRecord(){
       // TODO
       console.log("get food record")
-      GetFoodHistory(this.date).then((res)=>{
+      GetFoodHistory(this.date,(res)=>{
         console.log("get food history",res)
+      },(err)=>{
+        console.log("get food history err",err)
       })
     }
   },

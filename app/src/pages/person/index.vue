@@ -19,7 +19,7 @@
       </view>
       <view class="info">
         <view class="nick">
-          <text>{{ profile.name }}</text>
+          <text>{{ profile.user_name }}</text>
           <view class="sex">
             <u-icon name="man" color="#ffffff" size="24"></u-icon>
           </view>
@@ -37,7 +37,7 @@
         <view class="userId">
           <image src="../../static/image/travel/personal/id.png" />
           <view class="number">
-            <text>{{ profile.id }}</text>
+            <text>{{ profile.user_id }}</text>
             <text>复制</text>
           </view>
         </view>
@@ -167,7 +167,7 @@ import {GetUserProfile,UserProfile} from "./apis"
 
 export default Vue.extend({
   data() {
-    var profile:UserProfile|undefined
+    var profile:UserProfile|undefined=undefined;
     return {
       value: 1,
       value1: 0,
@@ -178,9 +178,11 @@ export default Vue.extend({
   methods: {
 
     getUserProfile() {
-      GetUserProfile().then((res) => {
+      GetUserProfile((res) => {
         console.log(res);
         this.profile = res;
+      }, (err) => {
+        console.log("get user profile error",err);
       });
     },
   },

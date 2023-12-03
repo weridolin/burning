@@ -50,7 +50,7 @@ func RegisterHistoryRouter(r *gin.RouterGroup) {
 
 func RegisterHomePageRouter(r *gin.RouterGroup) {
 	r = r.Group("/home")
-	r.Use(users.AuthMiddleware(false))
+	// r.Use(users.AuthMiddleware(false))
 	// r.GET("/video", users.GetHomePage)
 	// r.GET("/video/:id", users.GetVideoDetail)
 	// r.POST("/music", users.AddVideo)

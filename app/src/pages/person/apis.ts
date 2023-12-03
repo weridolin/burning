@@ -23,9 +23,14 @@ export interface UserProfile {
   days:number //签到天数
 }
 
-export function GetUserProfile():Promise<UserProfile> {
-  return AuthApi.get<UserProfile>({
+//
+
+export function GetUserProfile(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return AuthApi.request<UserProfile>({
     url: BurningApis.auth.getProfile.url,
     requiredLogin: BurningApis.auth.getProfile.authenticated,
+    method: BurningApis.auth.getProfile.method,
+    success: successCallback,
+    fail: failCallback
   })
 }

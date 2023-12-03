@@ -8,6 +8,12 @@
       }
     },
     {
+      "path": "pages/history/AddAction",
+      "style": {
+        "navigationBarTitleText": "选择动作"
+      }
+    },
+    {
       "path": "pages/history/index",
       "style": {
         "navigationBarTitleText": "训练记录"
@@ -24,6 +30,18 @@
       "path": "pages/action/index",
       "style": {
         "navigationBarTitleText": "动作库"
+      }
+    },
+    {
+      "path": "pages/auth/login",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/auth/register",
+      "style": {
+        "navigationBarTitleText": "注册"
       }
     }
   ],
@@ -64,10 +82,10 @@
         "selectedIconPath": "static/icons/person_select.png",
         "text": "个人"
       }
-    ],
-    "midButton":{
-      "text":"开始训练"
-    }
+    ]
+    // "midButton":{
+    //   "text":"开始训练"
+    // }
   }
 	// "easycom": {
 	// 	"autoscan": true,

@@ -41,6 +41,14 @@ export interface TrainHistory {
   created_at:string
 }
 
+export interface AddTrainHistoryRequest {
+  comment: string;
+  total_time: number;
+  title: string;
+  finish: boolean;
+}
+
+
 export interface TrainHistoryBrief {
   date: string,
   info:string
@@ -48,53 +56,66 @@ export interface TrainHistoryBrief {
 
 export interface TrainContent {
   action_name: string;
-  left_weight: number;
-  right_weight: number;
-  total_weight: number;
+  left_weight: string;
+  right_weight: string;
+  total_weight: string;
   number: number;
-  user_id: number;
+  user_id?: number;
   training_history_id: number;
-  id: number;
+  id?: number;
   finish: boolean;
   action_id: number;
   action_instrument:string
   consume_time:number // 单位秒
-  created_at:string
+  created_at?:string
 }
 
 
 
 const HistoryApis = new BaseApi();
 
-export function GetTrainHistory() {
-  return HistoryApis.get<TrainHistory[]>({
+export function GetTrainHistory(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request<TrainHistory[]>({
     url: BurningApis.history.getHistory.url,
-    params: {
+    data: {
       start_time: getDate(getStartOfMonth()).fullDate,
       end_time: getDate(new Date(),0).fullDate,
     },
     requiredLogin: BurningApis.history.getHistory.authenticated,
+    method: BurningApis.history.getHistory.method,
+    success: successCallback,
+    fail: failCallback,
   });
 }
 
-export function GetTrainHistoryDetail(trainID: number) {
-  return HistoryApis.get<TrainContent[]>({
+export function GetTrainHistoryDetail(trainID: number,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request<TrainContent[]>({
     url: BurningApis.history.getTrainHistoryDetail.url(trainID),
     requiredLogin: BurningApis.history.getTrainHistoryDetail.authenticated,
+    method: BurningApis.history.getTrainHistoryDetail.method,
+    success: successCallback,
+    fail: failCallback
   });
 }
 
-export function AddTrainHistory(data: TrainHistory[]) {
-  return HistoryApis.post({
+export function AddTrainHistory(data: AddTrainHistoryRequest,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
     url: BurningApis.history.addHistory.url,
     data: data,
     requiredLogin: BurningApis.history.addHistory.authenticated,
+    method: BurningApis.history.addHistory.method,
+    success: successCallback,
+    fail: failCallback,
+    contentType: "application/json"
   });
 }
 
-export function DeleteTrainHistory(trainID: number) {
-  return HistoryApis.delete({
+export function DeleteTrainHistory(trainID: number,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
     url: BurningApis.history.deleteHistory.url(trainID),
     requiredLogin: BurningApis.history.deleteHistory.authenticated,
+    method: BurningApis.history.deleteHistory.method,
+    success: successCallback,
+    fail: failCallback
   });
 }

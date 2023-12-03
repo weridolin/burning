@@ -88,5 +88,5 @@ func main() {
 	rest.RegisterHistoryRouter(v1)
 	rest.RegisterHomePageRouter(v1)
 	rest.RegisterUsersRouter(v1)
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run("127.0.0.1:8080") // listen and serve on 0.0.0.0:8080
 }

@@ -42,6 +42,11 @@ func AddNewTrainHistory(c *gin.Context) {
 		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"msg":  "success",
+		"data": new,
+		"code": 200,
+	})
 }
 
 func DeleteTrainHistory(c *gin.Context) {

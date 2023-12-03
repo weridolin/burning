@@ -111,26 +111,28 @@ const ActionApis= new BaseApi()
 
 export interface Action {
   uuid: string;
-  action_name:string;
+  action_name:string; //动作名称 比如 杠铃卧推
   action_instrument:string; //器械
   action_type:string; //类型 比如胸肩背
   action_desc:string;
-  actions_img:string;
+  action_img:string;
   action_video:string;
   id:number;
   created_at:string;
 }
 
 
-export function GetActionList(): Promise<Action[]>{
-  return ActionApis.get<Action[]>({
+export function GetActionList(successCallback: (res: any) => void, failCallback: (err: any) => void):UniApp.RequestTask {
+  return ActionApis.request<Action[]>({
     url: BurningApis.actions.getActions.url,
-    params: {},
+    method: BurningApis.actions.getActions.method,
     requiredLogin: BurningApis.actions.getActions.authenticated,
+    success: successCallback,
+    fail: failCallback
   })
 }
 
-// export function   getActionDetail(id:number) {
+// export function  getActionDetail(id:number) {
 //   return ActionApis.get<Action>({
 //     url: BurningApis.actions.getActionDetail.url,
 //     params: {id},

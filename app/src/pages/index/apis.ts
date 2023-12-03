@@ -45,27 +45,36 @@ export interface Music {
 
 const HomeApis = new BaseApi();
 
-export function GetVideoInfo(request: VideoInfoRequest) {
-  return HomeApis.get<VideoInfoResponse>({
+export function GetVideoInfo(request: VideoInfoRequest,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HomeApis.request<VideoInfoResponse>({
     url: BurningApis.home.getVideoInfo.url,
-    params: request,
+    data: request,
     requiredLogin: BurningApis.home.getVideoInfo.authenticated,
+    method: BurningApis.home.getVideoInfo.method,
+    success: successCallback,
+    fail: failCallback
   });
 }
 
-export function GetRandomMusic() {
-  return HomeApis.get<Music>({
+export function GetRandomMusic(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HomeApis.request<Music>({
     url: BurningApis.home.getRandomMusic.url,
     requiredLogin: BurningApis.home.getRandomMusic.authenticated,
+    method: BurningApis.home.getRandomMusic.method,
+    success: successCallback,
+    fail: failCallback
   });
 }
 
-export function GetFoodHistory(date: any) {
-  return HomeApis.get<FoodRecord>({
+export function GetFoodHistory(date: any,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HomeApis.request<FoodRecord>({
     url: BurningApis.history.getHistory.url,
-    params:{
+    data:{
       date:date
     },
+    method: BurningApis.history.getHistory.method,
     requiredLogin: BurningApis.history.getHistory.authenticated,
+    success: successCallback,
+    fail: failCallback
   });
 }
