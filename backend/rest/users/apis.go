@@ -12,11 +12,7 @@ import (
 func GetUserProfile(c *gin.Context) {
 	user_id := c.Request.Header.Get("user_id")
 	if user_id == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"msg":  "user_id is empty",
-			"data": nil,
-			"code": 401,
-		})
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
 	}
 	_user_id := common.Str2Int(user_id)
@@ -28,68 +24,36 @@ func GetUserProfile(c *gin.Context) {
 			UserID: _user_id,
 		}
 		if err := models.CreateUserProfile(new, common.DB); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"msg":  err.Error(),
-				"data": nil,
-				"code": 400,
-			})
+			common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 			return
 		}
 		fmt.Println("create profile user id -> ", _user_id)
 		profile = *new
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"msg":  "success",
-		"data": profile,
-		"code": 200,
-	})
+	common.SuccessResponse(c, http.StatusOK, profile)
 }
 
 func UpdateUserProfile(c *gin.Context) {
 	user_id := c.Request.Header.Get("user_id")
 	if user_id == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"msg":  "user_id is empty",
-			"data": nil,
-			"code": 401,
-		})
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
 	}
 	var params map[string]interface{}
 	if err := c.ShouldBindJSON(&params); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg":  err.Error(),
-			"data": nil,
-			"code": 400,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	_user_id := common.Str2Int(user_id)
 	if _, err := models.GetUserProfile(_user_id, common.DB); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg":  "用户不存在",
-			"data": nil,
-			"code": 400,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, "用户不存在")
 		return
 	}
 
 	if err := models.UpdateUserProfile(_user_id, params, common.DB); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg":  err.Error(),
-			"data": nil,
-			"code": 400,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"msg":  "success",
-		"data": nil,
-		"code": 200,
-	})
-}
-
-func Login(c *gin.Context) {
-
+	common.SuccessResponse(c, http.StatusOK, nil)
 }

@@ -14,11 +14,7 @@ func GetActions(c *gin.Context) {
 	var queryParams = map[string][]string{}
 	if err := c.ShouldBindQuery(&queryParams); err != nil {
 		fmt.Println("get query actions condition err -> ", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	var condition = map[string]interface{}{}
@@ -29,30 +25,22 @@ func GetActions(c *gin.Context) {
 
 	actions, err := models.QueryActions(condition, common.DB)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	fmt.Println("actions -> ", actions)
-	c.JSON(http.StatusOK, gin.H{
-		"code": "200",
-		"msg":  "success",
-		"data": actions,
-	})
+	common.SuccessResponse(c, http.StatusOK, actions)
 }
 
 func DeleteAction(c *gin.Context) {
+	//暂不支持删除
+	common.ErrorResponse(c, http.StatusBadRequest, "暂不支持删除")
 }
 
 func AddAction(c *gin.Context) {
 	var Request = AddActionRequest{}
 	if err := c.ShouldBindQuery(&Request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": err.Error(),
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	NewAction := models.Actions{
@@ -65,11 +53,7 @@ func AddAction(c *gin.Context) {
 	}
 	NewAction, err := models.CreateActions(NewAction, common.DB)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -85,28 +69,16 @@ func UpdateAction(c *gin.Context) {
 
 	var Request map[string]interface{}
 	if err := c.ShouldBindQuery(&Request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	id, err := strconv.Atoi(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  "id is not int",
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := models.UpdateAction(id, Request, common.DB); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -117,25 +89,13 @@ func GetActionDetail(c *gin.Context) {
 	fmt.Println("get action detail, id -> ", userID)
 	id, err := strconv.Atoi(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  "id is not int",
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	action, err := models.QueryActionById(id, common.DB)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": "400",
-			"msg":  err.Error(),
-			"data": nil,
-		})
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"code": "200",
-		"msg":  "success",
-		"data": action,
-	})
+	common.SuccessResponse(c, http.StatusOK, action)
 }
