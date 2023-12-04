@@ -1,14 +1,10 @@
 import BaseApi from "@/services/base";
 import { BurningApis } from "@/services/api";
-
+// import {UserProfole}
 
 const AuthApi = new BaseApi()
 
-export interface UserProfile {
-  user_name: string
-  user_id: number
-  user_email: string
-  user_avatar: string
+export interface GetUserProfilePayload {
   height:number
   body_fat_rate:number   //体脂率
   chest_circumference:number //胸围
@@ -26,7 +22,7 @@ export interface UserProfile {
 //
 
 export function GetUserProfile(successCallback: (res: any) => void, failCallback: (err: any) => void) {
-  return AuthApi.request<UserProfile>({
+  return AuthApi.request<GetUserProfilePayload>({
     url: BurningApis.auth.getProfile.url,
     requiredLogin: BurningApis.auth.getProfile.authenticated,
     method: BurningApis.auth.getProfile.method,
@@ -34,3 +30,4 @@ export function GetUserProfile(successCallback: (res: any) => void, failCallback
     fail: failCallback
   })
 }
+

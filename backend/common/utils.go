@@ -3,6 +3,8 @@ package common
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/gofrs/uuid"
 )
 
 func Str2Int(s string) int {
@@ -12,4 +14,9 @@ func Str2Int(s string) int {
 
 	}
 	return i
+}
+
+func GetUUID() string {
+	uuid, _ := uuid.NewV4()
+	return uuid.String()
 }

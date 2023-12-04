@@ -16,6 +16,8 @@ type PersonProfile struct {
 	HipLine               int     `json:"hipline" yaml:"hipline" comment:"臀围" gorm:"column:hipline"`
 	Weight                int     `json:"weight" yaml:"weight" comment:"体重"`
 	ShoulderBreadth       int     `json:"shoulder_breadth" yaml:"shoulder_breadth" comment:"肩宽"`
+	Uuid                  string  `json:"uuid" yaml:"uuid" comment:"uuid" gorm:"column:uuid"`
+	Days                  int     `json:"days" yaml:"days" comment:"签到天数"`
 }
 
 func GetUserProfile(user_id int, db *gorm.DB) (profile PersonProfile, err error) {

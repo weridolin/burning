@@ -17,12 +17,12 @@ export const BurningApis = {
     },
     getProfile:{
       method: "GET",
-      url: "/mini/burning/api/v1/profile",
+      url: "/mini/burning/api/v1/users/profile",
       authenticated: true,
     },
     updateProfile:{
       method: "PUT",
-      url: "/mini/burning/api/v1/profile",
+      url: "/mini/burning/api/v1/users/profile",
       authenticated: true,
     },
   },

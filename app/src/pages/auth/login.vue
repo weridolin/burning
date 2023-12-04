@@ -1,10 +1,10 @@
 <template>
   <view class="content">
     <view class="header">
-      <image src="/static/icons/login.png"></image>
+      <image src="/static/icons/login1.png"></image>
     </view>
     <view class="list">
-      <view class="list-call">
+      <!-- <view class="list-call">
         <input
           class="sl-input"
           v-model="loginForm.email"
@@ -12,14 +12,14 @@
           maxlength="11"
           placeholder="输入邮箱"
         />
-      </view>
+      </view> -->
       <view class="list-call">
         <input
           class="sl-input"
           v-model="loginForm.count"
           type="number"
           maxlength="11"
-          placeholder="输入账号"
+          placeholder="输入账号/邮箱/手机号"
         />
       </view>
       <view class="list-call">
@@ -47,55 +47,68 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { setToken, setUserProfile } from "../../store/local";
+import { setToken, setUserProfile,UserBodyInfo } from "../../store/local";
+import {ResponseBase} from "../../services/base";
+import { LoginRequestForm,Login,LoginResponsePayload } from "./apis";
+import {GetUserProfile} from "@/pages/person/apis";
+
 export default Vue.extend({
   data() {
+    var loginForm:LoginRequestForm = {
+      phone: "",
+      password: "",
+      email: "",
+      count: "",
+    };
     return {
-      loginForm: {
-        phone: "",
-        password: "",
-        email: "",
-        count: "",
-      },
+      loginForm,
     };
   },
   methods: {
     bindLogin() {
-      uni.request({
-        url: "http://43.128.110.230:30080/usercenter/api/v1/login",
-        data: this.loginForm,
-        header: {
-          // Accept: 'application/json',
-          "Content-Type": "application/x-www-form-urlencoded",
-          // 'X-Requested-With': 'XMLHttpRequest'
-        },
-        method: "POST",
-        // sslVerify: true,
-        success: ({ data, statusCode, header }) => {
-          // access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDIxMjQ2NTUsImlkIjoxLCJzdXBlckFkbWluIjpmYWxzZSwidXNlcm5hbWUiOiJ3ZXJpZG8ifQ.vz2wCIED7ApRfs6A7AeqhG7YCDrPLsAoOhaIxEDVqn8"
-          // age: 0
-          // avatar: ""
-          // email: "35920664312@qq.com"
-          // gender: 0
-          // is_super_admin: false
-          // phone: ""
-          // refresh_token: ""
-          // role: null
-          // username: "werido"
-          console.log("登录成功", data);
-          setToken({
-            access_token: data.data.access_token,
-            refresh_token: data.data.refresh_token,
+      Login(this.loginForm,
+      (res) => {
+        console.log("登录请求结果 -> ",res);
+        let loginData = res.data as LoginResponsePayload;
+        setToken({
+          access_token: loginData.access_token,
+          refresh_token: loginData.refresh_token,
+        });
+        GetUserProfile((res)=>{
+          console.log("获取用户信息 -> ",res)
+          let userBodyProfile = res.data as UserBodyInfo;
+          setUserProfile({
+            name: loginData.username,
+            
+            avatar: loginData.avatar,
+            email: loginData.email,
+            phone: loginData.phone,
+            gender:loginData.gender,
+            bodyInfo: userBodyProfile
           });
-          uni.switchTab({
-            url: "/pages/index/index",
+          uni.showToast({
+            title: "登录成功",
+            icon: "success",
+            duration: 2000,
           });
-        },
-        fail: (error) => {
-          console.log("登录失败", error);
-        },
+          uni.navigateBack({ delta: 1 });
+        },(error)=>{
+          console.log("获取用户信息异常 -> ",error);
+          uni.showToast({
+            title: "获取用户信息异常",
+            icon: "error",
+            duration: 2000,
+          });
+        });
+
+      },(error)=>{
+        console.log("登录异常 -> ",error);
+        uni.showToast({
+          title: "登录异常",
+          icon: "error",
+          duration: 2000,
+        });
       });
-      console.log(this.state.login);
     },
   },
 });

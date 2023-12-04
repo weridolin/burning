@@ -1,18 +1,54 @@
-interface UserProfile {
+export interface UserProfile {
     name: string,
     avatar: string,
     email: string,
     phone: string,
-    introduction: string,
-    roles: string[],
-    permissions: string[],
-    id: string
-    age: number
+    gender: number,
+    bodyInfo?: UserBodyInfo,
 }
+
+
+export interface UserBodyInfo {
+  uuid: string,
+  height:number
+  body_fat_rate:number   //体脂率
+  chest_circumference:number //胸围
+  upper_arm_circumference:number //臂围
+  abdominal_circumference:number //腹围
+  thigh_circumference:number //大腿围
+  calf_circumference:number //小腿围
+  hip_line:number //臀围
+  waistline:number //腰围
+  weight:number //体重
+  shoulder_breadth:number //肩宽
+  days:number //签到天数
+}
+
 interface AuthToken {
     access_token: string,
     refresh_token: string
 }
+
+// export function UpdateUserProfile(params:{[key:string]:any}) {
+//     const profile = getUserProfile()
+//     if (profile==null) {
+//         setUserProfile({
+//             name: params.name,
+//             avatar: params.avatar,
+//             email: params.email,
+//             phone: params.phone,
+//             introduction: params.introduction,
+//             roles: params.roles,
+//             permissions: params.permissions,
+//             id: params.id,
+//             age: params.age
+//         })
+//     }else{
+//         for (const key in params) {
+//             profile[key] = params[key]
+//         }
+//     }
+// }
 
 export function setUserProfile(profile: UserProfile) {
     uni.setStorageSync('profile', JSON.stringify(profile))

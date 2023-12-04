@@ -27,6 +27,12 @@ interface RequestConfig {
   contentType?: string;
 }
 
+export interface ResponseBase {
+  code: number;
+  msg: string;
+  data: any;
+}
+
 const baseURL = "http://127.0.0.1:8080";
 
 class BaseApi {
@@ -77,7 +83,7 @@ class BaseApi {
       success: (res) => {
         console.log(">>> 获取请求响应", res);
         if (res.statusCode == 200) {
-          config.success && config.success(res.data);
+          config.success && config.success(res.data as ResponseBase);
         } else {
           if (res.statusCode == 401) {
             uni.showToast({
@@ -95,7 +101,7 @@ class BaseApi {
               duration: 2000,
               icon: "error",
             });
-            config.fail && config.fail(res);
+            config.fail && config.fail(res.data as ResponseBase);
           }
         }
       },

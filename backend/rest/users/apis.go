@@ -22,6 +22,7 @@ func GetUserProfile(c *gin.Context) {
 		// 账户已经注册，但是profile不存在，则创建一个空的个人档案.
 		new := &models.PersonProfile{
 			UserID: _user_id,
+			Uuid:   common.GetUUID(),
 		}
 		if err := models.CreateUserProfile(new, common.DB); err != nil {
 			common.ErrorResponse(c, http.StatusBadRequest, err.Error())

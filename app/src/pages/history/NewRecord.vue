@@ -56,6 +56,13 @@
         </button>
       </view>
     </view>
+
+  <!-- 添加心得 -->
+  <uni-popup ref="popup" type="center">
+		<uni-section title="输入你本次训练的心得吧"  type="line" padding>
+			<uni-easyinput type="textarea" autoHeight v-model="comment" placeholder="请输入内容"></uni-easyinput>
+		</uni-section>
+  </uni-popup>
   </view>
 </template>
 <script lang="ts">
@@ -134,7 +141,10 @@ export default Vue.extend({
       });
     },
     addComment() {
-      // this.$refs["newRecord"].open();
+      let ele = this.$refs["popup"] as any
+      if (ele != null) {
+        ele.open();
+      }
     },
     complete() {},
     getWidth() {

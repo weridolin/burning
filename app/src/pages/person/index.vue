@@ -19,67 +19,26 @@
       </view>
       <view class="info">
         <view class="nick">
-          <text>{{ profile.user_name }}</text>
+          <text>{{ profile.name }}</text>
           <view class="sex">
             <u-icon name="man" color="#ffffff" size="24"></u-icon>
           </view>
         </view>
-        <!-- <view class="grade">
-					<view>
-						<image src="../../static/image/travel/personal/shield.png"/>
-							<text>0</text>
-					</view>
-					<view>
-						<image src="../../static/image/travel/personal/vip.png"/>
-							<text>0</text>
-					</view>
-				</view> -->
         <view class="userId">
           <image src="../../static/image/travel/personal/id.png" />
           <view class="number">
-            <text>{{ profile.user_id }}</text>
+            <text>{{ profile.bodyInfo.uuid.slice(1,7) }}</text>
             <text>复制</text>
           </view>
         </view>
       </view>
       <view class="space">
-        <!-- <text>空间</text>
-				<u-icon name="arrow-right" color="#000000" size="20"></u-icon> -->
       </view>
     </view>
-    <!-- <view class="list">
-			<view class="item">
-				<view class="text">
-					<text>0</text>
-					<text>关注</text>
-				</view>
-				<u-line direction="col" color="#979797 " length="32rpx"></u-line>
-			</view>
-			<view class="item">
-				<view class="text">
-					<text>0</text>
-					<text>粉丝</text>
-				</view>
-				<u-line direction="col" color="#979797 " length="32rpx"></u-line>
-			</view>
-			<view class="item">
-				<view class="text">
-					<text>0</text>
-					<text>动态</text>
-				</view>
-				<u-line direction="col" color="#979797 " length="32rpx"></u-line>
-			</view>
-			<view class="item">
-				<view class="text">
-					<text>0</text>
-					<text>个人数据</text>
-				</view>
-			</view>
-		</view> -->
     <view class="infos">
       <view class="open-vip attendance">
         <image src="../../static/image/travel/personal/attendance.png" />
-        <text class="text">目前已经连续签到{{ profile.days }}天</text>
+        <text class="text">目前已经连续签到{{ profile.bodyInfo.days }}天</text>
         <text class="button">签到</text>
       </view>
       <view class="tool">
@@ -100,39 +59,8 @@
           <text>账号设置</text>
         </view>
       </view>
-      <!-- <view class="set">
-				<view>
-					<image class="icon" src="../../static/image/travel/personal/pic03.png"/>
-						<text>最近进房</text>
-						<image class="right" src="../../static/image/travel/personal/Clipped.png"/>
-				</view>
-				<view>
-					<image class="icon" src="../../static/image/travel/personal/pic02.png"/>
-						<text>优惠券</text>
-						<image class="right" src="../../static/image/travel/personal/Clipped.png"/>
-				</view>
-				<view>
-					<image class="icon" src="../../static/image/travel/personal/pic05.png"/>
-						<text>我的等级</text>
-						<image class="right" src="../../static/image/travel/personal/Clipped.png"/>
-				</view>
-				<view>
-					<image class="icon" src="../../static/image/travel/personal/pic04.png"/>
-						<text>我的守护</text>
-						<image class="right" src="../../static/image/travel/personal/Clipped.png"/>
-				</view>
-				<view>
-					<image class="icon" src="../../static/image/travel/personal/pic06.png"/>
-						<text>赏金任务-好友召回</text>
-						<image class="right" src="../../static/image/travel/personal/Clipped.png"/>
-				</view>
-			</view> -->
       <view class="service">
-        <!-- <view>
-					<image class="icon" src="../../static/image/travel/personal/pic02.png"/>
-						<text>兑换奖励</text>
-						<image class="right" src="../../static/image/travel/personal/Clipped.png"/>
-				</view> -->
+  
         <view>
           <image
             class="icon"
@@ -162,12 +90,21 @@
 
 <script lang="ts">
 import Vue from "vue";
-import {GetUserProfile,UserProfile} from "./apis"
-
+import { UserProfile,isLogin,getUserProfile,UserBodyInfo } from "@/store/local";
+import {GetUserProfile} from "@/pages/person/apis";
+import { setUserProfile } from "../../store/local";
 
 export default Vue.extend({
   data() {
-    var profile:UserProfile|undefined=undefined;
+    // var profile: UserProfile = getUserProfile();
+    var profile: UserProfile = {
+      name: "",
+      avatar: "",
+      email: "",
+      phone: "",
+      gender: 0,
+
+    };
     return {
       value: 1,
       value1: 0,
@@ -175,17 +112,37 @@ export default Vue.extend({
     };
   },
   onLoad() {},
-  methods: {
-
-    getUserProfile() {
-      GetUserProfile((res) => {
-        console.log(res);
-        this.profile = res;
-      }, (err) => {
-        console.log("get user profile error",err);
+  onShow() {
+    if (!isLogin()) {
+      uni.navigateTo({
+        url: "/pages/auth/login",
       });
-    },
+    }else{
+      // 获取用户档案信息
+      GetUserProfile(res=>{
+        console.log("获取用户档案信息 -> ",res);
+        let userBodyProfile = res.data as UserBodyInfo;
+        // this.profile = userBodyProfile;
+        let profile = getUserProfile() 
+        if (profile!=null) {
+          profile.bodyInfo = userBodyProfile;
+          setUserProfile(profile);
+          this.profile = profile;
+        }
+        console.log("user profile -> ",profile);
+      },err=>{
+        console.log("获取用户档案信息失败 -> ",err);
+        uni.showToast({
+          title: "更新用户信息失败",
+          icon: "error",
+        });
+        uni.navigateTo({
+        url: "/pages/auth/login",
+      });
+      })
+    }
   },
+  methods: {},
 });
 </script>
 <style lang="scss" scoped>
