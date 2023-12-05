@@ -67,7 +67,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { TrainContent } from "./apis";
+import { TrainContent,AddTrainHistoryResponse } from "./apis";
 import trainContent from "@/conpoments/history/trainContent.vue";
 import { Action } from "@/pages/action/apis";
 interface ActionDetail {
@@ -80,7 +80,6 @@ interface ActionDetail {
 
 export default Vue.extend({
   components: { trainContent },
-  props: ["trainHistoryId"],
   data() {
     var timer: any;
     var trainActionList: ActionDetail[] = [];
@@ -92,8 +91,14 @@ export default Vue.extend({
       started: false,
       timer,
       trainActionList,
-      // trainHistoryId:0,
+      trainHistoryId:0,
     };
+  },
+  // MOU() {
+  //   console.log("onShow");
+  // },
+  mounted() {
+    console.log("mounted....");
   },
   watch: {
     consume_time: function (val) {
@@ -192,13 +197,6 @@ export default Vue.extend({
         });
         return;
       }
-      // if (!this.started) {
-      //   uni.showToast({
-      //     title: "请开始训练",
-      //     icon: "error",
-      //   });
-      //   return;
-      // }
       if (this.timer && this.started) {
         clearInterval(this.timer);
       }
@@ -206,8 +204,39 @@ export default Vue.extend({
       this.consume_time = 0;
       this.title = "";
       this.trainActionList = [];
-      uni.$emit("finishTrain");
+      uni.$emit("finishTrain"); //close drawer
+      },
+    initData(data: AddTrainHistoryResponse) {
+      console.log("initData", data);
+      this.title = data.train_history.title;
+      this.trainHistoryId = data.train_history.id;
+      this.comment=data.train_history.comment;
+      this.consume_time = data.train_history.total_time
+      let map:{[key:string]:TrainContent[]} = {};
+      if (data.train_content){
+        for (let index = 0; index < data.train_content.length; index++) {
+          let item = data.train_content[index];
+          if (item.action_name in map){
+            map[item.action_name].push(item);
+          }else{
+            map[item.action_name] = [item];
+          }
+        }
       }
+      for (const key in map) {
+        if (Object.prototype.hasOwnProperty.call(map, key)) {
+          const element = map[key];
+          let actionDetail: ActionDetail = {
+            action_name: key,
+            action_content: element,
+            consume_time: 0,
+            action_instrument: element[0].action_instrument,
+            action_id: element[0].action_id,
+          };
+          this.trainActionList.push(actionDetail);
+        }
+      }
+    },
   },
 });
 </script>

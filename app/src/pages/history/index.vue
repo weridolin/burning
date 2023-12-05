@@ -10,11 +10,59 @@
         :selected="transHistory"
       />
     </view>
-    <!-- <uni-section title="详细信息" type="line"> -->
-    <uni-card :is-shadow="true" v-show="trainDetail != ''">
-      <text class="uni-body">{{ trainDetail }}</text>
+    <!-- <view   >
+    <uni-card :is-shadow="true" >
+      <text class="uni-body">当天无训练日志</text>
     </uni-card>
-    <!-- </uni-section> -->
+    </view> -->
+    <view>
+      <uni-card
+        :is-shadow="true"
+        v-for="(trainDetail, indextd) in trainDetailList"
+        :key="indextd"
+        :title="trainDetail.train_history.title?trainDetail.train_history.title:'未定义标题'"
+        :sub-title="trainDetail.train_history.comment?trainDetail.train_history.comment:'本次训练似乎没什么心得...'"
+        :extra="trainDetail.train_history.finish ? '已完成' : '进行中...'"
+        thumbnail="/static/image/travel/personal/attendance.png"
+        class="train-detail-card"
+      >
+        <uni-section
+          type="line"
+          :title="actionName"
+          titleFontSize="14px"
+          v-for="(briefInfoList, actionName) in getTrainContentBriefInfo(
+            trainDetail.train_content
+          )"
+          :key="actionName"
+          class
+        >
+          <view
+            class="brief-info-content-list"
+            style="
+              display: flex;
+              flex-flow: row wrap;
+              gap: 10px;
+              margin-left: 10px;
+            "
+          >
+            <uni-title
+              type="h5"
+              :title="
+                item.left_weight +
+                'kg*' +
+                item.right_weight +
+                'kg*' +
+                item.number
+              "
+              v-for="(item, index) in briefInfoList"
+              :key="index"
+            >
+            </uni-title>
+          </view>
+        </uni-section>
+      </uni-card>
+    </view>
+
     <view class="button">
       <uni-fab
         ref="fab"
@@ -37,8 +85,7 @@
       @change="drawChange"
     >
       <scroll-view style="height: 100%" scroll-y="true">
-        <NewRecord :trainHistoryId="trainHistoryId" ref="newRecordEditPage">
-        </NewRecord>
+        <NewRecord ref="newRecordEditPage"> </NewRecord>
       </scroll-view>
     </uni-drawer>
   </view>
@@ -47,28 +94,40 @@
 <script lang="ts">
 import Vue from "vue";
 import NewRecord from "./NewRecord.vue";
-// import ActionGrid from "@/conpoments/actions/actionGrid.vue";
 import {
   getDate,
   GetTrainHistory,
   GetTrainHistoryDetail,
   TrainHistoryBrief,
   TrainHistory,
+  TrainContent,
   AddTrainHistory,
+  AddTrainHistoryResponse,
 } from "./apis";
-function getTrainDetail(date: string) {
-  return "训练详情";
+import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
+
+interface TrainHistoryDetail {
+  train_history: TrainHistory;
+  train_content: TrainContent[];
+}
+interface BriefItem {
+  action_name: string;
+  number: number;
+  left_weight: string;
+  right_weight: string;
+  total_weight: string;
 }
 
 export default Vue.extend({
   data() {
     var transHistory: TrainHistoryBrief[] = [];
-    var trainHistoryMap: { [key: string]: TrainHistory } = {};
+    var trainHistoryMap: { [key: string]: TrainHistoryDetail[] } = {};
+    var trainDetailList: TrainHistoryDetail[] = [];
     return {
       title: "训练记录",
       transHistory,
       trainHistoryMap,
-      trainDetail: "当天暂无训练日志",
+      trainDetailList,
       directionStr: "垂直",
       horizontal: "left",
       vertical: "bottom",
@@ -91,19 +150,20 @@ export default Vue.extend({
       ],
       status: "",
       trainHistoryId: 0,
-      test: [{
-						date: "2023-12-03",
-						info: '打卡'
-					},
-					{
-						date: getDate(new Date(),-1).fullDate,
-						info: '已打卡'
-					}
-				]
+      test: [
+        {
+          date: "2023-12-03",
+          info: "打卡",
+        },
+        {
+          date: getDate(new Date(), -1).fullDate,
+          info: "已打卡",
+        },
+      ],
     };
   },
   onLoad() {
-    uni.$on("finishTrain", ()=>{
+    uni.$on("finishTrain", () => {
       console.log("finishTrain");
       let ele = this.$refs["newRecord"] as any;
       if (ele) {
@@ -114,31 +174,31 @@ export default Vue.extend({
   onUnload() {
     uni.$off("finishTrain");
   },
-  onShow(){
+  onShow() {
     uni.showLoading({
       title: "获取训练记录中...",
     });
-    console.log(">>>>>",getDate(new Date(),-2).fullDate)
-    this.getHistory()
+    this.getHistory();
   },
   methods: {
     change(e: any) {
-      console.log("select date is " + e.fulldate);
-      this.trainDetail = getTrainDetail(e.fulldate);
-      let trainHistory = this.trainHistoryMap[e.fulldate];
-      if (trainHistory) {
-        GetTrainHistoryDetail(
-          trainHistory.id,
-          (res) => {
-            console.log("get change history detail -> ", res);
-            // this.trainDetail = res;
-          },
-          (err) => {
-            console.log("get change history detail err -> ", err);
-          }
-        );
+      let _trainHistory = this.trainHistoryMap[e.fulldate];
+      console.log("select date is " + e.fulldate,"trainHistory", _trainHistory);
+      if (_trainHistory) {
+        this.trainDetailList = _trainHistory;
+        // GetTrainHistoryDetail(
+        //   trainHistory.id,
+        //   (res) => {
+        //     console.log("get change history detail -> ", res);
+        //     // this.trainDetail = res;
+        //   },
+        //   (err) => {
+        //     console.log("get change history detail err -> ", err);
+        //     this.trainDetail = "获取训练日志出错";
+        //   }
+        // );
       } else {
-        this.trainDetail = "当天暂无训练日志";
+        this.trainDetailList = [] ;
       }
     },
     getHistory() {
@@ -149,14 +209,30 @@ export default Vue.extend({
           uni.hideLoading();
           for (let i = 0; i < res.data.length; i++) {
             let item = res.data[i];
-            this.trainHistoryMap[item.created_at] = item;
-            let n_date = new Date(item.train_history.CreatedAt);
+            let n_date = getDate(
+              new Date(item.train_history.created_at),
+              0
+            ).fullDate;
+            if (n_date in this.trainHistoryMap) {
+              this.trainHistoryMap[n_date].push(item);
+            } else {
+              this.trainHistoryMap[n_date] = [item];
+            }
             this.transHistory.push({
               date: getDate(n_date, 0).fullDate,
-              info: item.train_history.title,
+              info:
+                item.train_history.title == ""
+                  ? "进行中.."
+                  : item.train_history.title,
             });
           }
-          console.log("transHistory", this.transHistory)
+          //默认更新下当天的训练详情
+          let _trainHistory =
+            this.trainHistoryMap[getDate(new Date(), 0).fullDate];
+          if (_trainHistory) {
+            this.trainDetailList = _trainHistory;
+            console.log("now day train detail ->",this.trainDetailList,this.trainHistoryMap,getDate(new Date(), 0).fullDate)
+          }
         },
         (err) => {
           console.log("get train history err", err);
@@ -166,17 +242,33 @@ export default Vue.extend({
     },
     trigger(e: any) {
       if (this.content[e.index].text == "添加") {
+        //先判断是否有未完成的训练记录 #TODO
         AddTrainHistory(
           {
             comment: "",
             total_time: 0,
             title: "",
             finish: false,
+            force: false,
           },
-          (res: TrainHistory) => {
+          (res) => {
+            res = res.data as AddTrainHistoryResponse;
+            console.log("created a new train history", res);
+            if (res.existed) {
+              uni.showModal({
+                title: "",
+                content: "当前有未完成的训练,请先完成再添加!",
+                // showCancel:false,
+                success: function (_) {
+                  console.log("打开未完成的训练记录 -> ", res);
+                },
+              });
+            }
             console.log("add train history", res);
-            this.trainHistoryId = res.id;
+            this.trainHistoryId = res.train_history.id;
             this.status = "created";
+            let ele1 = this.$refs["newRecordEditPage"] as any;
+            ele1.initData(res);
             let ele = this.$refs["newRecord"] as any;
             if (ele) {
               ele.open();
@@ -209,15 +301,44 @@ export default Vue.extend({
 
     OnActionSelect(item: any) {
       console.log("OnActionSelect", item);
-      if (this.$refs.newRecordEditPage){
-        let ele = this.$refs.newRecordEditPage as any
+      if (this.$refs.newRecordEditPage) {
+        let ele = this.$refs.newRecordEditPage as any;
         ele.ActionSelect(item);
       }
     },
-
+    getTrainContentBriefInfo(items: TrainContent[]): {
+      [key: string]: BriefItem[];
+    } {
+      //生成训练内容的简要信息
+      let res: { [key: string]: BriefItem[] } = {};
+      for (let index = 0; index < items.length; index++) {
+        const content = items[index];
+        if (content.action_name in res) {
+          res[content.action_name].push({
+            action_name: content.action_name,
+            number: content.number,
+            left_weight: content.left_weight,
+            right_weight: content.right_weight,
+            total_weight: content.total_weight,
+          });
+        } else {
+          res[content.action_name] = [
+            {
+              action_name: content.action_name,
+              number: content.number,
+              left_weight: content.left_weight,
+              right_weight: content.right_weight,
+              total_weight: content.total_weight,
+            },
+          ];
+        }
+      }
+      return res;
+    },
   },
   components: {
     NewRecord,
+    UniSection,
     // ActionGrid
   },
 });
@@ -251,5 +372,9 @@ export default Vue.extend({
   position: absolute;
   bottom: 10px;
   left: 5px;
+}
+
+.train-detail-card {
+  width: 100%;
 }
 </style>

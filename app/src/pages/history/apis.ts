@@ -46,6 +46,13 @@ export interface AddTrainHistoryRequest {
   total_time: number;
   title: string;
   finish: boolean;
+  force: boolean; //是否强制新建一个新的记录，如果为false，则如果存在未完成的记录，则不会新建，而是返回该记录
+}
+
+export interface AddTrainHistoryResponse  {
+  train_history:TrainHistory
+  train_content:TrainContent[]
+  existed:boolean
 }
 
 
@@ -70,16 +77,14 @@ export interface TrainContent {
   created_at?:string
 }
 
-
-
 const HistoryApis = new BaseApi();
 
 export function GetTrainHistory(successCallback: (res: any) => void, failCallback: (err: any) => void) {
   return HistoryApis.request<TrainHistory[]>({
     url: BurningApis.history.getHistory.url,
     data: {
-      start_time: getDate(getStartOfMonth()).fullDate,
-      end_time: getDate(new Date(),0).fullDate,
+      start_time: getDate(getStartOfMonth(),-1).fullDate,
+      end_time: getDate(new Date(),1).fullDate,
     },
     requiredLogin: BurningApis.history.getHistory.authenticated,
     method: BurningApis.history.getHistory.method,
@@ -117,5 +122,17 @@ export function DeleteTrainHistory(trainID: number,successCallback: (res: any) =
     method: BurningApis.history.deleteHistory.method,
     success: successCallback,
     fail: failCallback
+  });
+}
+
+export function UpdateTrainHistory(trainID: number,data: AddTrainHistoryRequest,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.updateHistory.url(trainID),
+    data: data,
+    requiredLogin: BurningApis.history.updateHistory.authenticated,
+    method: BurningApis.history.updateHistory.method,
+    success: successCallback,
+    fail: failCallback,
+    contentType: "application/json"
   });
 }

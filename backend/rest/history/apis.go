@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/weridolin/burning/common"
@@ -18,19 +19,46 @@ func AddNewTrainHistory(c *gin.Context) {
 		return
 	}
 	_user_id, _ := strconv.Atoi(user_id)
-	new := models.TrainingHistory{}
+	var new struct {
+		models.TrainingHistory
+		Force bool `json:"force" yaml:"force" comment:"存在未完成记录时是否强制新建一条"`
+	}
+	var res struct {
+		TrainingHistory models.TrainingHistory         `json:"train_history" yaml:"train_history" comment:"训练记录"`
+		TrainingContent []models.TrainingContentDetail `json:"train_content" yaml:"train_content" comment:"训练内容"`
+		Existed         bool                           `json:"existed" yaml:"existed" comment:"存在未完成记录时是否强制新建一条"`
+	}
 	if err := c.ShouldBindJSON(&new); err != nil {
 		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	new.UserID = _user_id
+	if !new.Force {
+		//先查看当天是否有未完成的记录
+		date := time.Now().Format("2006-01-02")
+		conditions_string := "created_at >= '" + date + "'" + " and user_id = '" + user_id + "'" + " and  finish='0'"
+		record, _ := models.QueryTrainingHistory(conditions_string, common.DB)
+		fmt.Println("get exist un finished train history content detail")
+		if len(record) != 0 {
+			//获取当前记录对应的训练记录
+			content, _ := models.QueryTrainingContentDetail(record[0].ID, common.DB)
+			res.TrainingHistory = record[0]
+			res.TrainingContent = content
+			res.Existed = true
+			common.SuccessResponse(c, http.StatusOK, res)
+			return
+		}
+	}
 	fmt.Println("add train history, new -> ", new)
-	new, err := models.CreateTrainingHistory(new, common.DB)
+	record, err := models.CreateTrainingHistory(models.TrainingHistory{UserID: _user_id, Comment: "", Title: "", TotalTime: 0}, common.DB)
 	if err != nil {
 		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	common.SuccessResponse(c, http.StatusOK, new)
+	res.TrainingHistory = record
+	res.TrainingContent = nil
+	res.Existed = false
+	common.SuccessResponse(c, http.StatusOK, res)
 }
 
 func DeleteTrainHistory(c *gin.Context) {
@@ -105,10 +133,8 @@ func GetTrainHistory(c *gin.Context) {
 	// 	conditions[k] = v
 	// }
 
-	condition_string := "created_at > '" + params["start_time"][0] + "' and created_at < '" + params["end_time"][0] + "' and user_id = '" + user_id + "'"
+	condition_string := "created_at >= '" + params["start_time"][0] + "' and created_at <= '" + params["end_time"][0] + "' and user_id = '" + user_id + "'"
 	var data []TrainHistoryContentItem
-	// _user_id, _ := strconv.Atoi(user_id)
-	// conditions["user_id"] = _user_id
 	trainHistory, err := models.QueryTrainingHistory(condition_string, common.DB)
 	if err != nil {
 		fmt.Println("query train history error -> ", err)
@@ -127,8 +153,12 @@ func GetTrainHistory(c *gin.Context) {
 }
 
 func GetTrainHistoryDetail(c *gin.Context) {
-	id := c.Param("id")
-	fmt.Println("get train history detail, id -> ", id)
+	id := c.Param("train_id")
+	fmt.Println("get train history detail, train id -> ", id)
+	if id == "" {
+		common.ErrorResponse(c, http.StatusBadRequest, "请选择具体的训练记录")
+		return
+	}
 	var data struct {
 		TrainHistory models.TrainingHistory         `json:"train_history"`
 		TrainContent []models.TrainingContentDetail `json:"train_content"`
@@ -136,6 +166,10 @@ func GetTrainHistoryDetail(c *gin.Context) {
 	trainHistory, err := models.QueryTrainingHistory(map[string]interface{}{"id": id}, common.DB)
 	if err != nil {
 		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if len(trainHistory) == 0 {
+		common.ErrorResponse(c, http.StatusBadRequest, "训练记录不存在")
 		return
 	}
 	// 获取训练内容
