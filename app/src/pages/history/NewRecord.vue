@@ -6,7 +6,7 @@
           class="title-input"
           placeholder="输入该次训练标题"
           maxlength="10"
-          v-model="title"
+          v-model="trainHistory.title"
         />
         <uni-title
           type="h1"
@@ -29,14 +29,15 @@
       <scroll-view scroll-y>
         <trainContent
           :key="index"
-          v-for="(item, index) in trainActionList"
+          v-for="(item, index) in trainHistory.trainActionList"
           :index="index"
           :actionName="item.action_name"
           :initTrainContent="item.action_content"
-          :trainHistoryId="trainHistoryId"
+          :trainHistoryId="trainHistory.trainHistoryId"
           :actionInstrument="item.action_instrument"
           class="train-item"
           ref="trainContent"
+          @trainContentListUpdate="onTrainActionDetailUpdate"
         ></trainContent>
       </scroll-view>
     </uni-section>
@@ -57,26 +58,32 @@
       </view>
     </view>
 
-  <!-- 添加心得 -->
-  <uni-popup ref="popup" type="center">
-		<uni-section title="输入你本次训练的心得吧"  type="line" padding>
-			<uni-easyinput type="textarea" autoHeight v-model="comment" placeholder="请输入内容"></uni-easyinput>
-		</uni-section>
-  </uni-popup>
+    <!-- 添加心得 -->
+    <uni-popup ref="popup" type="center">
+      <uni-section title="输入你本次训练的心得吧" type="line" padding>
+        <uni-easyinput
+          type="textarea"
+          autoHeight
+          v-model="trainHistory.comment"
+          placeholder="请输入内容"
+        ></uni-easyinput>
+      </uni-section>
+    </uni-popup>
   </view>
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { TrainContent,AddTrainHistoryResponse } from "./apis";
+import {
+  TrainContent,
+  AddTrainHistoryResponse,
+  ActionDetail,
+  FinishTrain,
+  TrainHistory,
+  TrainContentToActionDetail,
+} from "./apis";
 import trainContent from "@/conpoments/history/trainContent.vue";
 import { Action } from "@/pages/action/apis";
-interface ActionDetail {
-  action_name: string;
-  action_content: TrainContent[];
-  consume_time: number;
-  action_instrument: string;
-  action_id: number;
-}
+import { setDoingTrain, getDoingTrain, clearDoingTrain } from "@/store/local";
 
 export default Vue.extend({
   components: { trainContent },
@@ -84,25 +91,34 @@ export default Vue.extend({
     var timer: any;
     var trainActionList: ActionDetail[] = [];
     return {
-      title: "",
-      comment: "该次训练备注",
-      consume_time: 0,
       format_consume_time: "00:00:00",
       started: false,
       timer,
-      trainActionList,
-      trainHistoryId:0,
+      trainHistory: {
+        trainHistoryId: 0,
+        consume_time: 0,
+        title: "",
+        comment: "",
+        trainActionList,
+      },
+      status: "created", // 新建记录情况下为created 修改记录情况为edit edit时不会清空/更新本地缓存
     };
   },
-  // MOU() {
-  //   console.log("onShow");
-  // },
   mounted() {
     console.log("mounted....");
   },
   watch: {
-    consume_time: function (val) {
-      this.format_consume_time = this.formatConsumeTime(val);
+    trainHistory: {
+      handler(new_value, _) {
+        console.log("train history change ...", new_value.trainHistoryId);
+        this.format_consume_time = this.formatConsumeTime(
+          new_value.consume_time
+        );
+        if (this.status == "created") {
+          setDoingTrain(new_value);
+        }
+      },
+      deep: true,
     },
   },
   methods: {
@@ -117,7 +133,8 @@ export default Vue.extend({
       return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
     },
     start() {
-      if (this.title == "") {
+      /* 训练时长计数器 */
+      if (this.trainHistory.title == "") {
         uni.showToast({
           title: "请输入标题",
           icon: "error",
@@ -132,7 +149,7 @@ export default Vue.extend({
       } else {
         this.started = true;
         this.timer = setInterval(() => {
-          this.consume_time += 1;
+          this.trainHistory.consume_time += 1;
         }, 1000);
       }
     },
@@ -146,7 +163,7 @@ export default Vue.extend({
       });
     },
     addComment() {
-      let ele = this.$refs["popup"] as any
+      let ele = this.$refs["popup"] as any;
       if (ele != null) {
         ele.open();
       }
@@ -158,7 +175,25 @@ export default Vue.extend({
       return width;
     },
     ActionSelect(item: Action) {
-      console.log("选择了动作", item);
+      // 判断是否存在相同动作
+      console.log("选择了动作", item, this.trainHistory);
+
+      for (
+        let index = 0;
+        index < this.trainHistory.trainActionList.length;
+        index++
+      ) {
+        const element = this.trainHistory.trainActionList[index];
+        if (element.action_name == item.action_name) {
+          console.log("存在相同动作");
+          uni.showToast({
+            title: "当前计划存在相同动作,已经合并",
+            icon: "error",
+            // duration:2000
+          });
+          return;
+        }
+      }
       let actionDetail: ActionDetail = {
         action_name: item.action_name,
         action_content: [
@@ -166,10 +201,10 @@ export default Vue.extend({
             left_weight: "0",
             right_weight: "0",
             total_weight: "0",
-            number: 0,
+            number: "0",
             finish: false,
             action_name: item.action_name,
-            training_history_id: this.trainHistoryId,
+            training_history_id: this.trainHistory.trainHistoryId,
             action_instrument: item.action_instrument,
             consume_time: 0,
             action_id: item.id,
@@ -180,62 +215,109 @@ export default Vue.extend({
         action_instrument: item.action_instrument,
         action_id: item.id,
       };
-      this.trainActionList.push(actionDetail);
+      this.trainHistory.trainActionList.push(actionDetail);
     },
-    onTrainActionDetailAdd(item: TrainContent) {
-      console.log("onTrainContentAdd", item);
+    onfinishTrain() {
+      console.log("onfinishTrain", this.trainHistory.trainActionList);
+      uni.showModal({
+        title: "",
+        content: "是否结束当前训练?",
+        success: (res) => {
+          if (res.confirm) {
+            if (this.trainHistory.title == "") {
+              uni.showToast({
+                title: "请输入标题",
+                icon: "error",
+              });
+              return;
+            }
+            if (this.timer && this.started) {
+              clearInterval(this.timer);
+            }
+
+            let h = {
+              comment: this.trainHistory.comment,
+              total_time: this.trainHistory.consume_time,
+              title: this.trainHistory.title,
+              finish: true,
+              id: this.trainHistory.trainHistoryId,
+            };
+            uni.showLoading({ title: "提交中" });
+            FinishTrain(
+              h as TrainHistory,
+              this.trainHistory.trainActionList,
+              (res) => {
+                this.started = false;
+                this.trainHistory.consume_time = 0;
+                this.trainHistory.title = "";
+                this.trainHistory.trainActionList = [];
+                this.trainHistory.trainHistoryId = 0;
+                uni.$emit("finishTrain"); //close drawer
+                uni.hideLoading();
+                if (this.status == "created") {
+                  clearDoingTrain();
+                }
+                console.log("local store clear", getDoingTrain);
+              },
+              (err) => {
+                console.log("finish train error", err);
+                uni.hideLoading();
+              }
+            );
+          } else {
+            return;
+          }
+        },
+      });
     },
-    onTrainActionDetailDelete(item: TrainContent) {
-      console.log("onTrainContentDelete", item);
-    },
-    onfinishTrain(){
-      console.log("onfinishTrain");
-      if (this.title == ""){
-        uni.showToast({
-          title: "请输入标题",
-          icon: "error",
-        });
-        return;
-      }
-      if (this.timer && this.started) {
-        clearInterval(this.timer);
-      }
-      this.started = false;
-      this.consume_time = 0;
-      this.title = "";
-      this.trainActionList = [];
-      uni.$emit("finishTrain"); //close drawer
-      },
     initData(data: AddTrainHistoryResponse) {
       console.log("initData", data);
-      this.title = data.train_history.title;
-      this.trainHistoryId = data.train_history.id;
-      this.comment=data.train_history.comment;
-      this.consume_time = data.train_history.total_time
-      let map:{[key:string]:TrainContent[]} = {};
-      if (data.train_content){
-        for (let index = 0; index < data.train_content.length; index++) {
-          let item = data.train_content[index];
-          if (item.action_name in map){
-            map[item.action_name].push(item);
-          }else{
-            map[item.action_name] = [item];
-          }
+      this.status = "created";
+      //加载本地保留的未完成的trainContent
+      if (data.existed) {
+        let unfinishedTrainRecord = getDoingTrain() as any;
+        console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
+        if (unfinishedTrainRecord != null) {
+          // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
+          this.trainHistory = unfinishedTrainRecord;
+        }
+      } else {
+        console.log("新建一条新的训练记录");
+        this.trainHistory.title = data.train_history.title;
+        this.trainHistory.trainHistoryId = data.train_history.id;
+        this.trainHistory.comment = data.train_history.comment;
+        this.trainHistory.consume_time = data.train_history.total_time;
+      }
+    },
+    editData(trainHistory: TrainHistory, trainContent: TrainContent[]) {
+      if (trainHistory.finish){
+        this.status = "edit";
+        let ActionDetailList = TrainContentToActionDetail(trainContent);
+        this.trainHistory = {
+          trainHistoryId: trainHistory.id,
+          consume_time: trainHistory.total_time,
+          title: trainHistory.title,
+          comment: trainHistory.comment,
+          trainActionList: ActionDetailList,
+        };
+      }else{
+        this.status = "created";
+        //加载本地保留的未完成的trainContent
+        let unfinishedTrainRecord = getDoingTrain() as any;
+        console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
+        if (unfinishedTrainRecord != null) {
+          // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
+          this.trainHistory = unfinishedTrainRecord;
         }
       }
-      for (const key in map) {
-        if (Object.prototype.hasOwnProperty.call(map, key)) {
-          const element = map[key];
-          let actionDetail: ActionDetail = {
-            action_name: key,
-            action_content: element,
-            consume_time: 0,
-            action_instrument: element[0].action_instrument,
-            action_id: element[0].action_id,
-          };
-          this.trainActionList.push(actionDetail);
-        }
+
+    },
+    onTrainActionDetailUpdate(item: TrainContent[], index: number) {
+      this.trainHistory.trainActionList[index].action_content = item;
+      if (this.status == "created") {
+        setDoingTrain(this.trainHistory);
       }
+      console.log("onTrainContentUpdate", item, index, this.trainHistory);
     },
   },
 });

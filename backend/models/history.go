@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type FoodHistoryContentItem struct {
@@ -52,7 +53,7 @@ type TrainingContentDetail struct {
 	LeftWeight        string `json:"left_weight" yaml:"left_weight" comment:"左侧重量(kg)"`
 	RightWeight       string `json:"right_weight" yaml:"right_weight" comment:"右侧重量(kg)"`
 	TotalWeight       string `json:"total_weight" yaml:"total_weight" comment:"总重量(kg)"`
-	Number            int    `json:"number" yaml:"number" comment:"动作次数"`
+	Number            string `json:"number" yaml:"number" comment:"动作次数"`
 	UserID            int    `json:"user_id" yaml:"user_id" comment:"用户ID" gorm:"index" column:"user_id"`
 	TrainingHistoryId int    `json:"training_history_id" yaml:"training_history_id" comment:"训练历史ID" gorm:"index" column:"training_history_id"`
 	ActionType        string `json:"action_type" yaml:"action_type" comment:"动作类型"`
@@ -180,6 +181,66 @@ func DeleteTrainingContent(id int, DB *gorm.DB) error {
 			// 返回任何错误都会回滚事务
 			return err
 		}
+
+		// 返回 nil 提交事务
+		return nil
+	})
+}
+
+func FinishTraining(trainHistory TrainingHistory, contentList []TrainingContentDetail, DB *gorm.DB, user_id int) error {
+	return DB.Transaction(func(tx *gorm.DB) error {
+		// 先更新训练历史
+		fmt.Println("train history", trainHistory)
+		err := UpdateTrainHistory(trainHistory.ID, map[string]interface{}{
+			"finish":     true,
+			"total_time": trainHistory.TotalTime,
+			"comment":    trainHistory.Comment,
+			"title":      trainHistory.Title,
+			"user_id":    user_id,
+		}, DB)
+		if err != nil {
+			return err
+		}
+
+		// 批量插入训练内容,range是值拷贝
+		if len(contentList) == 0 {
+			return nil
+		}
+		for index, _ := range contentList {
+			contentList[index].UserID = user_id
+			contentList[index].TrainingHistoryId = trainHistory.ID
+		}
+		// fmt.Println("content list -> ", contentList, user_id, trainHistory.ID)
+		err = DB.Clauses(clause.OnConflict{ //ID 冲突时直接更新
+			UpdateAll: true,
+			Columns:   []clause.Column{{Name: "id"}},
+			// DoUpdates: clause.AssignmentColumns([]string{"name", "age"}),
+		}).Create(&contentList).Error
+		if err != nil {
+			return err
+		}
+
+		// 返回 nil 提交事务
+		return nil
+	})
+}
+
+func UpdateTraining(trainHistory TrainingHistory, contentList []TrainingContentDetail, DB *gorm.DB, user_id int) error {
+	return DB.Transaction(func(tx *gorm.DB) error {
+		// 先更新训练历史
+		fmt.Println("train history", trainHistory)
+		err := UpdateTrainHistory(trainHistory.ID, map[string]interface{}{
+			"finish":     true,
+			"total_time": trainHistory.TotalTime,
+			"comment":    trainHistory.Comment,
+			"title":      trainHistory.Title,
+			"user_id":    user_id,
+		}, DB)
+		if err != nil {
+			return err
+		}
+
+		// 批量更新内容,range是值拷贝
 
 		// 返回 nil 提交事务
 		return nil

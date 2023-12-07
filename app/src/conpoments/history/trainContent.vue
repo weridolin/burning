@@ -50,7 +50,7 @@
 
     <view
       class="detail-item-group detail-item-content"
-      v-for="(item, index) in trainContentList"
+      v-for="(item  , index) in trainContentList"
       :key="index"
     >
       <view class="detail-item-group-index">
@@ -87,12 +87,12 @@
           v-model="item.number"
           :clearable="false"
           trim="all"
+          type="number"
         ></uni-easyinput>
       </view>
       <view class="detail-item-group-finish">
         <label class="detail-item-group-finish__check">
-          <checkbox-group               
-            @change="change(value,item)">
+          <checkbox-group @change="change">
             <checkbox
               value="cb"
               :checked="item.finish"
@@ -120,56 +120,99 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { TrainContent } from "@/pages/history/apis";
+import {
+  TrainContent,
+  AddTrainHistoryContent,
+  UpdateTrainHistoryContent,
+  DeleteTrainHistoryContent,
+} from "@/pages/history/apis";
 export default Vue.extend({
-  props: ["initTrainContent" ,"actionName","index","trainHistoryId","actionInstrument","actionId"],
+  props: [
+    "initTrainContent",
+    "actionName",
+    "index",
+    "trainHistoryId",
+    "actionInstrument",
+    "actionId",
+  ],
   data() {
-    // var trainContent:TrainContent[]=[]
     return {
       // action_name: "动作名称",
-      trainContentList:this.initTrainContent,
+      trainContentList: this.initTrainContent,
       trainHistoryId: this.trainHistoryId,
-      actionName:this.actionName,
-      listIndex:this.index,
-      actionInstrument:this.actionInstrument,
-      actionId:this.actionId
+      actionName: this.actionName,
+      listIndex: this.index,
+      actionInstrument: this.actionInstrument,
+      actionId: this.actionId,
     };
   },
+  watch: {
+    trainContentList: {
+      handler: function (val: TrainContent[]) {
+        let value = JSON.parse(JSON.stringify(val));
+        this.$emit("trainContentListUpdate",value,this.index);
+      },
+      deep: true,
+    },
+  },
   methods: {
-    change(e:any,item:any){
-      item.finish=!item.finish;
+    change(e: object, item: any) {
+      item.finish = !item.finish;
     },
     getWidth() {
       uni.getSystemInfoSync().windowWidth;
     },
-    deleteActionContent(item: TrainContent) {
-      this.trainContentList.splice(this.trainContentList.indexOf(item), 1);
-      console.log("deleteActionContent",this.trainContentList);
-
-    },
     addActionContent() {
-      this.trainContentList.push({
+      let trainContent: TrainContent = {
         left_weight: "0",
         right_weight: "0",
         total_weight: "0",
-        number: 0,
+        number: "0",
         finish: false,
         action_name: this.actionName,
         training_history_id: this.trainHistoryId,
         action_instrument: this.actionInstrument,
         consume_time: 0,
         action_id: this.actionId,
-      });
-      console.log("addActionContent",this.trainContentList);
+      };
+      this.trainContentList.push(trainContent);
+      console.log("addActionContent", this.trainContentList);
     },
+    // updateActionContent(item:TrainContent){
+    //   UpdateTrainHistoryContent(this.trainHistoryId,item.id as number,item,(res:any)=>{
+    //     console.log("update action success", res);
+    //   },(err)=>{
+    //     console.log("update action content error - >", err);
+    //     uni.showToast({
+    //       title: "更新失败.",
+    //       icon: "error",
+    //       duration: 2000,
+    //     });
+    //   })
+    // },
+    deleteActionContent(item:TrainContent){
+      console.log("deleteActionContent",item);
+      this.trainContentList.splice(this.trainContentList.indexOf(item),1);
+
+      // DeleteTrainHistoryContent(this.trainHistoryId,item.id as number,(res:any)=>{
+      //   console.log("delete action success", res);
+      //   this.trainContentList.splice(this.trainContentList.indexOf(item),1);
+      // },(err)=>{
+      //   console.log("delete action content error - >", err);
+      //   uni.showToast({
+      //     title: "删除失败.",
+      //     icon: "error",
+      //     duration: 2000,
+      //   });
+      // })
+    }
   },
 });
 </script>
 <style lang="scss" scoped>
-
-  .detail-item-title {
-    margin-left: 5px;
-  }
+.detail-item-title {
+  margin-left: 5px;
+}
 
 .detail-item {
   // .detail-item-title {
@@ -209,13 +252,13 @@ export default Vue.extend({
       margin: inherit;
       text-align: center;
       margin-top: 6px;
-    
+
       .detail-item-group-finish__check {
         // font-size: 12px;
         color: #8f8f94;
       }
-      .detail-item-group-finish__checkbox{
-        transform:scale(1.5)
+      .detail-item-group-finish__checkbox {
+        transform: scale(1.5);
       }
     }
     .detail-item-group-menu {
@@ -244,4 +287,7 @@ export default Vue.extend({
     justify-content: center;
   }
 }
+
+
+
 </style>

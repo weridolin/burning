@@ -1,6 +1,15 @@
 <template>
   <view class="content">
-    <uni-section title="今日饮食记录" type="line">
+    <uni-section title="今日已完成训练 " type="line">
+      <TrainHistoryBriefCard
+        v-for="(trainDetail,index) in trainDetailList"
+        :trainDetail="trainDetail"
+        :key="index"
+      >
+      {{ index }}
+      </TrainHistoryBriefCard>  
+    </uni-section>
+    <uni-section title="今日饮食记录 TODO" type="line">
       <uni-card :title="date" :extra="day">
         <view class="food-detail">
           <view class="food-total">
@@ -17,7 +26,7 @@
         </view>
       </uni-card>
     </uni-section>
-    <uni-section title="教程推荐" type="line" subTitle="数据更新于2022-11-27" padding>
+    <uni-section title="教程推荐 TODO" type="line" subTitle="数据更新于2022-11-27" padding>
       <view class="move-tag-list">
         <view class="tag-view" 
           v-for="(type) in typeList"
@@ -48,7 +57,7 @@
         @change="changeVideoList"
       />
     </uni-section>
-    <uni-section title="来首音乐" type="line" padding></uni-section>
+    <uni-section title="来首音乐 TODO" type="line" padding></uni-section>
   </view>
 </template>
 
@@ -58,9 +67,17 @@ import Vue from "vue";
 import { format, getDay } from "date-fns";
 import {VideoInfoRequest,VideoInfo,VideoInfoResponse,FoodRecord,GetRandomMusic,GetFoodHistory,Music} from "./apis"
 import {GetVideoInfo} from "./apis"
+import {GetTodayTrainHistory} from "@/pages/history/apis"
+import  TrainHistoryBriefCard  from "@/conpoments/history/trainHistoryBriefCard.vue";
+import {
+  TrainHistoryDetail
+} from "@/pages/history/apis";
+
+
 export default Vue.extend({
-  components: { uniSection },
+  components: { uniSection,TrainHistoryBriefCard },
   data() {
+    var trainDetailList:TrainHistoryDetail[] = []
     var video_info:VideoInfoResponse={
       list:[{
         title:"视频名称",
@@ -74,7 +91,8 @@ export default Vue.extend({
       next:"string",
       page:1,
       page_size:10,
-      total:50
+      total:50,
+      
     }
 
     var getVideoInfoRequest:VideoInfoRequest={
@@ -105,11 +123,13 @@ export default Vue.extend({
       getVideoInfoRequest,
       typeList: ["胸", "背", "腿", "肩", "手臂", "腹肌", "有氧", "臀", "拉伸"],
       selectType:Array<string>(),
+      trainDetailList
     };
   },
   onLoad() {
     // this.getDate();
     // this.getFoodRecord();
+    this.getTodayTrainRecord();
   },
   methods: {
     getDate() {
@@ -153,6 +173,22 @@ export default Vue.extend({
         console.log("get food history",res)
       },(err)=>{
         console.log("get food history err",err)
+      })
+    },
+    getTodayTrainRecord(){
+      GetTodayTrainHistory((res)=>{
+        console.log("get today train history",res)
+        for (let index = 0; index < res.data.length; index++) {
+          const element = res.data[index];
+          if (element.train_history.finish){
+          this.trainDetailList.push({
+            train_history:element.train_history,
+            train_content:element.train_content
+          })}
+        }
+        console.log("this train detail list",this.trainDetailList)
+      },(err)=>{
+        console.log("get today train history err",err)
       })
     }
   },

@@ -242,6 +242,31 @@ func DeleteTrainContent(c *gin.Context) {
 	}
 }
 
+// 完成训练后提交
+func FinishTrain(c *gin.Context) {
+	user_id := c.Request.Header.Get("user_id")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	id := common.Str2Int(c.Param("train_id"))
+	_user_id := common.Str2Int(user_id)
+	var params = TrainHistoryContentItem{}
+	if err := c.ShouldBindJSON(&params); err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	params.TrainHistory.ID = id
+	// fmt.Println("finish training -> ", params)
+	// 更新训练历史记录
+	err := models.FinishTraining(params.TrainHistory, params.TrainContent, common.DB, _user_id)
+	if err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	common.SuccessResponse(c, http.StatusOK, nil)
+}
+
 // 饮食记录
 
 func AddNewDietHistory(c *gin.Context) {

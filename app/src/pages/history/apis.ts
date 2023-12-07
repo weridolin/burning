@@ -1,5 +1,6 @@
 import BaseApi from "@/services/base";
 import {BurningApis} from "@/services/api";
+import { forEach } from "lodash";
 
 export function getDate(date: any, AddDayCount = 0) {
   if (!date) {
@@ -66,7 +67,7 @@ export interface TrainContent {
   left_weight: string;
   right_weight: string;
   total_weight: string;
-  number: number;
+  number: string;
   user_id?: number;
   training_history_id: number;
   id?: number;
@@ -77,9 +78,45 @@ export interface TrainContent {
   created_at?:string
 }
 
+
+export interface ActionDetail {
+  action_name: string;
+  action_content: TrainContent[];
+  consume_time: number;
+  action_instrument: string;
+  action_id: number;
+}
+
+export interface  TrainHistoryDetail {
+  train_history: TrainHistory;
+  train_content: TrainContent[];
+}
+
+
 const HistoryApis = new BaseApi();
 
-export function GetTrainHistory(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+
+export function TrainContentToActionDetail(trainContent: TrainContent[]):ActionDetail[] {
+  let actionDetail:ActionDetail[] = []
+  trainContent.forEach((item)=>{
+    let index = actionDetail.findIndex((action)=>action.action_name==item.action_name)
+    if (index==-1) {
+      actionDetail.push({
+        action_name: item.action_name,
+        action_content: [item],
+        consume_time: item.consume_time,
+        action_instrument: item.action_instrument,
+        action_id: item.action_id,
+      })
+    }else{
+      actionDetail[index].action_content.push(item)
+      actionDetail[index].consume_time += item.consume_time
+    }
+  })
+  return actionDetail
+}
+
+export function GetRecentMonthTrainHistory(successCallback: (res: any) => void, failCallback: (err: any) => void) {
   return HistoryApis.request<TrainHistory[]>({
     url: BurningApis.history.getHistory.url,
     data: {
@@ -92,6 +129,21 @@ export function GetTrainHistory(successCallback: (res: any) => void, failCallbac
     fail: failCallback,
   });
 }
+
+export function GetTodayTrainHistory(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request<TrainHistory[]>({
+    url: BurningApis.history.getHistory.url,
+    data: {
+      start_time: getDate(new Date(),-1).fullDate,
+      end_time: getDate(new Date(),1).fullDate,
+    },
+    requiredLogin: BurningApis.history.getHistory.authenticated,
+    method: BurningApis.history.getHistory.method,
+    success: successCallback,
+    fail: failCallback,
+  });
+}
+
 
 export function GetTrainHistoryDetail(trainID: number,successCallback: (res: any) => void, failCallback: (err: any) => void) {
   return HistoryApis.request<TrainContent[]>({
@@ -116,6 +168,7 @@ export function AddTrainHistory(data: AddTrainHistoryRequest,successCallback: (r
 }
 
 export function DeleteTrainHistory(trainID: number,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  console.log("delete train history -> ",trainID)
   return HistoryApis.request({
     url: BurningApis.history.deleteHistory.url(trainID),
     requiredLogin: BurningApis.history.deleteHistory.authenticated,
@@ -128,9 +181,65 @@ export function DeleteTrainHistory(trainID: number,successCallback: (res: any) =
 export function UpdateTrainHistory(trainID: number,data: AddTrainHistoryRequest,successCallback: (res: any) => void, failCallback: (err: any) => void) {
   return HistoryApis.request({
     url: BurningApis.history.updateHistory.url(trainID),
+
     data: data,
     requiredLogin: BurningApis.history.updateHistory.authenticated,
     method: BurningApis.history.updateHistory.method,
+    success: successCallback,
+    fail: failCallback,
+    contentType: "application/json"
+  });
+}
+
+export function AddTrainHistoryContent(trainID:number,data: TrainContent,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.addNewTrainContent.url(trainID),
+    data: data,
+    requiredLogin: BurningApis.history.addNewTrainContent.authenticated,
+    method: BurningApis.history.addNewTrainContent.method,
+    success: successCallback,
+    fail: failCallback,
+    contentType: "application/json"
+  });
+}
+
+
+export function UpdateTrainHistoryContent(trainID:number,contentID:number,data: TrainContent,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.updateTrainContent.url(trainID,contentID),
+    data: data,
+    requiredLogin: BurningApis.history.updateTrainContent.authenticated,
+    method: BurningApis.history.updateTrainContent.method,
+    success: successCallback,
+    fail: failCallback,
+    contentType: "application/json"
+  });
+}
+
+export function DeleteTrainHistoryContent(trainID:number,contentID:number,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.deleteTrainContent.url(trainID,contentID),
+    requiredLogin: BurningApis.history.deleteTrainContent.authenticated,
+    method: BurningApis.history.deleteTrainContent.method,
+    success: successCallback,
+    fail: failCallback
+  });
+}
+
+export function FinishTrain(TrainHistory: TrainHistory,actionDetail:ActionDetail[] ,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  let contentList:TrainContent[] = []
+  actionDetail.forEach((item)=>{
+    contentList = contentList.concat(item.action_content)
+  })
+  console.log(contentList,TrainHistory,"finish train")
+  return HistoryApis.request({
+    url: BurningApis.history.finishTrain.url(TrainHistory.id),
+    data: {
+      train_history: TrainHistory,
+      train_content: contentList,
+    },
+    requiredLogin: BurningApis.history.finishTrain.authenticated,
+    method: BurningApis.history.finishTrain.method,
     success: successCallback,
     fail: failCallback,
     contentType: "application/json"

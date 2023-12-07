@@ -65,7 +65,7 @@ class BaseApi {
     //       reject(err.response)
     //     })
     // })
-    console.log(">>> 发起请求", config);
+    // console.log(">>> 发起请求", config);
     return uni.request({
       url: `${baseURL}${config.url}`,
       method: config.method as
@@ -81,7 +81,7 @@ class BaseApi {
       data: config.data,
       header: config.headers,
       success: (res) => {
-        console.log(">>> 获取请求响应", res);
+        // console.log(">>> 获取请求响应", res);
         if (res.statusCode == 200) {
           config.success && config.success(res.data as ResponseBase);
         } else {

@@ -46,6 +46,10 @@ func RegisterHistoryRouter(r *gin.RouterGroup) {
 	r.POST("/diet", history.AddNewDietHistory)
 	r.PUT("/diet/:diet_id", history.UpdateDietHistory)
 	r.DELETE("/diet/:diet_id", history.DeleteDietHistory)
+
+	//完成训练接口
+	r.POST("/train/:train_id/finish", history.FinishTrain)
+
 }
 
 func RegisterHomePageRouter(r *gin.RouterGroup) {

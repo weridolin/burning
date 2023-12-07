@@ -63,6 +63,13 @@ export const BurningApis = {
       },
       authenticated: true,
     },
+    finishTrain:{
+      method: "POST",
+      url: (trainID: number) => {
+        return `/mini/burning/api/v1/history/train/${trainID}/finish`;
+      },
+      authenticated: true,
+    },
     getTrainHistoryDetail: {
       method: "GET",
       url: (trainID: number) => {

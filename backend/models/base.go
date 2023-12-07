@@ -17,6 +17,14 @@ func (t LocalTime) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(`"%s"`, stamp)), nil
 }
 
+func (t *LocalTime) UnmarshalJSON(data []byte) error {
+	//do your deserializing here
+	// fmt.Println("unmarshal json -> ", string(data))
+	now, err := time.ParseInLocation(`"2006-01-02 15:04:05"`, string(data), time.Local)
+	*t = LocalTime(now)
+	return err
+}
+
 func (t LocalTime) Value() (driver.Value, error) {
 	var zeroTime time.Time
 	tlt := time.Time(t)
