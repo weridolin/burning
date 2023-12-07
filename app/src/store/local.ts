@@ -108,3 +108,11 @@ export function getObject(key:string){
   }
   return null;
 }
+
+export function setString(key:string,val:string){
+  uni.setStorageSync(key, val);
+} 
+
+export function getString(key:string){
+  return uni.getStorageSync(key);
+}

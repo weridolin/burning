@@ -58,3 +58,17 @@ func UpdateUserProfile(c *gin.Context) {
 	}
 	common.SuccessResponse(c, http.StatusOK, nil)
 }
+
+func Sign(c *gin.Context) {
+	user_id := c.Request.Header.Get("user_id")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	_user_id := common.Str2Int(user_id)
+	if err := models.Sign(_user_id, common.DB); err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	common.SuccessResponse(c, http.StatusOK, nil)
+}

@@ -27,19 +27,18 @@
         <view class="userId">
           <image src="../../static/image/travel/personal/id.png" />
           <view class="number">
-            <text>{{ profile.bodyInfo.uuid.slice(1,7) }}</text>
+            <text>{{ user_uuid }}</text>
             <text>复制</text>
           </view>
         </view>
       </view>
-      <view class="space">
-      </view>
+      <view class="space"> </view>
     </view>
     <view class="infos">
       <view class="open-vip attendance">
         <image src="../../static/image/travel/personal/attendance.png" />
-        <text class="text">目前已经连续签到{{ profile.bodyInfo.days }}天</text>
-        <text class="button">签到</text>
+        <text class="text">目前已经连续签到{{ sign_days}}天</text>
+        <text class="button" @click="sign">{{alreadySign?"已签到":"签到"}}</text>
       </view>
       <view class="tool">
         <view>
@@ -60,7 +59,6 @@
         </view>
       </view>
       <view class="service">
-  
         <view>
           <image
             class="icon"
@@ -90,59 +88,107 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { UserProfile,isLogin,getUserProfile,UserBodyInfo } from "@/store/local";
-import {GetUserProfile} from "@/pages/person/apis";
-import { setUserProfile } from "../../store/local";
-
+import {
+  UserProfile,
+  isLogin,
+  getUserProfile,
+  UserBodyInfo,
+} from "@/store/local";
+import { GetUserProfile, Sign } from "@/pages/person/apis";
+import { setUserProfile,getString,setString } from "../../store/local";
+import {getDate} from "@/pages/history/apis"
+ 
 export default Vue.extend({
   data() {
     // var profile: UserProfile = getUserProfile();
-    var profile: UserProfile = {
-      name: "",
-      avatar: "",
-      email: "",
-      phone: "",
-      gender: 0,
-
-    };
+    var profile: UserProfile = {} as UserProfile;
     return {
       value: 1,
       value1: 0,
+      alreadySign: false,
       profile,
     };
   },
-  onLoad() {},
+  computed: {
+    user_uuid() {
+      return this.profile.bodyInfo?.uuid.slice(1, 7);
+    },
+    sign_days() {
+      return this.profile.bodyInfo?.days;
+    },
+  },
+  onLoad() {
+    let lastSignDate = getString("lastSignDate");
+    let today = getDate(new Date(),0).fullDate;
+    if (today==lastSignDate){
+      this.alreadySign = true;
+    }else{
+      this.alreadySign = false;
+    }
+  },
   onShow() {
     if (!isLogin()) {
       uni.navigateTo({
         url: "/pages/auth/login",
       });
-    }else{
+    } else {
       // 获取用户档案信息
-      GetUserProfile(res=>{
-        console.log("获取用户档案信息 -> ",res);
-        let userBodyProfile = res.data as UserBodyInfo;
-        // this.profile = userBodyProfile;
-        let profile = getUserProfile() 
-        if (profile!=null) {
-          profile.bodyInfo = userBodyProfile;
-          setUserProfile(profile);
-          this.profile = profile;
+      GetUserProfile(
+        (res) => {
+          console.log("获取用户档案信息 -> ", res);
+          let userBodyProfile = res.data as UserBodyInfo;
+          // this.profile = userBodyProfile;
+          let profile = getUserProfile();
+          if (profile != null) {
+            profile.bodyInfo = userBodyProfile;
+            setUserProfile(profile);
+            this.profile = profile;
+          }
+          console.log("user profile -> ", profile);
+        },
+        (err) => {
+          console.log("获取用户档案信息失败 -> ", err);
+          uni.showToast({
+            title: "更新用户信息失败",
+            icon: "error",
+          });
+          uni.navigateTo({
+            url: "/pages/auth/login",
+          });
         }
-        console.log("user profile -> ",profile);
-      },err=>{
-        console.log("获取用户档案信息失败 -> ",err);
-        uni.showToast({
-          title: "更新用户信息失败",
-          icon: "error",
-        });
-        uni.navigateTo({
-        url: "/pages/auth/login",
-      });
-      })
+      );
     }
   },
-  methods: {},
+  methods: {
+    sign() {
+      Sign(
+        (res) => {
+          console.log("签到成功 -> ", res);
+          uni.showToast({
+            title: "签到成功",
+            icon: "success",
+          });
+          let profile = getUserProfile();
+          if (profile != null && profile.bodyInfo != null) {
+            profile.bodyInfo.days = profile.bodyInfo.days + 1;
+            setUserProfile(profile);
+            this.profile = profile;
+          }
+          // let lastSignDate = getString("lastSignDate");
+          this.alreadySign=true;
+          let today = getDate(new Date(),0).fullDate;
+          setString("lastSignDate",today);
+        },
+        (err) => {
+          console.log("签到失败 -> ", err);
+          uni.showToast({
+            title: "签到失败",
+            icon: "error",
+          });
+        }
+      );
+    },
+  },
 });
 </script>
 <style lang="scss" scoped>

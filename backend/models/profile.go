@@ -17,7 +17,15 @@ type PersonProfile struct {
 	Weight                int     `json:"weight" yaml:"weight" comment:"体重"`
 	ShoulderBreadth       int     `json:"shoulder_breadth" yaml:"shoulder_breadth" comment:"肩宽"`
 	Uuid                  string  `json:"uuid" yaml:"uuid" comment:"uuid" gorm:"column:uuid"`
-	Days                  int     `json:"days" yaml:"days" comment:"签到天数"`
+	Days                  int     `json:"days" yaml:"days" comment:"累计签到天数"`
+}
+
+// 用户签到表
+type UserSign struct {
+	BaseModel
+	UserID int `json:"user_id" yaml:"user_id" comment:"用户ID"`
+	Type   int `json:"type" yaml:"type" comment:"签到类型"`
+	Reward int `json:"reward" yaml:"reward" comment:"奖励"`
 }
 
 func GetUserProfile(user_id int, db *gorm.DB) (profile PersonProfile, err error) {
@@ -32,4 +40,24 @@ func UpdateUserProfile(user_id int, params map[string]interface{}, db *gorm.DB) 
 
 func CreateUserProfile(profile *PersonProfile, db *gorm.DB) error {
 	return db.Create(profile).Error
+}
+
+func Sign(user_id int, db *gorm.DB) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		// 签到
+		var sign UserSign
+		sign.UserID = user_id
+		sign.Type = 1
+		sign.Reward = 1
+
+		if err := tx.Create(&sign).Error; err != nil {
+			return nil
+		}
+
+		// 更新累计签到天数
+		if err := tx.Model(&PersonProfile{}).Where("user_id = ?", user_id).Update("days", gorm.Expr("days + ?", 1)).Error; err != nil {
+			return nil
+		}
+		return nil
+	})
 }

@@ -48,7 +48,6 @@
 <script lang="ts">
 import Vue from "vue";
 import { setToken, setUserProfile,UserBodyInfo } from "../../store/local";
-import {ResponseBase} from "../../services/base";
 import { LoginRequestForm,Login,LoginResponsePayload } from "./apis";
 import {GetUserProfile} from "@/pages/person/apis";
 
@@ -69,6 +68,14 @@ export default Vue.extend({
       Login(this.loginForm,
       (res) => {
         console.log("登录请求结果 -> ",res);
+        if (res.code != 0) {
+          uni.showToast({
+            title: "账号或密码错误",
+            icon: "error",
+            duration: 2000,
+          });
+          return;
+        }
         let loginData = res.data as LoginResponsePayload;
         setToken({
           access_token: loginData.access_token,
@@ -79,7 +86,6 @@ export default Vue.extend({
           let userBodyProfile = res.data as UserBodyInfo;
           setUserProfile({
             name: loginData.username,
-            
             avatar: loginData.avatar,
             email: loginData.email,
             phone: loginData.phone,

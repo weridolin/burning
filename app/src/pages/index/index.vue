@@ -121,7 +121,7 @@ export default Vue.extend({
       food_info,
       video_info,
       getVideoInfoRequest,
-      typeList: ["胸", "背", "腿", "肩", "手臂", "腹肌", "有氧", "臀", "拉伸"],
+      typeList: ["胸", "背", "腿", "肩", "手臂", "腹肌", "有氧", "臀"],
       selectType:Array<string>(),
       trainDetailList
     };

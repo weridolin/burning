@@ -31,3 +31,12 @@ export function GetUserProfile(successCallback: (res: any) => void, failCallback
   })
 }
 
+export function Sign(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return AuthApi.request<GetUserProfilePayload>({
+    url: BurningApis.auth.sign.url,
+    requiredLogin: BurningApis.auth.sign.authenticated,
+    method: BurningApis.auth.sign.method,
+    success: successCallback,
+    fail: failCallback
+  })
+}

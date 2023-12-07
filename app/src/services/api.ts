@@ -25,6 +25,11 @@ export const BurningApis = {
       url: "/mini/burning/api/v1/users/profile",
       authenticated: true,
     },
+    sign:{
+      method: "POST",
+      url: "/mini/burning/api/v1/users/sign",
+      authenticated: true,
+    }
   },
   home: {
     getVideoInfo: {

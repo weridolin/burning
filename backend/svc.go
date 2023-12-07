@@ -22,6 +22,7 @@ func DbMigrate(db *gorm.DB, conf configs.Config) {
 	db.AutoMigrate(&models.PersonProfile{})
 	db.AutoMigrate(&models.TrainingHistory{})
 	db.AutoMigrate(&models.TrainingContentDetail{})
+	db.AutoMigrate(&models.UserSign{})
 }
 
 func LoadInitData(db *gorm.DB, conf configs.Config) {

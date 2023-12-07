@@ -23,6 +23,7 @@ func RegisterUsersRouter(r *gin.RouterGroup) {
 	r.Use(users.AuthMiddleware(true))
 	r.GET("/profile", users.GetUserProfile)
 	r.PUT("/profile", users.UpdateUserProfile)
+	r.POST("/sign", users.Sign)
 }
 
 func RegisterHistoryRouter(r *gin.RouterGroup) {
