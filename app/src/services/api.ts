@@ -17,102 +17,102 @@ export const BurningApis = {
     },
     getProfile:{
       method: "GET",
-      url: "/mini/burning/api/v1/users/profile",
+      url: "/burning/api/v1/users/profile",
       authenticated: true,
     },
     updateProfile:{
       method: "PUT",
-      url: "/mini/burning/api/v1/users/profile",
+      url: "/burning/api/v1/users/profile",
       authenticated: true,
     },
     sign:{
       method: "POST",
-      url: "/mini/burning/api/v1/users/sign",
+      url: "/burning/api/v1/users/sign",
       authenticated: true,
     }
   },
   home: {
     getVideoInfo: {
       method: "GET",
-      url: "/mini/burning/api/v1/video",
+      url: "/burning/api/v1/video",
       authenticated: false,
     },
     getRandomMusic: {
       method: "GET",
-      url: "/mini/burning/api/v1/music",
+      url: "/burning/api/v1/music",
       authenticated: false,
     },
   },
   history: {
     getHistory: {
       method: "GET",
-      url: "/mini/burning/api/v1/history/train",
+      url: "/burning/api/v1/history/train",
       authenticated: true,
     },
     addHistory: {
       method: "POST",
-      url: "/mini/burning/api/v1/history/train",
+      url: "/burning/api/v1/history/train",
       authenticated: true,
     },
     deleteHistory: {
       method: "DELETE",
       url: (trainID: number) => {
-        return `/mini/burning/api/v1/history/train/${trainID}`;
+        return `/burning/api/v1/history/train/${trainID}`;
       },
       authenticated: true,
     },
     updateHistory: {
       method: "PUT",
       url: (trainID: number) => {
-        return `/mini/burning/api/v1/history/train/${trainID}`;
+        return `/burning/api/v1/history/train/${trainID}`;
       },
       authenticated: true,
     },
     finishTrain:{
       method: "POST",
       url: (trainID: number) => {
-        return `/mini/burning/api/v1/history/train/${trainID}/finish`;
+        return `/burning/api/v1/history/train/${trainID}/finish`;
       },
       authenticated: true,
     },
     getTrainHistoryDetail: {
       method: "GET",
       url: (trainID: number) => {
-        return `/mini/burning/api/v1/history/train/${trainID}`;
+        return `/burning/api/v1/history/train/${trainID}`;
       },
       authenticated: true,
     },
     addNewTrainContent: {
       method: "POST",
       url: (trainID: number) => {
-        return `/mini/burning/api/v1/history/train/${trainID}/content`;
+        return `/burning/api/v1/history/train/${trainID}/content`;
       },
       authenticated: true,
     },
     deleteTrainContent: {
       method: "DELETE",
       url: (trainID: number, contentID: number) => {
-        return `/mini/burning/api/v1/history/train/${trainID}/content/${contentID}`;
+        return `/burning/api/v1/history/train/${trainID}/content/${contentID}`;
       },
       authenticated: true,
     },
     updateTrainContent: {
       method: "PUT",
       url: (trainID: number, contentID: number) => {
-        return `/mini/burning/api/v1/history/train/${trainID}/content/${contentID}`;
+        return `/burning/api/v1/history/train/${trainID}/content/${contentID}`;
       },
       authenticated: true,
     },
     //饮食记录
     getFoodHistory: {
       method: "GET",
-      url: "/mini/burning/api/v1/history/food",
+      url: "/burning/api/v1/history/food",
       authenticated: true,
     },
     updateFoodHistory: {
       method: "PUT",
       url: (foodID: number) => {
-        return `/mini/burning/api/v1/history/food/${foodID}`;
+        return `/burning/api/v1/history/food/${foodID}`;
       },
       authenticated: true,
     },
@@ -120,25 +120,25 @@ export const BurningApis = {
   actions:{
     getActions:{
       method: "GET",
-      url: "/mini/burning/api/v1/actions",
+      url: "/burning/api/v1/actions",
       authenticated: false,
     },
     addAction:{
       method: "POST",
-      url: "/mini/burning/api/v1/actions",
+      url: "/burning/api/v1/actions",
       authenticated: false,
     },
     deleteAction:{
       method: "DELETE",
       url: (actionID: number) => {
-        return `/mini/burning/api/v1/actions/${actionID}`;
+        return `/burning/api/v1/actions/${actionID}`;
       },
       authenticated: false,
     },
     updateAction:{
       method: "PUT",
       url: (actionID: number) => {
-        return `/mini/burning/api/v1/actions/${actionID}`;
+        return `/burning/api/v1/actions/${actionID}`;
       },
       authenticated: false,
     },

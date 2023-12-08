@@ -86,7 +86,7 @@ func main() {
 
 	fmt.Println("config -> ", conf)
 	r := gin.Default()
-	v1 := r.Group("/mini/burning/api/v1")
+	v1 := r.Group("/burning/api/v1")
 	rest.RegisterActionRouter(v1)
 	rest.RegisterHistoryRouter(v1)
 	rest.RegisterHomePageRouter(v1)
