@@ -34,9 +34,10 @@ spec:
           args:
             - |
               echo 'start user mini program burning backend ...'
+              ls
               go mod tidy
               go install github.com/cortesi/modd/cmd/modd@latest
-              go run .\svc.go
+              go run ./svc.go
           envFrom:
             - configMapRef:
                 name: site-config
@@ -58,7 +59,7 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: /backend  # 源码目录 
+    path: /miniprogram/burning/backend  # 源码所在服务器目录 
     type: DirectoryOrCreate
   # claimRef: # 确保其他 volume不会绑定到该 PV
   #   name: pvc-db-data
