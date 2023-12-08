@@ -19,7 +19,7 @@ spec:
           image: golang:1.18
           ports:
           - containerPort: 8080
-            name: burning-backend-port
+            name: backend-port
           env:
             # Define the environment variable
             - name: GO111MODULE
