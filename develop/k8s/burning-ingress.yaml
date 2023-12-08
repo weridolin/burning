@@ -15,7 +15,7 @@ spec:
   rules:
   - http:
       paths:
-      - path:  /mini/burning
+      - path:  /burning
         pathType: ImplementationSpecific
         backend:
           service:

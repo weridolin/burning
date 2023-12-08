@@ -25,6 +25,7 @@ func DbMigrate(db *gorm.DB, conf configs.Config) {
 	db.AutoMigrate(&models.UserSign{})
 }
 
+// 初始化动作列表
 func LoadInitData(db *gorm.DB, conf configs.Config) {
 	file, err := os.Open("./action.json")
 	if err != nil {
