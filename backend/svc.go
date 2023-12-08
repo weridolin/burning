@@ -74,9 +74,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	//根据实际情况修改配置
+	conf.POSTGRESQL_URI = os.ExpandEnv(conf.POSTGRESQL_URI)
+	conf.RedisUri = os.ExpandEnv(conf.RedisUri)
 
-	dsn := "host=43.128.110.230 user=werido password=359066432 dbname=Buring port=30001 sslmode=disable TimeZone=Asia/Shanghai"
-	DB := common.InitDb(dsn)
+	DB := common.InitDb(conf.POSTGRESQL_URI)
 	DbMigrate(DB, conf)
 
 	// init data
@@ -89,5 +91,7 @@ func main() {
 	rest.RegisterHistoryRouter(v1)
 	rest.RegisterHomePageRouter(v1)
 	rest.RegisterUsersRouter(v1)
-	r.Run("127.0.0.1:8080") // listen and serve on 0.0.0.0:8080
+	addr := fmt.Sprintf("%s:%s", conf.ServerAddr, conf.ServerPort)
+	fmt.Println("addr -> ", addr)
+	r.Run(addr) // listen and serve on 0.0.0.0:8080
 }

@@ -1,0 +1,99 @@
+apiVersion: apps/v1	#与k8s集群版本有关，使用 kubectl api-versions 即可查看当前集群支持的版本
+kind: StatefulSet 	#该配置的类型，我们使用的是 Deployment
+metadata:	        #译名为元数据，即 Deployment 的一些基本属性和信息
+  name: miniprogram-burning-statefulset	#Deployment 的名称
+  labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
+    app: miniprogram-burning	#为该Deployment设置key为app，value为nginx的标签
+spec:
+  replicas: 1	#使用该Deployment创建两个应用程序实例
+  selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
+    matchLabels: #选择包含标签app:nginx的资源即为下面template的模板中包含 app:nginx的模板
+      app: miniprogram-burning	
+  template:
+    metadata:	#Pod的元数据
+      labels:	#Pod的标签，上面的selector即选择包含标签app:nginx的Pod
+        app: miniprogram-burning
+    spec:
+      containers:
+        - name: burning-backend
+          image: golang:1.18
+          ports:
+          - containerPort: 8080
+            name: burning-backend-port
+          env:
+            # Define the environment variable
+            - name: GO111MODULE
+              value: "on"
+            - name: GOPROXY
+              value: https://goproxy.cn/,direct
+          workingDir: /backend
+          volumeMounts:
+            - name: burning-backend
+              mountPath: /backend # container 的目录
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              echo 'start user mini program burning backend ...'
+              go mod tidy
+              go install github.com/cortesi/modd/cmd/modd@latest
+              go run .\svc.go
+          envFrom:
+            - configMapRef:
+                name: site-config
+
+      volumes:
+        - name: burning-backend
+          persistentVolumeClaim:
+            claimName: pvc-burning-backend-code
+
+--- 
+### mount-usercenter-src-code
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-burning-backend-code
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /backend  # 源码目录 
+    type: DirectoryOrCreate
+  # claimRef: # 确保其他 volume不会绑定到该 PV
+  #   name: pvc-db-data
+  #   namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-burning-backend-code
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-burning-backend-code
+
+--- 
+
+#### service
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-miniprogram-burning
+  labels:
+    app: svc-miniprogram-burning
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: svc-miniprogram-burning
+  ports:
+    - name: internal-miniprogram-burning
+      port: 9001          # 服务访问端口
+      targetPort: 8080       # 容器端口
+      nodePort: 32001      # NodePort
+  type: NodePort
+

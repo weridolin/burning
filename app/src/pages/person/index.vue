@@ -100,7 +100,6 @@ import {getDate} from "@/pages/history/apis"
  
 export default Vue.extend({
   data() {
-    // var profile: UserProfile = getUserProfile();
     var profile: UserProfile = {} as UserProfile;
     return {
       value: 1,
@@ -114,7 +113,7 @@ export default Vue.extend({
       return this.profile.bodyInfo?.uuid.slice(1, 7);
     },
     sign_days() {
-      return this.profile.bodyInfo?.days;
+      return this.profile?.bodyInfo?.days;
     },
   },
   onLoad() {

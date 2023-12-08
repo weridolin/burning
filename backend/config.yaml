@@ -1,4 +1,5 @@
-POSTGRESQL_URI: "host=${SITEDB_SVC_NAME}.${SITEDB_SVC_NAME_NAMESPACE} user=${SITE_USER} password=${SITE_PASSWORD} dbname=${SITE_AUTH_DB} port=${SITEDB_SVC_NAME_PORT} sslmode=disable TimeZone=Asia/Shanghai"
+POSTGRESQL_URI: "host=${SITEDB_SVC_NAME} user=${SITE_USER} password=${SITE_PASSWORD} dbname=Burning port=${SITEDB_SVC_NAME_PORT} sslmode=disable TimeZone=Asia/Shanghai"
 RedisUri: "redis://:${REDIS_PASSWORD}@${REDIS_SVC_NAME}.${REDIS_SVC_NAME_NAMESPACE}:${REDIS_SVC_PORT}/4"
-ServerPort: "8000"
+ServerPort: "8080"
 ServerAddr: "0.0.0.0"
+Mode: "dev"
