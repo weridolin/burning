@@ -60,11 +60,14 @@ func LoadInitData(db *gorm.DB, conf configs.Config) {
 }
 
 func main() {
-	err := godotenv.Load("./.env")
-	if err != nil {
-		fmt.Println("Error loading .env file", err)
-		panic(err)
+	if _, err := os.Stat("./.env"); err == nil {
+		err := godotenv.Load("./.env")
+		if err != nil {
+			fmt.Println("Error loading .env file", err)
+			panic(err)
+		}
 	}
+
 	fmt.Println(os.Environ())
 	var conf configs.Config = configs.Config{}
 	dataBytes, err := os.ReadFile("./config.yaml")
