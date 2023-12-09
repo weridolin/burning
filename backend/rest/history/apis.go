@@ -13,6 +13,7 @@ import (
 
 // 训练记录
 func AddNewTrainHistory(c *gin.Context) {
+	fmt.Println(c.Request.Header)
 	user_id := c.Request.Header.Get("user_id")
 	if user_id == "" {
 		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
