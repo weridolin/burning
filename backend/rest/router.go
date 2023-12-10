@@ -60,3 +60,11 @@ func RegisterHomePageRouter(r *gin.RouterGroup) {
 	// r.GET("/video/:id", users.GetVideoDetail)
 	// r.POST("/music", users.AddVideo)
 }
+
+func RegisterImageRouter(r *gin.RouterGroup) {
+	r.Use(users.AuthMiddleware(false))
+	r = r.Group("/image")
+	// r.GET("/video", users.GetHomePage)
+	// r.GET("/video/:id", users.GetVideoDetail)
+	// r.POST("/music", users.AddVideo)
+}

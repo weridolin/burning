@@ -52,7 +52,9 @@
         "appid": "",
         "setting" : {
         	"urlCheck" : true
-        }
+        },
+        "lazyCodeLoading": "requiredComponents"
+
     },
     "mp-alipay" : {
         "usingComponents" : true

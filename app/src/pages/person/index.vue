@@ -82,6 +82,16 @@
           />
         </view>
       </view>
+
+      <view class="service">
+        <view @click="logout">
+          <image
+            class="icon"
+            src="../../static/image/travel/personal/pic07.png"
+          />
+          <text>退出登录</text>
+        </view>
+      </view>
     </view>
   </view>
 </template>
@@ -95,7 +105,7 @@ import {
   UserBodyInfo,
 } from "@/store/local";
 import { GetUserProfile, Sign } from "@/pages/person/apis";
-import { setUserProfile,getString,setString } from "../../store/local";
+import { setUserProfile,getString,setString,clearToken,clearDoingTrain,clearUserProfile } from "../../store/local";
 import {getDate} from "@/pages/history/apis"
  
 export default Vue.extend({
@@ -186,6 +196,22 @@ export default Vue.extend({
           });
         }
       );
+    },
+    logout() {
+      uni.showModal({
+        title: "提示",
+        content: "确定要退出登录吗？",
+        success: (res) => {
+          if (res.confirm) {
+            clearDoingTrain();
+            clearToken();
+            clearUserProfile();
+            uni.switchTab({
+              url:"/pages/index/index",
+            });
+          }
+        },
+      });
     },
   },
 });

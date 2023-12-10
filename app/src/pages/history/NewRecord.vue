@@ -221,7 +221,7 @@ export default Vue.extend({
       console.log("onfinishTrain", this.trainHistory.trainActionList);
       uni.showModal({
         title: "",
-        content: "是否结束当前训练?",
+        content: this.status == "created"?"是否结束当前训练?":"是否保存当前训练?",
         success: (res) => {
           if (res.confirm) {
             if (this.trainHistory.title == "") {

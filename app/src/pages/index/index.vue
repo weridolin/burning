@@ -1,13 +1,20 @@
 <template>
   <view class="content">
     <uni-section title="今日已完成训练 " type="line">
-      <TrainHistoryBriefCard
-        v-for="(trainDetail,index) in trainDetailList"
-        :trainDetail="trainDetail"
-        :key="index"
-      >
-      {{ index }}
-      </TrainHistoryBriefCard>  
+      <view v-show="isLogin && trainDetailList && trainDetailList.length>0" >
+        <TrainHistoryBriefCard
+          v-for="(trainDetail, index) in trainDetailList"
+          :trainDetail="trainDetail"
+          :key="index">
+          {{ index }}
+        </TrainHistoryBriefCard>
+      </view>
+      <uni-card :is-shadow="true"  v-show="!isLogin">
+        <text class="uni-h6">登录后可查看</text>
+      </uni-card>
+      <uni-card :is-shadow="true" v-show="isLogin && trainDetailList&& trainDetailList.length==0">
+        <text class="uni-h6">暂无完成的训练记录</text>
+      </uni-card>
     </uni-section>
     <uni-section title="今日饮食记录 TODO" type="line">
       <uni-card :title="date" :extra="day">
@@ -26,37 +33,47 @@
         </view>
       </uni-card>
     </uni-section>
-    <uni-section title="教程推荐 TODO" type="line" subTitle="数据更新于2022-11-27" padding>
+    <!--
+    <uni-section
+      title="教程推荐 TODO"
+      type="line"
+      subTitle="数据更新于2022-11-27"
+      padding
+    >
       <view class="move-tag-list">
-        <view class="tag-view" 
-          v-for="(type) in typeList"
-          :key="type">
-          <uni-tag :text="type" type="primary" :inverted="isSelect(type)" @click="setType(type)"/>
+        <view class="tag-view" v-for="type in typeList" :key="type">
+          <uni-tag
+            :text="type"
+            type="primary"
+            :inverted="isSelect(type)"
+            @click="setType(type)"
+          />
         </view>
       </view>
       <view class="video-list">
-        <uni-card 
-          :title="video_detail.title" 
-          :sub-title="video_detail.up" 
-          extra="查看" 
-          :thumbnail="video_detail.thumbnail" 
-          class="video-card" 
-          style="margin:0px 5px"
-          v-for="(video_detail,index) in video_info.list"
+        <uni-card
+          :title="video_detail.title"
+          :sub-title="video_detail.up"
+          extra="查看"
+          :thumbnail="video_detail.thumbnail"
+          class="video-card"
+          style="margin: 0px 5px"
+          v-for="(video_detail, index) in video_info.list"
           :key="index"
-          >
-          <text class="uni-body">{{video_detail.summary}}</text>
+        >
+          <text class="uni-body">{{ video_detail.summary }}</text>
         </uni-card>
       </view>
-			<uni-pagination 
-        :total="video_info.total" 
-        :pageSize="getVideoInfoRequest.page_size" 
-        v-model="getVideoInfoRequest.page" 
-        prev-text="前一页" 
-        next-text="后一页" 
+      <uni-pagination
+        :total="video_info.total"
+        :pageSize="getVideoInfoRequest.page_size"
+        v-model="getVideoInfoRequest.page"
+        prev-text="前一页"
+        next-text="后一页"
         @change="changeVideoList"
       />
     </uni-section>
+    -->
     <uni-section title="来首音乐 TODO" type="line" padding></uni-section>
   </view>
 </template>
@@ -65,55 +82,62 @@
 import uniSection from "@/uni_modules/uni-section/components/uni-section/uni-section.vue";
 import Vue from "vue";
 import { format, getDay } from "date-fns";
-import {VideoInfoRequest,VideoInfo,VideoInfoResponse,FoodRecord,GetRandomMusic,GetFoodHistory,Music} from "./apis"
-import {GetVideoInfo} from "./apis"
-import {GetTodayTrainHistory} from "@/pages/history/apis"
-import  TrainHistoryBriefCard  from "@/conpoments/history/trainHistoryBriefCard.vue";
 import {
-  TrainHistoryDetail
-} from "@/pages/history/apis";
-
+  VideoInfoRequest,
+  VideoInfo,
+  VideoInfoResponse,
+  FoodRecord,
+  GetRandomMusic,
+  GetFoodHistory,
+  Music,
+} from "./apis";
+import { GetVideoInfo } from "./apis";
+import { GetTodayTrainHistory } from "@/pages/history/apis";
+import TrainHistoryBriefCard from "@/conpoments/history/trainHistoryBriefCard.vue";
+import { TrainHistoryDetail } from "@/pages/history/apis";
+import { isLogin } from "@/store/local";
 
 export default Vue.extend({
-  components: { uniSection,TrainHistoryBriefCard },
+  components: { uniSection, TrainHistoryBriefCard },
   data() {
-    var trainDetailList:TrainHistoryDetail[] = []
-    var video_info:VideoInfoResponse={
-      list:[{
-        title:"视频名称",
-        url:"视频url",
-        up:"up主",
-        type:[],
-        thumbnail:"../../static/image/travel/personal/tx.png" ,
-        summary:"视频简介"
-      }],
-      pre:"string",
-      next:"string",
-      page:1,
-      page_size:10,
-      total:50,
-      
-    }
+    var trainDetailList: TrainHistoryDetail[] = [];
+    var video_info: VideoInfoResponse = {
+      list: [
+        {
+          title: "视频名称",
+          url: "视频url",
+          up: "up主",
+          type: [],
+          thumbnail: "../../static/image/travel/personal/tx.png",
+          summary: "视频简介",
+        },
+      ],
+      pre: "string",
+      next: "string",
+      page: 1,
+      page_size: 10,
+      total: 50,
+    };
 
-    var getVideoInfoRequest:VideoInfoRequest={
-      page:1,
-      page_size:10,
-      type:[]
-    }
+    var getVideoInfoRequest: VideoInfoRequest = {
+      page: 1,
+      page_size: 10,
+      type: [],
+    };
 
-    var food_info: FoodRecord={
-      total:0,
-      protein:0,
-      fat:0,
-      carbohydrate:0,
-      water:0
-    }
-    var music:Music = {
-      name:"歌曲名称",
-      author:"歌手",
-      url:"歌曲url",
-      cover:"歌曲封面"
-    }
+    var food_info: FoodRecord = {
+      total: 0,
+      protein: 0,
+      fat: 0,
+      carbohydrate: 0,
+      water: 0,
+    };
+    var music: Music = {
+      name: "歌曲名称",
+      author: "歌手",
+      url: "歌曲url",
+      cover: "歌曲封面",
+    };
 
     return {
       date: "",
@@ -122,14 +146,24 @@ export default Vue.extend({
       video_info,
       getVideoInfoRequest,
       typeList: ["胸", "背", "腿", "肩", "手臂", "腹肌", "有氧", "臀"],
-      selectType:Array<string>(),
-      trainDetailList
+      selectType: Array<string>(),
+      trainDetailList,
     };
   },
   onLoad() {
     // this.getDate();
     // this.getFoodRecord();
+    // this.getTodayTrainRecord();
+  },
+  onShow() {
+    // this.getDate();
+    // this.getFoodRecord();
     this.getTodayTrainRecord();
+  },
+  computed: {
+    isLogin() {
+      return isLogin();
+    },
   },
   methods: {
     getDate() {
@@ -146,51 +180,64 @@ export default Vue.extend({
       this.date = format(new Date(), "yyyy-MM-dd");
       this.day = "星期" + dict[getDay(new Date())];
     },
-    setType(type:string) {
-      if( this.selectType.indexOf(type) > -1) {
-        this.selectType.splice(this.selectType.indexOf(type), 1)
+    setType(type: string) {
+      if (this.selectType.indexOf(type) > -1) {
+        this.selectType.splice(this.selectType.indexOf(type), 1);
       } else {
-      this.selectType.push(type)
-    }
-    console.log(this.selectType)
+        this.selectType.push(type);
+      }
+      console.log(this.selectType);
     },
-    isSelect(type:string){
-      return this.selectType.indexOf(type) == -1
+    isSelect(type: string) {
+      return this.selectType.indexOf(type) == -1;
     },
-    changeVideoList(e:any){
-      console.log("change video info page",e)
-      GetVideoInfo(this.getVideoInfoRequest,(res)=>{
-        console.log("get video info",res) 
-        // this.video_info=res.data #TODO
-      },(err)=>{
-        console.log("get video info err",err)
-      })
-    },
-    getFoodRecord(){
-      // TODO
-      console.log("get food record")
-      GetFoodHistory(this.date,(res)=>{
-        console.log("get food history",res)
-      },(err)=>{
-        console.log("get food history err",err)
-      })
-    },
-    getTodayTrainRecord(){
-      GetTodayTrainHistory((res)=>{
-        console.log("get today train history",res)
-        for (let index = 0; index < res.data.length; index++) {
-          const element = res.data[index];
-          if (element.train_history.finish){
-          this.trainDetailList.push({
-            train_history:element.train_history,
-            train_content:element.train_content
-          })}
+    changeVideoList(e: any) {
+      console.log("change video info page", e);
+      GetVideoInfo(
+        this.getVideoInfoRequest,
+        (res) => {
+          console.log("get video info", res);
+          // this.video_info=res.data #TODO
+        },
+        (err) => {
+          console.log("get video info err", err);
         }
-        console.log("this train detail list",this.trainDetailList)
-      },(err)=>{
-        console.log("get today train history err",err)
-      })
-    }
+      );
+    },
+    getFoodRecord() {
+      // TODO
+      console.log("get food record");
+      GetFoodHistory(
+        this.date,
+        (res) => {
+          console.log("get food history", res);
+        },
+        (err) => {
+          console.log("get food history err", err);
+        }
+      );
+    },
+    getTodayTrainRecord() {
+      GetTodayTrainHistory(
+        (res) => {
+          console.log("get today train history", res);
+          this.trainDetailList = [];
+          for (let index = 0; index < res.data.length; index++) {
+            const element = res.data[index];
+            if (element.train_history.finish) {
+              this.trainDetailList.push({
+                train_history: element.train_history,
+                train_content: element.train_content,
+              });
+            }
+          }
+          console.log("this train detail list", this.trainDetailList);
+        },
+        (err) => {
+          console.log("get today train history err", err);
+        }
+      );
+    },
   },
 });
 </script>
@@ -239,7 +286,6 @@ export default Vue.extend({
   .tag-view {
     margin-left: 5px;
   }
-
 }
 .video-card {
   margin-left: 0px;

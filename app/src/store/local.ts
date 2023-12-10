@@ -61,6 +61,10 @@ export function getUserProfile(): UserProfile | null {
   return null;
 }
 
+export function clearUserProfile() {
+  uni.removeStorageSync("profile");
+}
+
 export function setToken(token: AuthToken) {
   uni.setStorageSync("token", JSON.stringify(token));
 }

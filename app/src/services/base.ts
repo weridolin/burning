@@ -33,7 +33,7 @@ export interface ResponseBase {
   data: any;
 }
 
-const baseURL = "http://127.0.0.1:8080";
+const baseURL = "https://www.weridolin.cn";
 
 class BaseApi {
   // private axiosInstance: AxiosInstance;
@@ -51,7 +51,6 @@ class BaseApi {
     config.headers["Content-Type"] = config.contentType || "application/json";
     if (config.requiredLogin) {
       config.headers["Authorization"] = `Bearer ${getToken()?.access_token}`;
-      config.headers["user_id"] = "111";
     }
     // return new Promise((resolve, reject) => {
     //   this.axiosInstance
