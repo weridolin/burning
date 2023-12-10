@@ -5,7 +5,7 @@
         <view slot="left"></view>
         <view slot="right" class="right">
           <view>
-            <image src="../../static/image/travel/personal/edit.png"></image>
+            <!-- <image src="../../static/image/travel/personal/edit.png"></image> -->
           </view>
           <!-- <view>
 						<image src="../../static/image/travel/personal/set.png"></image>
@@ -15,7 +15,7 @@
     </view>
     <view class="people">
       <view class="headImg">
-        <image src="../../static/image/travel/personal/tx.png" />
+        <image src="" />
       </view>
       <view class="info">
         <view class="nick">
@@ -37,24 +37,26 @@
     <view class="infos">
       <view class="open-vip attendance">
         <image src="../../static/image/travel/personal/attendance.png" />
-        <text class="text">目前已经连续签到{{ sign_days}}天</text>
-        <text class="button" @click="sign">{{alreadySign?"已签到":"签到"}}</text>
+        <text class="text">目前已经连续签到{{ sign_days }}天</text>
+        <text class="button" @click="sign">{{
+          alreadySign ? "已签到" : "签到"
+        }}</text>
       </view>
       <view class="tool">
         <view>
-          <image src="../../static/image/travel/personal/profile.png" />
+          <image src="../../static/icons/bodyinfo.png" />
           <text>身体数据</text>
         </view>
         <view>
-          <image src="../../static/image/travel/personal/photos.png" />
+          <image src="../../static/icons/xiangce.png" />
           <text>照片记录</text>
         </view>
         <view>
-          <image src="../../static/image/travel/personal/house.png" />
+          <image src="../../static/icons/collect.png" />
           <text>我的收藏</text>
         </view>
         <view>
-          <image src="../../static/image/travel/personal/setting.png" />
+          <image src="../../static/icons/settings.png" />
           <text>账号设置</text>
         </view>
       </view>
@@ -62,24 +64,24 @@
         <view>
           <image
             class="icon"
-            src="../../static/image/travel/personal/pic07.png"
+            src="../../static/icons/kefu.png"
           />
           <text>在线客服</text>
-          <image
+          <!-- <image
             class="right"
             src="../../static/image/travel/personal/Clipped.png"
-          />
+          /> -->
         </view>
         <view>
           <image
             class="icon"
-            src="../../static/image/travel/personal/share.png"
+            src="../../static/icons/share2.png"
           />
           <text>分享小程序</text>
-          <image
+          <!-- <image
             class="right"
             src="../../static/image/travel/personal/Clipped.png"
-          />
+          /> -->
         </view>
       </view>
 
@@ -87,9 +89,9 @@
         <view @click="logout">
           <image
             class="icon"
-            src="../../static/image/travel/personal/pic07.png"
+            src="../../static/icons/logout.png"
           />
-          <text>退出登录</text>
+          <text>{{ status }}</text>
         </view>
       </view>
     </view>
@@ -105,9 +107,16 @@ import {
   UserBodyInfo,
 } from "@/store/local";
 import { GetUserProfile, Sign } from "@/pages/person/apis";
-import { setUserProfile,getString,setString,clearToken,clearDoingTrain,clearUserProfile } from "../../store/local";
-import {getDate} from "@/pages/history/apis"
- 
+import {
+  setUserProfile,
+  getString,
+  setString,
+  clearToken,
+  clearDoingTrain,
+  clearUserProfile,
+} from "../../store/local";
+import { getDate } from "@/pages/history/apis";
+
 export default Vue.extend({
   data() {
     var profile: UserProfile = {} as UserProfile;
@@ -116,6 +125,7 @@ export default Vue.extend({
       value1: 0,
       alreadySign: false,
       profile,
+      status:"登录",
     };
   },
   computed: {
@@ -125,23 +135,31 @@ export default Vue.extend({
     sign_days() {
       return this.profile?.bodyInfo?.days;
     },
+    is_login() {
+      return isLogin();
+    },
   },
+
   onLoad() {
     let lastSignDate = getString("lastSignDate");
-    let today = getDate(new Date(),0).fullDate;
-    if (today==lastSignDate){
+    let today = getDate(new Date(), 0).fullDate;
+    if (today == lastSignDate) {
       this.alreadySign = true;
-    }else{
+    } else {
       this.alreadySign = false;
     }
   },
   onShow() {
     if (!isLogin()) {
-      uni.navigateTo({
-        url: "/pages/auth/login",
-      });
+      // uni.navigateTo({
+      //   url: "/pages/auth/login",
+      // });
+      this.profile.name = "未登录";
+      this.status = "登录";
+      console.log("profile ->",this.profile)
     } else {
       // 获取用户档案信息
+      this.status = "注销";
       GetUserProfile(
         (res) => {
           console.log("获取用户档案信息 -> ", res);
@@ -167,9 +185,17 @@ export default Vue.extend({
         }
       );
     }
+    this.$forceUpdate();
   },
   methods: {
     sign() {
+      if (!isLogin()) {
+        uni.showToast({
+          title: "请先登录",
+          icon: "error",
+          duration: 2000,
+        });
+      }
       Sign(
         (res) => {
           console.log("签到成功 -> ", res);
@@ -184,9 +210,9 @@ export default Vue.extend({
             this.profile = profile;
           }
           // let lastSignDate = getString("lastSignDate");
-          this.alreadySign=true;
-          let today = getDate(new Date(),0).fullDate;
-          setString("lastSignDate",today);
+          this.alreadySign = true;
+          let today = getDate(new Date(), 0).fullDate;
+          setString("lastSignDate", today);
         },
         (err) => {
           console.log("签到失败 -> ", err);
@@ -198,20 +224,28 @@ export default Vue.extend({
       );
     },
     logout() {
-      uni.showModal({
-        title: "提示",
-        content: "确定要退出登录吗？",
-        success: (res) => {
-          if (res.confirm) {
-            clearDoingTrain();
-            clearToken();
-            clearUserProfile();
-            uni.switchTab({
-              url:"/pages/index/index",
-            });
-          }
-        },
-      });
+      if (!isLogin()) {
+        uni.navigateTo({
+          url: "/pages/auth/login",
+        });
+        return;
+      } else {
+        uni.showModal({
+          title: "提示",
+          content: "确定要退出登录吗？",
+          success: (res) => {
+            if (res.confirm) {
+              clearDoingTrain();
+              clearToken();
+              clearUserProfile();
+              this.profile = {} as UserProfile;
+              uni.switchTab({
+                url: "/pages/index/index",
+              });
+            }
+          },
+        });
+      }
     },
   },
 });

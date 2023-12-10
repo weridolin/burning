@@ -166,6 +166,7 @@ import {
 } from "./apis";
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
+import { isLogin } from "../../store/local";
 
 
 export default Vue.extend({
@@ -247,7 +248,10 @@ export default Vue.extend({
       this.status = "";
       this.refreshHistory();
     });
-    this.refreshHistory();
+    
+    if (isLogin()){
+      this.refreshHistory();
+    }
   },
   onUnload() {
     uni.$off("finishTrain");
