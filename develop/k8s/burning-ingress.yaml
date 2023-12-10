@@ -10,6 +10,11 @@ metadata:
         auth_request /token/validate;
         auth_request_set $user $upstream_http_x_forwarded_user;
         add_header Set-Cookie $user; # 可以传递Cookie     
+        proxy_set_header Host $host;
+        proxy_set_header X-User $user; # 可以传递Header 
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Server-Name "burning";
         set $dummy_val "$opentelemetry_context_traceparent";   
 spec:
   rules:
