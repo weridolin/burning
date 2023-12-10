@@ -10,7 +10,7 @@ import (
 )
 
 func GetUserProfile(c *gin.Context) {
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 	if user_id == "" {
 		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
@@ -35,7 +35,7 @@ func GetUserProfile(c *gin.Context) {
 }
 
 func UpdateUserProfile(c *gin.Context) {
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 	if user_id == "" {
 		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
@@ -60,7 +60,7 @@ func UpdateUserProfile(c *gin.Context) {
 }
 
 func Sign(c *gin.Context) {
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 	if user_id == "" {
 		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
