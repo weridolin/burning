@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/weridolin/burning/common"
 )
 
 // Extract  token from Authorization header
@@ -37,8 +38,12 @@ func AuthMiddleware(auto401 bool) gin.HandlerFunc {
 		user_id := c.Request.Header.Get("X-User")
 		if user_id == "" {
 			if auto401 {
-				c.AbortWithStatus(http.StatusUnauthorized)
+				// c.AbortWithStatus(http.StatusUnauthorized)
+				common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+				return
 			}
+		} else {
+			c.Set("user_id", user_id)
 		}
 	}
 }

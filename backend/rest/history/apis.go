@@ -14,12 +14,13 @@ import (
 // 训练记录
 func AddNewTrainHistory(c *gin.Context) {
 	fmt.Println(c.Request.Header)
-	user_id := c.Request.Header.Get("user_id")
-	if user_id == "" {
-		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
-		return
-	}
-	_user_id, _ := strconv.Atoi(user_id)
+	// user_id := c.Request.Header.Get("X-User")
+	user_id := c.Keys["user_id"]
+	// if user_id == "" {
+	// 	common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+	// 	return
+	// }
+	// _user_id, _ := strconv.Atoi(user_id)
 	var new struct {
 		models.TrainingHistory
 		Force bool `json:"force" yaml:"force" comment:"存在未完成记录时是否强制新建一条"`
@@ -33,11 +34,11 @@ func AddNewTrainHistory(c *gin.Context) {
 		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	new.UserID = _user_id
+	new.UserID = user_id.(int)
 	if !new.Force {
 		//先查看当天是否有未完成的记录
 		date := time.Now().Format("2006-01-02")
-		conditions_string := "created_at >= '" + date + "'" + " and user_id = '" + user_id + "'" + " and  finish='0'"
+		conditions_string := "created_at >= '" + date + "'" + " and user_id = '" + user_id.(string) + "'" + " and  finish='0'"
 		record, _ := models.QueryTrainingHistory(conditions_string, common.DB)
 		fmt.Println("get exist un finished train history content detail")
 		if len(record) != 0 {
@@ -51,7 +52,7 @@ func AddNewTrainHistory(c *gin.Context) {
 		}
 	}
 	fmt.Println("add train history, new -> ", new)
-	record, err := models.CreateTrainingHistory(models.TrainingHistory{UserID: _user_id, Comment: "", Title: "", TotalTime: 0}, common.DB)
+	record, err := models.CreateTrainingHistory(models.TrainingHistory{UserID: user_id.(int), Comment: "", Title: "", TotalTime: 0}, common.DB)
 	if err != nil {
 		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -66,7 +67,7 @@ func DeleteTrainHistory(c *gin.Context) {
 	id := c.Param("train_id")
 	fmt.Println("delete train history, id -> ", id)
 	_id, _ := strconv.Atoi(id)
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 	_user_id, _ := strconv.Atoi(user_id)
 	history, _ := models.QueryTrainingHistory(map[string]interface{}{"id": _id}, common.DB)
 	if history[0].UserID != _user_id {
@@ -95,7 +96,7 @@ func UpdateTrainHistory(c *gin.Context) {
 		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 	if user_id == "" {
 		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
@@ -116,7 +117,7 @@ func UpdateTrainHistory(c *gin.Context) {
 
 func GetTrainHistory(c *gin.Context) {
 	// 查询训练历史记录
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 	if user_id == "" {
 		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
@@ -198,7 +199,7 @@ func AddNewTrainContent(c *gin.Context) {
 	// 	})
 	// 	return
 	// }
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 
 	var trainContent *models.TrainingContentDetail
 	if err := c.ShouldBindJSON(&trainContent); err != nil {
@@ -245,7 +246,7 @@ func DeleteTrainContent(c *gin.Context) {
 
 // 完成训练后提交
 func FinishTrain(c *gin.Context) {
-	user_id := c.Request.Header.Get("user_id")
+	user_id := c.Request.Header.Get("X-User")
 	if user_id == "" {
 		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
 		return
