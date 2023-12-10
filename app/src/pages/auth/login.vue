@@ -17,7 +17,7 @@
         <input
           class="sl-input"
           v-model="loginForm.count"
-          type="number"
+          type="text"
           maxlength="11"
           placeholder="输入账号/邮箱/手机号"
         />

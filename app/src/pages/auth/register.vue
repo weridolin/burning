@@ -9,7 +9,7 @@
         <input
           class="sl-input"
           v-model="registerForm.email"
-          type="number"
+          type="text"
           maxlength="11"
           placeholder="邮箱"
         />
