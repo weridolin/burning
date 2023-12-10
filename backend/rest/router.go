@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/weridolin/burning/rest/actions"
 	"github.com/weridolin/burning/rest/history"
+	"github.com/weridolin/burning/rest/images"
 	"github.com/weridolin/burning/rest/users"
 )
 
@@ -63,7 +64,8 @@ func RegisterHomePageRouter(r *gin.RouterGroup) {
 
 func RegisterImageRouter(r *gin.RouterGroup) {
 	r.Use(users.AuthMiddleware(false))
-	r = r.Group("/image")
+	r.GET("/image/*filepath", images.GetImageHandler)
+	// r = r.Group("/image")
 	// r.GET("/video", users.GetHomePage)
 	// r.GET("/video/:id", users.GetVideoDetail)
 	// r.POST("/music", users.AddVideo)
