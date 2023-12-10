@@ -34,7 +34,7 @@ import (
 func AuthMiddleware(auto401 bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		fmt.Println(c.Request.Header)
-		user_id := c.Request.Header.Get("user_id")
+		user_id := c.Request.Header.Get("X-User")
 		if user_id == "" {
 			if auto401 {
 				c.AbortWithStatus(http.StatusUnauthorized)
