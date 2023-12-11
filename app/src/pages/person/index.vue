@@ -145,7 +145,7 @@ export default Vue.extend({
   },
 
   onLoad() {
-    
+
   },
   onShow() {
     if (!isLogin()) {
@@ -196,6 +196,14 @@ export default Vue.extend({
           duration: 2000,
         });
       }
+      if (this.alreadySign) {
+        uni.showToast({
+          title: "今日已签到",
+          icon: "error",
+          duration: 2000,
+        });
+        return;
+      }
       Sign(
         (res) => {
           console.log("签到成功 -> ", res);
@@ -212,7 +220,7 @@ export default Vue.extend({
           // let lastSignDate = getString("lastSignDate");
           this.alreadySign = true;
           let today = getDate(new Date(), 0).fullDate;
-          setString("lastSignDate", today);
+          // setString("lastSignDate", today);
         },
         (err) => {
           console.log("签到失败 -> ", err);
