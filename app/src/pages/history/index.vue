@@ -24,64 +24,7 @@
         class="train-detail-card"
       >
       </TrainHistoryBriefCard>
-      <!-- <uni-card
-        :is-shadow="true"
-        v-for="(trainDetail, indextd) in trainDetailList"
-        :key="indextd"
-        :title="
-          trainDetail.train_history.title
-            ? trainDetail.train_history.title
-            : '未定义标题'
-        "
-        :sub-title="
-          trainDetail.train_history.comment
-            ? trainDetail.train_history.comment
-            : '本次训练似乎没什么心得...'
-        "
-        :extra="trainDetail.train_history.finish ? '已完成' : '进行中...'"
-        :thumbnail="
-          trainDetail.train_history.finish
-            ? '/static/icons/finish.png'
-            : '/static/icons/doing.png'
-        "
-        class="train-detail-card"
-        @click="onCardClick(trainDetail)"
-      >
-        <uni-section
-          type="line"
-          :title="actionName"
-          titleFontSize="14px"
-          v-for="(briefInfoList, actionName) in getTrainContentBriefInfo(
-            trainDetail.train_content
-          )"
-          :key="actionName"
-          class
-        >
-          <view
-            class="brief-info-content-list"
-            style="
-              display: flex;
-              flex-flow: row wrap;
-              gap: 10px;
-              margin-left: 10px;
-            "
-          >
-            <uni-title
-              type="h5"
-              :title="
-                item.left_weight +
-                'kg*' +
-                item.right_weight +
-                'kg*' +
-                item.number
-              "
-              v-for="(item, index) in briefInfoList"
-              :key="index"
-            >
-            </uni-title>
-          </view>
-        </uni-section>
-      </uni-card> -->
+    
     </view>
 
     <!-- 右下角悬浮按钮 -->
@@ -167,6 +110,7 @@ import {
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
 import { isLogin } from "../../store/local";
+import { is } from "date-fns/locale";
 
 
 export default Vue.extend({
@@ -256,7 +200,16 @@ export default Vue.extend({
   onUnload() {
     uni.$off("finishTrain");
   },
-  onShow() {},
+  onShow() {
+    if (isLogin()){
+      this.refreshHistory();
+    }
+    else{
+      this.trainDetailList = [];
+      this.trainHistoryMap = {};
+      this.transHistory = [];
+    }
+  },
   methods: {
     refreshHistory() {
       uni.showLoading({
@@ -339,8 +292,17 @@ export default Vue.extend({
       );
     },
     trigger(e: any) {
+      console.log("添加训练记录,当前登录状态 ->", isLogin());
       if (this.content[e.index].text == "添加") {
-        //先判断是否有未完成的训练记录 #TODO
+        if (!isLogin()){
+          uni.showToast({
+            title: "请先登录",
+            icon: "error",
+            duration:2000 
+          });
+          return 
+        }
+        //先判断是否有未完成的训练记录 #
         uni.showLoading({
           title: "初始化训练中...",
         });

@@ -15,7 +15,8 @@
     </view>
     <view class="people">
       <view class="headImg">
-        <image src="" />
+        <!-- <image src="" /> -->
+        <text>{{ profile.name[0].toUpperCase() }}</text>
       </view>
       <view class="info">
         <view class="nick">
@@ -26,7 +27,7 @@
         </view>
         <view class="userId">
           <image src="../../static/image/travel/personal/id.png" />
-          <view class="number">
+          <view class="number" @click="copyUUid">
             <text>{{ user_uuid }}</text>
             <text>复制</text>
           </view>
@@ -36,7 +37,10 @@
     </view>
     <view class="infos">
       <view class="open-vip attendance">
-        <image src="../../static/image/travel/personal/attendance.png" />
+        <image 
+          src="../../static/image/travel/personal/attendance.png" 
+
+          />
         <text class="text">目前已经连续签到{{ sign_days }}天</text>
         <text class="button" @click="sign">{{
           alreadySign ? "已签到" : "签到"
@@ -247,6 +251,18 @@ export default Vue.extend({
         });
       }
     },
+    copyUUid(){
+      uni.setClipboardData({
+        data: this.user_uuid as string,
+        success: function () {
+          uni.showToast({
+            title: "复制成功",
+            icon: "success",
+            duration: 2000,
+          });
+        },
+      });
+    }
   },
 });
 </script>
@@ -302,6 +318,20 @@ export default Vue.extend({
         height: 166rpx;
         border-radius: 83rpx;
       }
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px; /* 头像的宽度 */
+      height: 50px; /* 头像的高度 */
+      background-color: #8cbef0d2; /* 头像的背景颜色 */
+      border-radius: 30%; /* 圆形头像 */
+      overflow: hidden;
+      margin-right: 10px ;
+      .avatar {
+      color: white; /* 字母的颜色 */
+      font-size: 18px; /* 字母的大小 */
+      font-weight: bold; /* 字母的粗细 */
+}
     }
 
     .info {

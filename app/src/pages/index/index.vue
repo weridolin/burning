@@ -1,7 +1,7 @@
 <template>
   <view class="content">
     <uni-section title="今日已完成训练 " type="line">
-      <view v-show="isLogin && trainDetailList && trainDetailList.length>0" >
+      <view v-show="isLogin() && trainDetailList && trainDetailList.length>0" >
         <TrainHistoryBriefCard
           v-for="(trainDetail, index) in trainDetailList"
           :trainDetail="trainDetail"
@@ -9,10 +9,10 @@
           {{ index }}
         </TrainHistoryBriefCard>
       </view>
-      <uni-card :is-shadow="true"  v-show="!isLogin">
+      <uni-card :is-shadow="true"  v-show="!isLogin()">
         <text class="uni-h6">登录后可查看</text>
       </uni-card>
-      <uni-card :is-shadow="true" v-show="isLogin && trainDetailList&& trainDetailList.length==0">
+      <uni-card :is-shadow="true" v-show="isLogin() && trainDetailList&& trainDetailList.length==0">
         <text class="uni-h6">暂无完成的训练记录</text>
       </uni-card>
     </uni-section>
@@ -33,13 +33,12 @@
         </view>
       </uni-card>
     </uni-section>
-    <!--
+    
     <uni-section
       title="教程推荐 TODO"
       type="line"
       subTitle="数据更新于2022-11-27"
-      padding
-    >
+      padding>
       <view class="move-tag-list">
         <view class="tag-view" v-for="type in typeList" :key="type">
           <uni-tag
@@ -59,8 +58,7 @@
           class="video-card"
           style="margin: 0px 5px"
           v-for="(video_detail, index) in video_info.list"
-          :key="index"
-        >
+          :key="index">
           <text class="uni-body">{{ video_detail.summary }}</text>
         </uni-card>
       </view>
@@ -70,10 +68,10 @@
         v-model="getVideoInfoRequest.page"
         prev-text="前一页"
         next-text="后一页"
-        @change="changeVideoList"
-      />
+        @change="changeVideoList">
+        </uni-pagination>
     </uni-section>
-    -->
+   
     <uni-section title="来首音乐 TODO" type="line" padding></uni-section>
   </view>
 </template>
@@ -159,9 +157,11 @@ export default Vue.extend({
     // this.getDate();
     // this.getFoodRecord();
     this.getTodayTrainRecord();
+    this.$forceUpdate()
+    console.log("on index page show", isLogin());
   },
   computed: {
-    isLogin() {
+    is_login() {
       return isLogin();
     },
   },
@@ -238,6 +238,9 @@ export default Vue.extend({
         }
       );
     },
+    isLogin(){
+      return isLogin()
+    }
   },
 });
 </script>
