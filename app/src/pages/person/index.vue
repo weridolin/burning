@@ -110,7 +110,7 @@ import {
   getUserProfile,
   UserBodyInfo,
 } from "@/store/local";
-import { GetUserProfile, Sign } from "@/pages/person/apis";
+import { GetUserProfile, Sign,GetLastSign } from "@/pages/person/apis";
 import {
   setUserProfile,
   getString,
@@ -145,13 +145,7 @@ export default Vue.extend({
   },
 
   onLoad() {
-    let lastSignDate = getString("lastSignDate");
-    let today = getDate(new Date(), 0).fullDate;
-    if (today == lastSignDate) {
-      this.alreadySign = true;
-    } else {
-      this.alreadySign = false;
-    }
+    
   },
   onShow() {
     if (!isLogin()) {
@@ -188,6 +182,8 @@ export default Vue.extend({
           });
         }
       );
+        
+      this.getLastSign()
     }
     this.$forceUpdate();
   },
@@ -262,6 +258,23 @@ export default Vue.extend({
           });
         },
       });
+    },
+    getLastSign(){
+      GetLastSign(
+        (res) => {
+          let lastSignDate = res.data
+          console.log("获取最近一次签到日志 -> ", res,lastSignDate);
+          let today = getDate(new Date(), 0).fullDate;
+          if (today == lastSignDate) {
+            this.alreadySign = true;
+          } else {
+            this.alreadySign = false;
+        }},
+        (err) => {
+          console.log("获取最近一次签到日志失败 -> ", err);
+          this.alreadySign = false;
+        }
+      )
     }
   },
 });

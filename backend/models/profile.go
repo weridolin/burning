@@ -1,6 +1,8 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 //个人资料
 type PersonProfile struct {
@@ -60,4 +62,13 @@ func Sign(user_id int, db *gorm.DB) error {
 		}
 		return nil
 	})
+}
+
+func GetLastSignDate(userID int, db *gorm.DB) (date string, err error) {
+	var sign UserSign
+	err = db.Where("user_id = ?", userID).Order("created_at desc").First(&sign).Error
+	if err != nil {
+		return "", err
+	}
+	return sign.CreatedAt.Format("2006-01-02"), nil
 }

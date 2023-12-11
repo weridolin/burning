@@ -10,6 +10,13 @@ import (
 
 type LocalTime time.Time
 
+func (t LocalTime) Format(format string) string {
+	//do your serializing here
+	stamp := time.Time(t).Format(format)
+	// fmt.Println("marshal json -> ", stamp)
+	return stamp
+}
+
 func (t LocalTime) MarshalJSON() ([]byte, error) {
 	//do your serializing here
 	stamp := time.Time(t).Format("2006-01-02 15:04:05")
@@ -41,7 +48,12 @@ func (t *LocalTime) Scan(v interface{}) error {
 		return nil
 	}
 	return fmt.Errorf("can not convert %v to timestamp", v)
+
 }
+
+// func (t *LocalTime) Format() {
+
+// }
 
 type BaseModel struct {
 	ID        int            `gorm:"primarykey" json:"id" yaml:"id"`

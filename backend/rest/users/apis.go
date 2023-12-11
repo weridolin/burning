@@ -72,3 +72,19 @@ func Sign(c *gin.Context) {
 	}
 	common.SuccessResponse(c, http.StatusOK, nil)
 }
+
+// 获取最近一次签到的日期
+func GetLastSignDate(c *gin.Context) {
+	user_id := c.Request.Header.Get("X-User")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	_user_id := common.Str2Int(user_id)
+	date, err := models.GetLastSignDate(_user_id, common.DB)
+	if err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	common.SuccessResponse(c, http.StatusOK, date)
+}

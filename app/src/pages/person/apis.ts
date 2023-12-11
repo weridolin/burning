@@ -19,6 +19,7 @@ export interface GetUserProfilePayload {
   days:number //签到天数
 }
 
+
 //
 
 export function GetUserProfile(successCallback: (res: any) => void, failCallback: (err: any) => void) {
@@ -36,6 +37,16 @@ export function Sign(successCallback: (res: any) => void, failCallback: (err: an
     url: BurningApis.auth.sign.url,
     requiredLogin: BurningApis.auth.sign.authenticated,
     method: BurningApis.auth.sign.method,
+    success: successCallback,
+    fail: failCallback
+  })
+}
+
+export function GetLastSign(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return AuthApi.request({
+    url: BurningApis.auth.getLastSign.url,
+    requiredLogin: BurningApis.auth.getLastSign.authenticated,
+    method: BurningApis.auth.getLastSign.method,
     success: successCallback,
     fail: failCallback
   })

@@ -29,7 +29,12 @@ export const BurningApis = {
       method: "POST",
       url: "/burning/api/v1/users/sign",
       authenticated: true,
-    }
+    },
+    getLastSign:{ //获取最近一次签到
+      method: "GET",
+      url: "/burning/api/v1/users/lastSign",
+      authenticated: true,
+    },
   },
   home: {
     getVideoInfo: {
