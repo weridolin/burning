@@ -1,5 +1,6 @@
 <template>
   <view class="content">
+    <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar>
     <uni-section title="今日已完成训练 " type="line">
       <view v-show="isLogin() && trainDetailList && trainDetailList.length>0" >
         <TrainHistoryBriefCard

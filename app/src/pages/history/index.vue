@@ -1,5 +1,6 @@
 <template>
   <view class="content">
+    <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar>
     <view>
       <uni-calendar
         :insert="true"
@@ -15,7 +16,7 @@
         <text class="uni-body">当天无训练日志</text>
       </uni-card>
     </view>
-    <view style="width:100%">
+    <view style="width:100%" v-if="trainDetailList.length > 0">
       <TrainHistoryBriefCard
         v-for="(trainDetail, indextd) in trainDetailList"
         :key="indextd"
@@ -111,7 +112,7 @@ import UniSection from "../../uni_modules/uni-section/components/uni-section/uni
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
 import { isLogin } from "../../store/local";
 import { is } from "date-fns/locale";
-
+import trainingNoticeBar  from "@/conpoments/history/trainingNoticeBar.vue";
 
 export default Vue.extend({
   data() {
@@ -192,13 +193,22 @@ export default Vue.extend({
       this.status = "";
       this.refreshHistory();
     });
-    
-    if (isLogin()){
+    uni.$on("minimizeDrawer",()=>{
+      console.log("最小化训练记录")
+      let ele = this.$refs["newRecord"] as any;
+      if (ele) {
+        ele.close();
+      }
+      this.status = "";
       this.refreshHistory();
-    }
+    })
+    // if (isLogin()){
+    //   this.refreshHistory();
+    // }
   },
   onUnload() {
     uni.$off("finishTrain");
+    uni.$off("minimizeDrawer");
   },
   onShow() {
     if (isLogin()){
@@ -483,7 +493,8 @@ export default Vue.extend({
   components: {
     NewRecord,
     UniSection,
-    TrainHistoryBriefCard
+    TrainHistoryBriefCard,
+    trainingNoticeBar
   },
 });
 </script>

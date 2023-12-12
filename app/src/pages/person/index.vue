@@ -1,5 +1,7 @@
 <template>
   <view class="homepage">
+    <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar>
+
     <view class="bar">
       <u-navbar :placeholder="true" bgColor="#efeefd">
         <view slot="left"></view>
@@ -26,7 +28,7 @@
           </view>
         </view>
         <view class="userId">
-          <image src="../../static/image/travel/personal/id.png" />
+          <image src="../../static/icons/id.png" />
           <view class="number" @click="copyUUid">
             <text>{{ user_uuid }}</text>
             <text>复制</text>
@@ -38,7 +40,7 @@
     <view class="infos">
       <view class="open-vip attendance">
         <image 
-          src="../../static/image/travel/personal/attendance.png" 
+          src="../../static/icons/attendance.png" 
 
           />
         <text class="text">目前已经连续签到{{ sign_days }}天</text>

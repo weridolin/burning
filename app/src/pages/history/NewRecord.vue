@@ -155,6 +155,7 @@ export default Vue.extend({
     },
     minimize() {
       // this.$refs["newRecord"].close();
+      uni.$emit("minimizeDrawer"); //close drawer
     },
     addAction() {
       console.log("addAction");
