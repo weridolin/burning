@@ -1,6 +1,6 @@
 <template>
   <view id="content">
-    <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar>
+    <!-- <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar> -->
     <ActionGrid ref="actionGrid"></ActionGrid>  
   </view>
 </template>

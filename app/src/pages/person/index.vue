@@ -1,6 +1,6 @@
 <template>
   <view class="homepage">
-    <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar>
+    <!-- <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar> -->
 
     <view class="bar">
       <u-navbar :placeholder="true" bgColor="#efeefd">

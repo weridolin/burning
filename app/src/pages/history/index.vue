@@ -1,6 +1,9 @@
 <template>
   <view class="content">
-    <trainingNoticeBar  style="width: 100%;"></trainingNoticeBar>
+    <trainingNoticeBar
+      style="width: 100%"
+      ref="trainingNoticeBar"
+    ></trainingNoticeBar>
     <view>
       <uni-calendar
         :insert="true"
@@ -16,7 +19,7 @@
         <text class="uni-body">当天无训练日志</text>
       </uni-card>
     </view>
-    <view style="width:100%" v-if="trainDetailList.length > 0">
+    <view style="width: 100%" v-if="trainDetailList.length > 0">
       <TrainHistoryBriefCard
         v-for="(trainDetail, indextd) in trainDetailList"
         :key="indextd"
@@ -25,7 +28,6 @@
         class="train-detail-card"
       >
       </TrainHistoryBriefCard>
-    
     </view>
 
     <!-- 右下角悬浮按钮 -->
@@ -95,24 +97,20 @@
 <script lang="ts">
 import Vue from "vue";
 import NewRecord from "./NewRecord.vue";
-import  TrainHistoryBriefCard  from "../../conpoments/history/trainHistoryBriefCard.vue";
+import TrainHistoryBriefCard from "../../conpoments/history/trainHistoryBriefCard.vue";
 import {
   getDate,
   GetRecentMonthTrainHistory,
-  GetTrainHistoryDetail,
   TrainHistoryBrief,
-  TrainHistory,
-  TrainContent,
   AddTrainHistory,
   AddTrainHistoryResponse,
   DeleteTrainHistory,
-  TrainHistoryDetail
+  TrainHistoryDetail,
 } from "./apis";
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
 import { isLogin } from "../../store/local";
-import { is } from "date-fns/locale";
-import trainingNoticeBar  from "@/conpoments/history/trainingNoticeBar.vue";
+import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
 
 export default Vue.extend({
   data() {
@@ -193,15 +191,15 @@ export default Vue.extend({
       this.status = "";
       this.refreshHistory();
     });
-    uni.$on("minimizeDrawer",()=>{
-      console.log("最小化训练记录")
+    uni.$on("minimizeDrawer", () => {
+      console.log("最小化训练记录");
       let ele = this.$refs["newRecord"] as any;
       if (ele) {
         ele.close();
       }
       this.status = "";
       this.refreshHistory();
-    })
+    });
     // if (isLogin()){
     //   this.refreshHistory();
     // }
@@ -211,16 +209,26 @@ export default Vue.extend({
     uni.$off("minimizeDrawer");
   },
   onShow() {
-    if (isLogin()){
+    console.log("on train index page show");
+    if (isLogin()) {
       this.refreshHistory();
-    }
-    else{
+    } else {
       this.trainDetailList = [];
       this.trainHistoryMap = {};
       this.transHistory = [];
     }
+    if (uni.getStorageSync("showDetail")){
+      console.log("open training history detail")
+      uni.removeStorageSync('showDetail')
+    }
   },
   methods: {
+    updateNoticeBar() {
+      let el = this.$refs["trainingNoticeBar"] as any;
+      if (el) {
+        el.refreshStatus();
+      }
+    },
     refreshHistory() {
       uni.showLoading({
         title: "获取训练记录中...",
@@ -229,6 +237,8 @@ export default Vue.extend({
       this.trainHistoryMap = {};
       this.transHistory = [];
       this.getHistory();
+      this.updateNoticeBar()
+      //
     },
     change(e: any) {
       let _trainHistory = this.trainHistoryMap[e.fulldate];
@@ -265,6 +275,21 @@ export default Vue.extend({
           }
           for (let i = 0; i < res.data.length; i++) {
             let item = res.data[i];
+            if (!item.train_history.finish){
+                //更新下当前正在训练的内容到当天的训练详情里面 
+                let training = getDoingTrain()  as {
+                  title:"",
+                  consume_time:"",
+                  comment:""
+                }
+                if (training){
+                  // console.log(training,">>") 
+                  // content会在进入详情页更新
+                  item.train_history.title = training.title
+                  item.train_history.total_time = training.consume_time
+                  item.train_history.comment = training.comment
+                }
+            }
             let n_date = getDate(
               new Date(item.train_history.created_at),
               0
@@ -294,6 +319,8 @@ export default Vue.extend({
               getDate(new Date(), 0).fullDate
             );
           }
+
+
         },
         (err) => {
           console.log("get train history err", err);
@@ -304,21 +331,20 @@ export default Vue.extend({
     trigger(e: any) {
       console.log("添加训练记录,当前登录状态 ->", isLogin());
       if (this.content[e.index].text == "添加") {
-        if (!isLogin()){
+        if (!isLogin()) {
           uni.showToast({
             title: "请先登录",
             icon: "error",
-            duration:2000 
+            duration: 2000,
           });
-          return 
+          return;
         }
         //先判断是否有未完成的训练记录 #
         uni.showLoading({
           title: "初始化训练中...",
         });
         AddTrainHistory(
-          {
-            comment: "",
+          { comment: "",
             total_time: 0,
             title: "",
             finish: false,
@@ -356,6 +382,7 @@ export default Vue.extend({
             uni.hideLoading();
           }
         );
+        
       }
     },
     drawChange(e: any) {
@@ -456,7 +483,7 @@ export default Vue.extend({
               title: "暂不支持",
               icon: "error",
             });
-            return
+            return;
           }
         case "edit": {
           //判断当前编辑的是否为已经完成训练记录
@@ -494,7 +521,7 @@ export default Vue.extend({
     NewRecord,
     UniSection,
     TrainHistoryBriefCard,
-    trainingNoticeBar
+    trainingNoticeBar,
   },
 });
 </script>

@@ -1,8 +1,8 @@
 <template>
   <uni-notice-bar
     show-icon
-    scrollable
-    text="当前有正在进行的训练计划，点击查看详情"
+    :scrollable="false"
+    :text="text"
     @click="switchToTrainDetail"
     v-show="isTrainingPlanExist"
   >
@@ -11,30 +11,42 @@
 
 <script lang="ts">
 import Vue from "vue";
-import {getDoingTrain} from "@/store/local"
-import { get } from "lodash";
+import { getDoingTrain } from "@/store/local";
+import { isLogin } from "@/store/local";
 export default Vue.extend({
   data() {
     return {
-      isTrainingPlanExist: false,
-      // trainingPlan: getDoingTrain,
+      isTrainingPlanExist: true,
+      text:""
     };
   },
   onShow() {
-    this.refreshStatus()
+    console.log("check training status...")
+    this.refreshStatus();
   },
-  created() {
+  onLoad() {
   },
-  methods:{
-    switchToTrainDetail(){
-      console.log("跳转到训练详情页")
+  created() {},
+  methods: {
+    switchToTrainDetail() {
+      console.log("跳转到训练详情页");
+      uni.setStorageSync("showDetail",true)
+      uni.switchTab({
+            url: "/pages/history/index",
+          });
     },
-    refreshStatus(){
-      if (getDoingTrain() == null){
-        this.isTrainingPlanExist = false
+    refreshStatus() {
+      console.log("refresh notice bar..")
+      this.text="当前有正在进行的训练计划，点击查看详情"
+      if (!isLogin()){
+        this.isTrainingPlanExist=false
+        return
       }
-      this.isTrainingPlanExist = true
-    }
+      if (getDoingTrain() == null) {
+        this.isTrainingPlanExist = false;
+      }else{
+      this.isTrainingPlanExist = true;}
+    },
   },
 });
 </script>
