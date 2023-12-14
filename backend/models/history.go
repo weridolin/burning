@@ -104,13 +104,13 @@ type TrainTemplate struct {
 }
 
 func CreateTrainingHistory(history TrainingHistory, DB *gorm.DB) (TrainingHistory, error) {
-	err := DB.Create(&history).Error
+	err := DB.Debug().Create(&history).Error
 	return history, err
 }
 
 func QueryTrainingHistory(params interface{}, DB *gorm.DB) ([]TrainingHistory, error) {
 	var history []TrainingHistory
-	err := DB.Where(params).Find(&history).Error
+	err := DB.Debug().Where(params).Find(&history).Error
 	return history, err
 }
 

@@ -35,6 +35,7 @@ func (t *LocalTime) UnmarshalJSON(data []byte) error {
 func (t LocalTime) Value() (driver.Value, error) {
 	var zeroTime time.Time
 	tlt := time.Time(t)
+	fmt.Println("value -> ", tlt)
 	//判断给定时间是否和默认零时间的时间戳相同
 	if tlt.UnixNano() == zeroTime.UnixNano() {
 		return nil, nil

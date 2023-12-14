@@ -222,7 +222,8 @@ export default Vue.extend({
       console.log("onfinishTrain", this.trainHistory.trainActionList);
       uni.showModal({
         title: "",
-        content: this.status == "created"?"是否结束当前训练?":"是否保存当前训练?",
+        content:
+          this.status == "created" ? "是否结束当前训练?" : "是否保存当前训练?",
         success: (res) => {
           if (res.confirm) {
             if (this.trainHistory.title == "") {
@@ -275,7 +276,7 @@ export default Vue.extend({
       console.log("initData", data);
       this.status = "created";
       //加载本地保留的未完成的trainContent
-      if (data.existed) {
+      if (data == null || data.existed) {
         let unfinishedTrainRecord = getDoingTrain() as any;
         console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
         if (unfinishedTrainRecord != null) {
@@ -291,7 +292,7 @@ export default Vue.extend({
       }
     },
     editData(trainHistory: TrainHistory, trainContent: TrainContent[]) {
-      if (trainHistory.finish){
+      if (trainHistory.finish) {
         this.status = "edit";
         let ActionDetailList = TrainContentToActionDetail(trainContent);
         this.trainHistory = {
@@ -301,7 +302,7 @@ export default Vue.extend({
           comment: trainHistory.comment,
           trainActionList: ActionDetailList,
         };
-      }else{
+      } else {
         this.status = "created";
         //加载本地保留的未完成的trainContent
         let unfinishedTrainRecord = getDoingTrain() as any;
@@ -311,7 +312,6 @@ export default Vue.extend({
           this.trainHistory = unfinishedTrainRecord;
         }
       }
-
     },
     onTrainActionDetailUpdate(item: TrainContent[], index: number) {
       this.trainHistory.trainActionList[index].action_content = item;

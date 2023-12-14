@@ -36,7 +36,7 @@ export default Vue.extend({
           });
     },
     refreshStatus() {
-      console.log("refresh notice bar..")
+      console.log("refresh notice bar..",getDoingTrain() )
       this.text="当前有正在进行的训练计划，点击查看详情"
       if (!isLogin()){
         this.isTrainingPlanExist=false

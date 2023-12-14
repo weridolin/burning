@@ -219,6 +219,13 @@ export default Vue.extend({
     }
     if (uni.getStorageSync("showDetail")){
       console.log("open training history detail")
+      this.status = "created";
+      let ele1 = this.$refs["newRecordEditPage"] as any;
+      ele1.initData(null);
+      let ele = this.$refs["newRecord"] as any;
+      if (ele) {
+        ele.open();
+      }
       uni.removeStorageSync('showDetail')
     }
   },
