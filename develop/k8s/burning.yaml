@@ -26,6 +26,8 @@ spec:
               value: "on"
             - name: GOPROXY
               value: https://goproxy.cn/,direct
+            - name: TZ
+              value: Asia/Shanghai
           workingDir: /backend
           volumeMounts:
             - name: burning-backend

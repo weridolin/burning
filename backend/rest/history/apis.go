@@ -130,10 +130,6 @@ func GetTrainHistory(c *gin.Context) {
 
 	fmt.Println("get train history, conditions -> ", params)
 
-	// conditions := map[string]interface{}{}
-	// for k, v := range params {
-	// 	conditions[k] = v
-	// }
 
 	condition_string := "created_at >= '" + params["start_time"][0] + "' and created_at <= '" + params["end_time"][0] + "' and user_id = '" + user_id + "'"
 	var data []TrainHistoryContentItem
@@ -150,6 +146,8 @@ func GetTrainHistory(c *gin.Context) {
 			TrainHistory: trainHistory[i],
 			TrainContent: content,
 		})
+		fmt.Println(trainHistory[i].CreatedAt, trainHistory[i].UpdatedAt)
+
 	}
 	common.SuccessResponse(c, http.StatusOK, data)
 }
