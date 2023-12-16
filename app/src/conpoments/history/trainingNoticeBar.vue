@@ -31,9 +31,17 @@ export default Vue.extend({
     switchToTrainDetail() {
       console.log("跳转到训练详情页");
       uni.setStorageSync("showDetail",true)
+      //判断当前页
+      // let pages = getCurrentPages();
+      // if (pages[pages.length - 1].$page.fullPath == "/pages/history/index") {
+      //   this.$forceUpdate();
+      // }else{
       uni.switchTab({
-            url: "/pages/history/index",
-          });
+          url: "/pages/history/index",
+        });
+      // }
+
+    
     },
     refreshStatus() {
       console.log("refresh notice bar..",getDoingTrain() )

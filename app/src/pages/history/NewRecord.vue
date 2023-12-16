@@ -100,12 +100,17 @@ export default Vue.extend({
         title: "",
         comment: "",
         trainActionList,
+        // unWatchTrainHistory:null
       },
       status: "created", // 新建记录情况下为created 修改记录情况为edit edit时不会清空/更新本地缓存
     };
   },
   mounted() {
     console.log("mounted....");
+    // this.unWatchTrainHistory
+  },
+  onLoad(){
+    // this.unWatchTrainHistory
   },
   watch: {
     trainHistory: {
@@ -258,6 +263,7 @@ export default Vue.extend({
                 uni.hideLoading();
                 if (this.status == "created") {
                   clearDoingTrain();
+                  this.status = ""; // 防止watch里面在进行修改
                 }
                 console.log("local store clear", getDoingTrain);
               },

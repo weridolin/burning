@@ -86,6 +86,7 @@ export function isLogin(): boolean {
 }
 
 export function setDoingTrain(plan: object) {
+  console.log("setDoingTrain", plan);
   uni.setStorageSync("doingTrain", JSON.stringify(plan));
 }
 

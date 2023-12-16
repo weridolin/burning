@@ -1,9 +1,9 @@
 <template>
   <view class="content">
-    <trainingNoticeBar
+    <!-- <trainingNoticeBar
       style="width: 100%"
       ref="trainingNoticeBar"
-    ></trainingNoticeBar>
+    ></trainingNoticeBar> -->
     <view>
       <uni-calendar
         :insert="true"
@@ -189,6 +189,7 @@ export default Vue.extend({
         ele.close();
       }
       this.status = "";
+      clearDoingTrain()
       this.refreshHistory();
     });
     uni.$on("minimizeDrawer", () => {
@@ -200,9 +201,6 @@ export default Vue.extend({
       this.status = "";
       this.refreshHistory();
     });
-    // if (isLogin()){
-    //   this.refreshHistory();
-    // }
   },
   onUnload() {
     uni.$off("finishTrain");
