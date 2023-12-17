@@ -13,6 +13,83 @@
         "action_en_name": "UpbarbellSquat",
         "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/shangxieganglingwotui.png"
       }
+      ,
+      {
+        "action_name": "上斜杠铃卧推",
+        "action_type": "上斜杠铃卧推",
+        "action_en_name": "UpbarbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/shangxieganglingwotui.png"
+      },
+      {
+        "action_name": "上斜杠铃卧推",
+        "action_type": "上斜杠铃卧推",
+        "action_en_name": "UpbarbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/shangxieganglingwotui.png"
+      },
+      {
+        "action_name": "上斜杠铃卧推",
+        "action_type": "上斜杠铃卧推",
+        "action_en_name": "UpbarbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/shangxieganglingwotui.png"
+      }
+    ],
+    "史密斯机":[
+      {
+        "action_name": "史密斯上斜杠铃卧推",
+        "action_type": "史密斯上斜杠铃卧推",
+        "action_en_name": "SmithUpbarbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/smithshangxiewotui.png"
+      },
+      {
+        "action_name": "史密斯杠铃卧推",
+        "action_type": "史密斯杠铃卧推",
+        "action_en_name": "SmithUpbarbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/smithganglingwotui.png"
+      }
+    ],
+    "哑铃":[  
+      {
+        "action_name": "哑铃卧推",
+        "action_type": "哑铃卧推",
+        "action_en_name": "SmithUpbarbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/yalingwotui.png"
+      },
+      {
+        "action_name": "哑铃上斜卧推",
+        "action_type": "哑铃上斜卧推",
+        "action_en_name": "SmithUpbarbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/shangxieyalingwotui.png"
+      }
+    ],
+    "固定器械":[
+      {
+        "action_name": "双杠臂屈伸",
+        "action_type": "双杠臂屈伸",
+        "action_en_name": "ShuangGangBiQuShen",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/shanggangbiqushen.png"
+      },
+      {
+        "action_name": "蝴蝶机夹胸",
+        "action_type": "蝴蝶机夹胸",
+        "action_en_name": "HuDieJiJiaXiong",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/hudiejijiaxiong.png"
+      }
+    ],
+    "绳索":[
+      {
+        "action_name": "绳索夹胸",
+        "action_type": "绳索夹胸",
+        "action_en_name": "shengSuoJiaXiong",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/longmenjiajiaxiong.png"
+      }
+    ],
+    "徒手":[
+      {
+        "action_name": "(负重)俯卧撑",
+        "action_type": "(负重)俯卧撑",
+        "action_en_name": "pushup",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/fuwocheng.png"
+      }
     ]
   },
   "背": {
