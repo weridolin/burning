@@ -147,6 +147,29 @@ export const BurningApis = {
       },
       authenticated: false,
     },
+    addCustomAction:{
+      method: "POST",
+      url: "/burning/api/v1/actions/custom",
+      authenticated: true,
+    },
+    getCustomActions:{
+      method: "GET",
+      url: "/burning/api/v1/actions/custom",
+      authenticated: true,
+    },
+    deleteCustomAction:{
+      method: "DELETE",
+      url: (actionID: number) => {
+        return `/burning/api/v1/actions/custom/${actionID}`;
+      },
+      authenticated: true,
+    },
+    updateCustomAction:{
+      method: "PUT",
+      url: (actionID: number) => {
+        return `/burning/api/v1/actions/custom/${actionID}`;
+      },
+      authenticated: true,
+    },
   },
-
 };

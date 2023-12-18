@@ -16,6 +16,11 @@ func RegisterActionRouter(r *gin.RouterGroup) {
 	r.POST("", actions.AddAction)
 	r.PUT("/:id", actions.UpdateAction)
 	r.DELETE("/:id", actions.DeleteAction)
+	r.Use(users.AuthMiddleware(true))
+	r.GET("/custom", actions.GetCustomActions)
+	r.POST("/custom", actions.AddCustomAction)
+	r.PUT("/custom/:custom_action_id", actions.UpdateCustomAction)
+	r.DELETE("/custom/:custom_action_id", actions.DeleteCustomAction)
 }
 
 func RegisterUsersRouter(r *gin.RouterGroup) {

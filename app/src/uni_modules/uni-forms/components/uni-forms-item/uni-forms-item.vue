@@ -468,7 +468,7 @@
 		margin-bottom: 22px;
 		/* #endif */
 		flex-direction: row;
-
+		padding: 10px 10px;
 		&__label {
 			display: flex;
 			flex-direction: row;

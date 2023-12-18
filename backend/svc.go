@@ -45,6 +45,8 @@ func LoadInitData(db *gorm.DB, conf configs.Config) {
 				fmt.Println("v2 -> ", v2)
 				v2.ActionInstrument = action_instrument
 				v2.ActionType = actions_type
+				v2.UserID = 0
+				v2.IsCustom = false
 				conditions := map[string]interface{}{
 					"action_name":       v2.ActionName,
 					"action_type":       v2.ActionType,

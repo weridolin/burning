@@ -15,6 +15,8 @@ type Actions struct {
 	ActionVideoUri   string `json:"action_video" yaml:"action_video" comment:"动作视频"`
 	ActionInstrument string `json:"action_instrument" yaml:"action_instrument" comment:"动作器械"`
 	ActionEnName     string `json:"action_en_name" yaml:"action_en_name" comment:"动作英文名"`
+	UserID           int    `json:"user_id" yaml:"user_id" comment:"用户ID" gorm:"default:0"`
+	IsCustom         bool   `json:"is_custom" yaml:"is_custom" comment:"是否自定义" gorm:"default:false"`
 }
 
 func GenerateUUID() string {
@@ -46,4 +48,10 @@ func QueryActions(condition map[string]interface{}, DB *gorm.DB) ([]Actions, err
 	var actions []Actions
 	err := DB.Where(condition).Find(&actions).Error
 	return actions, err
+}
+
+func DeleteAction(ID string, DB *gorm.DB) error {
+	var action Actions
+	err := DB.Where("id = ?", ID).Delete(&action).Error
+	return err
 }
