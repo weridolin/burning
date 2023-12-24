@@ -48,7 +48,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { setToken, setUserProfile,UserBodyInfo } from "../../store/local";
-import { LoginRequestForm,Login,LoginResponsePayload } from "./apis";
+import { LoginRequestForm,Login,LoginResponsePayload,GetUserProfileResponsePayload } from "./apis";
 import {GetUserProfile} from "@/pages/person/apis";
 // import {}
 
@@ -84,14 +84,16 @@ export default Vue.extend({
         });
         GetUserProfile((res)=>{
           console.log("获取用户信息 -> ",res)
-          let userBodyProfile = res.data as UserBodyInfo;
+          let userBodyProfile = res.data as GetUserProfileResponsePayload;
           setUserProfile({
             name: loginData.username,
             avatar: loginData.avatar,
             email: loginData.email,
             phone: loginData.phone,
             gender:loginData.gender,
-            bodyInfo: userBodyProfile
+            uuid:userBodyProfile.uuid,
+            days:userBodyProfile.days,
+            // bodyInfo: userBodyProfile
           });
           uni.showToast({
             title: "登录成功",

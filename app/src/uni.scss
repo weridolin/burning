@@ -1519,3 +1519,13 @@ radio-group label, checkbox-group label{
 .left-win-active text{
 	color: #007AFF !important;
 }
+
+
+//自定义样式
+.container__createBodyInfo {
+	.container__createBodyInfo_form{	
+		.uni-forms-item {
+				margin-bottom: 2px;
+			}
+	}
+}

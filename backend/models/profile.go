@@ -7,19 +7,9 @@ import (
 //个人资料
 type PersonProfile struct {
 	BaseModel
-	UserID                int     `json:"user_id" yaml:"user_id" comment:"用户ID" gorm:"uniqueIndex:idx_user_id"`
-	Height                int     `json:"height" yaml:"height" comment:"身高"`
-	BodyFatRate           float32 `json:"body_fat_rate" yaml:"body_fat_rate" comment:"体脂率"`
-	ChestCircumference    int     `json:"chest_circumference" yaml:"chest_circumference" comment:"胸围"`
-	UpperArmCircumference int     `json:"upper_arm_circumference" yaml:"upper_arm_circumference" comment:"上臂围"`
-	WaistLine             int     `json:"waistline" yaml:"waistline" comment:"腰围" gorm:"column:waistline"`
-	ThighCircumference    int     `json:"thigh_circumference" yaml:"thigh_circumference" comment:"大腿围"`
-	CalfCircumference     int     `json:"calf_circumference" yaml:"calf_circumference" comment:"小腿围"`
-	HipLine               int     `json:"hipline" yaml:"hipline" comment:"臀围" gorm:"column:hipline"`
-	Weight                int     `json:"weight" yaml:"weight" comment:"体重"`
-	ShoulderBreadth       int     `json:"shoulder_breadth" yaml:"shoulder_breadth" comment:"肩宽"`
-	Uuid                  string  `json:"uuid" yaml:"uuid" comment:"uuid" gorm:"column:uuid"`
-	Days                  int     `json:"days" yaml:"days" comment:"累计签到天数"`
+	UserID int    `json:"user_id" yaml:"user_id" comment:"用户ID" gorm:"uniqueIndex:idx_user_id"`
+	Uuid   string `json:"uuid" yaml:"uuid" comment:"uuid" gorm:"column:uuid"`
+	Days   int    `json:"days" yaml:"days" comment:"累计签到天数"`
 }
 
 // 用户签到表
@@ -28,6 +18,23 @@ type UserSign struct {
 	UserID int `json:"user_id" yaml:"user_id" comment:"用户ID"`
 	Type   int `json:"type" yaml:"type" comment:"签到类型"`
 	Reward int `json:"reward" yaml:"reward" comment:"奖励"`
+}
+
+// 用户身体数据
+type BodyInfo struct {
+	BaseModel
+	Height                string `json:"height" yaml:"height" gorm:"size:255;comment:身高"`
+	BodyFatRate           string `json:"body_fat_rate" yaml:"body_fat_rate" gorm:"size:255;comment:体脂率"`
+	ChestCircumference    string `json:"chest_circumference" yaml:"chest_circumference" gorm:"size:255;comment:胸围"`
+	UpperArmCircumference string `json:"upper_arm_circumference" yaml:"upper_arm_circumference" gorm:"size:255;comment:上臂围"`
+	WaistLine             string `json:"waistline" yaml:"waistline" gorm:"column:waistline;size:255;comment:腰围"`
+	ThighCircumference    string `json:"thigh_circumference" yaml:"thigh_circumference" gorm:"size:255;comment:大腿围"`
+	CalfCircumference     string `json:"calf_circumference" yaml:"calf_circumference" gorm:"size:255;comment:小腿围"`
+	HipLine               string `json:"hipline" yaml:"hipline"  gorm:"column:hipline;size:255;comment:臀围"`
+	Weight                string `json:"weight" yaml:"weight" gorm:"size:255;comment:体重"`
+	ShoulderBreadth       string `json:"shoulder_breadth" yaml:"shoulder_breadth" gorm:"size:255;comment:肩宽"`
+	UserID                int    `json:"user_id" yaml:"user_id" gorm:"comment:用户ID"`
+	Date                  string `json:"date" yaml:"date" gorm:"size:255;comment:更新日期"`
 }
 
 func GetUserProfile(user_id int, db *gorm.DB) (profile PersonProfile, err error) {
@@ -71,4 +78,24 @@ func GetLastSignDate(userID int, db *gorm.DB) (date string, err error) {
 		return "", err
 	}
 	return sign.CreatedAt.Format("2006-01-02"), nil
+}
+
+func GetUserBodyInfo(userID int, Date string, DB *gorm.DB) BodyInfo {
+	var bodyInfo BodyInfo
+	DB.Where("user_id = ? and updated_date = ?", userID, Date).First(&bodyInfo)
+	return bodyInfo
+}
+
+func GetAllUserBodyInfo(userID int, DB *gorm.DB) []BodyInfo {
+	var bodyInfos []BodyInfo
+	DB.Where("user_id = ?", userID).Find(&bodyInfos)
+	return bodyInfos
+}
+
+func UpdateBodyInfo(UserID int, Params map[string]interface{}, db *gorm.DB) error {
+	return db.Model(&BodyInfo{}).Where("user_id = ? and date = ?", UserID, Params["date"]).Updates(Params).Error
+}
+
+func CreateNewBodyInfo(bodyInfo *BodyInfo, db *gorm.DB) error {
+	return db.Create(bodyInfo).Error
 }

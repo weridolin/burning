@@ -43,6 +43,12 @@
       "style": {
         "navigationBarTitleText": "注册"
       }
+    },
+    {
+      "path": "pages/person/bodyInfoDetail",
+      "style": {
+        "navigationBarTitleText": "身体数据"
+      }
     }
   ],
   "globalStyle": {

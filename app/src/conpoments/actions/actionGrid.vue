@@ -121,12 +121,13 @@
 <script lang="ts">
 import Vue from "vue";
 import { GetActionList, Action,GetCustomActions,DeleteCustomAction,UpdateCustomAction,AddCustomAction } from "@/pages/action/apis";
+import { indexOf } from "lodash";
 
 export default Vue.extend({
   data() {
     var actionsList: { [key: string]: { [key: string]: Action[] } } = {};
     var selectActionsList: { [key: string]: Action[] } = {};
-    var actiontypeList:{value:number,text:string}[] = []
+    var actiontypeList:{value:string,text:string}[] = []
     var newAction: Action = {
       uuid: "",
       action_name: "", //动作名称 比如 杠铃卧推
@@ -198,7 +199,7 @@ export default Vue.extend({
       that.navCount = arr.length;
       this.actiontypeList = []
       for (var i = 0; i < arr.length; i++) {
-        that.actiontypeList.push({value:i,text:arr[i]})
+        that.actiontypeList.push({value:arr[i],text:arr[i]})
       }
     },
     getActionList() {
@@ -254,9 +255,22 @@ export default Vue.extend({
                 element.action_instrument in
                 that.actionsList[element.action_type]
               ) {
-                that.actionsList[element.action_type][
-                  element.action_instrument
-                ].push(element);
+                // if(that.actionsList[element.action_type][element.action_instrument].indexOf(element)!=-1)
+                // { console.log("add element to custom actionList -> ",element)
+                let isExist=false
+                for (let index = 0; index < that.actionsList[element.action_type][element.action_instrument].length; index++) {
+                  const element2 = that.actionsList[element.action_type][element.action_instrument][index];
+                  if (element2.action_name==element.action_name){
+                    isExist=true
+                    break
+                  }
+                }
+                if (!isExist){
+
+                  that.actionsList[element.action_type][element.action_instrument].push(element);
+                
+                }
+
               } else {
                 that.actionsList[element.action_type][
                   element.action_instrument

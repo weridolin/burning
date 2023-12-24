@@ -51,3 +51,51 @@ export function GetLastSign(successCallback: (res: any) => void, failCallback: (
     fail: failCallback
   })
 }
+
+
+
+export function GetUserBodyInfo(date:string,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return AuthApi.request({
+    url: BurningApis.auth.getBodyInfo.url,
+    requiredLogin: BurningApis.auth.getBodyInfo.authenticated,
+    method: BurningApis.auth.getBodyInfo.method,
+    data:{
+      "date":date
+    },
+    success: successCallback,
+    fail: failCallback
+  })
+}
+
+export function GetAllBodyInfo(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return AuthApi.request({
+    url: BurningApis.auth.getBodyInfo.url,
+    requiredLogin: BurningApis.auth.getBodyInfo.authenticated,
+    method: BurningApis.auth.getBodyInfo.method,
+    success: successCallback,
+    fail: failCallback
+  })
+}
+
+
+export function CreateUserBodyInfo(data:any,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return AuthApi.request({
+    url: BurningApis.auth.createBodyInfo.url,
+    requiredLogin: BurningApis.auth.createBodyInfo.authenticated,
+    method: BurningApis.auth.createBodyInfo.method,
+    data:data,
+    success: successCallback,
+    fail: failCallback
+  })
+}
+
+export function UpdateUserBodyInfo(data:any,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return AuthApi.request({
+    url: BurningApis.auth.updateBodyInfo.url,
+    requiredLogin: BurningApis.auth.updateBodyInfo.authenticated,
+    method: BurningApis.auth.updateBodyInfo.method,
+    data:data,
+    success: successCallback,
+    fail: failCallback
+  })
+}

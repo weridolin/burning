@@ -28,6 +28,12 @@ export interface RegisterForm {
   checkcode: string,
 }
 
+export interface GetUserProfileResponsePayload {
+  user_id: number,
+  uuid: string,
+  days: number
+}
+
 const AuthApis = new BaseApi()
 
 export function Login(loginForm:LoginRequestForm, successCallback: (res: any) => void, failCallback: (err: any) => void) {

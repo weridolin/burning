@@ -49,7 +49,7 @@
         }}</text>
       </view>
       <view class="tool">
-        <view>
+        <view @click="showBodyInfo">
           <image src="../../static/icons/bodyinfo.png" />
           <text>身体数据</text>
         </view>
@@ -136,10 +136,10 @@ export default Vue.extend({
   },
   computed: {
     user_uuid() {
-      return this.profile.bodyInfo?.uuid.slice(1, 7);
+      return this.profile?.uuid.slice(1, 7);
     },
     sign_days() {
-      return this.profile?.bodyInfo?.days;
+      return this.profile?.days;
     },
     is_login() {
       return isLogin();
@@ -150,10 +150,8 @@ export default Vue.extend({
 
   },
   onShow() {
+    console.log("person page on show -> ", this.profile, isLogin())
     if (!isLogin()) {
-      // uni.navigateTo({
-      //   url: "/pages/auth/login",
-      // });
       this.profile.name = "未登录";
       this.status = "登录";
       console.log("profile ->",this.profile)
@@ -163,12 +161,12 @@ export default Vue.extend({
       GetUserProfile(
         (res) => {
           console.log("获取用户档案信息 -> ", res);
-          let userBodyProfile = res.data as UserBodyInfo;
-          // this.profile = userBodyProfile;
+          // let userBodyProfile = res.data as UserBodyInfo;
+          // // this.profile = userBodyProfile;
           let profile = getUserProfile();
           if (profile != null) {
-            profile.bodyInfo = userBodyProfile;
-            setUserProfile(profile);
+            // profile = userBodyProfile;
+            // setUserProfile(profile);
             this.profile = profile;
           }
           console.log("user profile -> ", profile);
@@ -214,8 +212,8 @@ export default Vue.extend({
             icon: "success",
           });
           let profile = getUserProfile();
-          if (profile != null && profile.bodyInfo != null) {
-            profile.bodyInfo.days = profile.bodyInfo.days + 1;
+          if (profile != null && profile != null) {
+            profile.days = profile.days + 1;
             setUserProfile(profile);
             this.profile = profile;
           }
@@ -285,6 +283,11 @@ export default Vue.extend({
           this.alreadySign = false;
         }
       )
+    },
+    showBodyInfo(){
+      uni.navigateTo({
+        url: "/pages/person/bodyInfoDetail",
+      });
     }
   },
 });

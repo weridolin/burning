@@ -88,3 +88,65 @@ func GetLastSignDate(c *gin.Context) {
 	}
 	common.SuccessResponse(c, http.StatusOK, date)
 }
+
+// 获取最新的身体数据
+func GetBodyInfo(c *gin.Context) {
+	user_id := c.Request.Header.Get("X-User")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	date := c.Query("date")
+	_user_id := common.Str2Int(user_id)
+	if date == "" {
+		bodyInfos := models.GetAllUserBodyInfo(_user_id, common.DB)
+		common.SuccessResponse(c, http.StatusOK, bodyInfos)
+	} else {
+		bodyInfo := models.GetUserBodyInfo(_user_id, date, common.DB)
+		common.SuccessResponse(c, http.StatusOK, bodyInfo)
+	}
+}
+
+func UpdateBodyInfo(c *gin.Context) {
+	user_id := c.Request.Header.Get("X-User")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	// date := c.Query("date")
+	var params map[string]interface{}
+	if err := c.ShouldBindJSON(&params); err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	_user_id := common.Str2Int(user_id)
+	if params["date"] == "" {
+		common.ErrorResponse(c, http.StatusBadRequest, "日期不能为空")
+	} else {
+		if err := models.UpdateBodyInfo(_user_id, params, common.DB); err != nil {
+			common.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+	common.SuccessResponse(c, http.StatusOK, nil)
+}
+
+func CreateBodyInfo(c *gin.Context) {
+	user_id := c.Request.Header.Get("X-User")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	// date := c.Query("date")
+	var new *models.BodyInfo
+	if err := c.ShouldBindJSON(&new); err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	_user_id := common.Str2Int(user_id)
+	new.UserID = _user_id
+	if err := models.CreateNewBodyInfo(new, common.DB); err != nil {
+		common.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+	common.SuccessResponse(c, http.StatusOK, new)
+}

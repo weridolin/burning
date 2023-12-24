@@ -31,6 +31,10 @@ func RegisterUsersRouter(r *gin.RouterGroup) {
 	r.PUT("/profile", users.UpdateUserProfile)
 	r.POST("/sign", users.Sign)
 	r.GET("/lastSign", users.GetLastSignDate)
+
+	r.GET("/bodyInfo", users.GetBodyInfo)
+	r.PUT("/bodyInfo", users.UpdateBodyInfo)
+	r.POST("/bodyInfo", users.CreateBodyInfo)
 }
 
 func RegisterHistoryRouter(r *gin.RouterGroup) {

@@ -20,6 +20,7 @@ func DbMigrate(db *gorm.DB, conf configs.Config) {
 	db.AutoMigrate(&models.Actions{})
 	db.AutoMigrate(&models.FoodHistory{})
 	db.AutoMigrate(&models.PersonProfile{})
+	db.AutoMigrate(&models.BodyInfo{})
 	db.AutoMigrate(&models.TrainingHistory{})
 	db.AutoMigrate(&models.TrainingContentDetail{})
 	db.AutoMigrate(&models.UserSign{})

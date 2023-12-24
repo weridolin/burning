@@ -35,6 +35,21 @@ export const BurningApis = {
       url: "/burning/api/v1/users/lastSign",
       authenticated: true,
     },
+    getBodyInfo:{ //获取身体信息
+      method: "GET",
+      url: "/burning/api/v1/users/bodyInfo",
+      authenticated: true,
+    },
+    updateBodyInfo:{ //更新身体信息
+      method: "PUT",
+      url: "/burning/api/v1/users/bodyInfo",
+      authenticated: true,
+    },
+    createBodyInfo:{ //创建身体信息}
+      method: "POST",
+      url: "/burning/api/v1/users/bodyInfo",
+      authenticated: true,
+    },
   },
   home: {
     getVideoInfo: {
