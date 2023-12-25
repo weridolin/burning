@@ -80,10 +80,10 @@ func GetLastSignDate(userID int, db *gorm.DB) (date string, err error) {
 	return sign.CreatedAt.Format("2006-01-02"), nil
 }
 
-func GetUserBodyInfo(userID int, Date string, DB *gorm.DB) BodyInfo {
+func GetUserBodyInfo(userID int, Date string, DB *gorm.DB) (BodyInfo, error) {
 	var bodyInfo BodyInfo
-	DB.Where("user_id = ? and updated_date = ?", userID, Date).First(&bodyInfo)
-	return bodyInfo
+	err := DB.Where("user_id = ? and date = ?", userID, Date).First(&bodyInfo).Error
+	return bodyInfo, err
 }
 
 func GetAllUserBodyInfo(userID int, DB *gorm.DB) []BodyInfo {

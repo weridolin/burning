@@ -102,7 +102,11 @@ func GetBodyInfo(c *gin.Context) {
 		bodyInfos := models.GetAllUserBodyInfo(_user_id, common.DB)
 		common.SuccessResponse(c, http.StatusOK, bodyInfos)
 	} else {
-		bodyInfo := models.GetUserBodyInfo(_user_id, date, common.DB)
+		bodyInfo, err := models.GetUserBodyInfo(_user_id, date, common.DB)
+		if err != nil {
+			common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
 		common.SuccessResponse(c, http.StatusOK, bodyInfo)
 	}
 }
