@@ -51,34 +51,53 @@
 						<uni-datetime-picker type="date" v-model="createForm.date"/>
 					</uni-forms-item>
           <uni-forms-item label="身高" class="container__create_form_item">
-            <uni-number-box :value="createForm.height" background="#2979FF" color="#fff" />
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.height" placeholder="请输入身高" ></uni-easyinput>
+            <!-- <uni-number-box v-model="createForm.height"  background="#2979FF" color="#fff" /> -->
 					</uni-forms-item>
           <uni-forms-item label="体重" >
-            <uni-number-box :value="createForm.waistline" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.weight" placeholder="请输入体重" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.waistline" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item label="体脂" >
-            <uni-number-box :value="createForm.body_fat_rate" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.body_fat_rate" placeholder="请输入体脂" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.body_fat_rate" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
 					<uni-forms-item label="臂围" >
-            <uni-number-box :value="createForm.upper_arm_circumference" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.upper_arm_circumference" placeholder="请输入臂围" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.upper_arm_circumference" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item label="胸围" >
-            <uni-number-box :value="createForm.chest_circumference" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.chest_circumference" placeholder="请输入胸围" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.chest_circumference" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item label="臀围" >
-						<uni-number-box :value="createForm.hip_line" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.hip_line" placeholder="请输入臀围" ></uni-easyinput>
+
+						<!-- <uni-number-box v-model="createForm.hip_line" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item label="肩宽" >
-            <uni-number-box :value="createForm.shoulder_breadth" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.shoulder_breadth" placeholder="请输入肩宽" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.shoulder_breadth" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item label="腰围" >
-            <uni-number-box :value="createForm.waistline" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.waistline" placeholder="请输入腰围" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.waistline" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item label="大腿围" >
-            <uni-number-box :value="createForm.thigh_circumference" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.thigh_circumference" placeholder="请输入大腿围" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.thigh_circumference" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item label="小腿围" >
-            <uni-number-box :value="createForm.calf_circumference" background="#2979FF" color="#fff"/>
+            <uni-easyinput class="uni-mt-5" trim="all" v-model="createForm.calf_circumference" placeholder="请输入小腿围" ></uni-easyinput>
+
+            <!-- <uni-number-box v-model="createForm.calf_circumference" background="#2979FF" color="#fff"/> -->
 					</uni-forms-item>
           <uni-forms-item>
             <button type="primary" @click="createUserInfo">提交</button>
@@ -150,12 +169,15 @@ export default Vue.extend({
       };
   },
   onReady() {
+    console.log("(body info detail page) onReady ")
+    this.getAllBodyInfo();
     this.drawInfo();
   },
   onUnload() {
   },
   onShow() {
-    this.getAllBodyInfo();
+    // console.log("(body info detail page) onShow -> ", this.date);
+    // this.getAllBodyInfo();
   },
   methods: {
     drawInfo() {
@@ -248,6 +270,10 @@ export default Vue.extend({
           (error) => {
             console.log("(body info detail page) get body info error -> ",error);
             uni.hideLoading();
+            uni.showToast({
+              title: '当天未记录数据!',
+              icon: 'error'
+            });
           }
         );
     },
@@ -271,6 +297,7 @@ export default Vue.extend({
       uni.showLoading({
         title: "创建身体数据中...",
       });
+      console.log("(body info detail page) create body info -> ", this.createForm);
       CreateUserBodyInfo(
         this.createForm,
         (res) => {
@@ -281,6 +308,8 @@ export default Vue.extend({
               date: this.createForm.date,
               info: '已记录'
             });
+          this.drawInfo();
+          this.closeCalender();
           uni.hideLoading();
         },
         (error) => {
@@ -425,6 +454,15 @@ export default Vue.extend({
         return;
       }else{
           calendar.open();
+      }
+    },
+    closeCalender(){
+      var createForm = this.$refs["create-form"] as any;
+      if (createForm == null) {
+        console.log("(body info detail page) createForm is null");
+        return;
+      }else{
+        createForm.close();
       }
     },
     getAllBodyInfo(){

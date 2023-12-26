@@ -78,24 +78,27 @@ export function GetAllBodyInfo(successCallback: (res: any) => void, failCallback
 }
 
 
-export function CreateUserBodyInfo(data:any,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+export function CreateUserBodyInfo(data:object,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  console.log(">>>>>>>>>>",data)
   return AuthApi.request({
     url: BurningApis.auth.createBodyInfo.url,
     requiredLogin: BurningApis.auth.createBodyInfo.authenticated,
     method: BurningApis.auth.createBodyInfo.method,
     data:data,
     success: successCallback,
-    fail: failCallback
+    fail: failCallback,
+    contentType: "application/json"
   })
 }
 
-export function UpdateUserBodyInfo(data:any,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+export function UpdateUserBodyInfo(data:object,successCallback: (res: any) => void, failCallback: (err: any) => void) {
   return AuthApi.request({
     url: BurningApis.auth.updateBodyInfo.url,
     requiredLogin: BurningApis.auth.updateBodyInfo.authenticated,
     method: BurningApis.auth.updateBodyInfo.method,
     data:data,
     success: successCallback,
-    fail: failCallback
+    fail: failCallback,
+    contentType: "application/json"
   })
 }
