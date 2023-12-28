@@ -130,7 +130,6 @@ func GetTrainHistory(c *gin.Context) {
 
 	fmt.Println("get train history, conditions -> ", params)
 
-
 	condition_string := "created_at >= '" + params["start_time"][0] + "' and created_at <= '" + params["end_time"][0] + "' and user_id = '" + user_id + "'"
 	var data []TrainHistoryContentItem
 	trainHistory, err := models.QueryTrainingHistory(condition_string, common.DB)
@@ -270,16 +269,103 @@ func FinishTrain(c *gin.Context) {
 // 饮食记录
 
 func AddNewDietHistory(c *gin.Context) {
+	user_id := c.Request.Header.Get("X-User")
+	_user_id, _ := strconv.Atoi(user_id)
+	var params models.FoodHistory
+	if err := c.ShouldBindJSON(&params); err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	params.UserID = _user_id
+	// fmt.Println("add diet history, params -> ", params)
+	diet_record, err := models.CreateNewDietHistory(params, common.DB)
+	if err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	common.SuccessResponse(c, http.StatusOK, diet_record)
+
 }
 
 func DeleteDietHistory(c *gin.Context) {
+	diet_id := common.Str2Int(c.Param("diet_id"))
+	user_id := c.Request.Header.Get("X-User")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	diet_record, err := models.QueryDietHistory(map[string]interface{}{"id": diet_id}, common.DB)
+	if err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if len(diet_record) == 0 {
+		common.ErrorResponse(c, http.StatusBadRequest, "记录不存在")
+		return
+	}
+	if diet_record[0].UserID != common.Str2Int(user_id) {
+		common.ErrorResponse(c, http.StatusForbidden, "当前用户无权操作")
+		return
+	}
+
+	err = models.DeleteDietHistory(diet_id, common.DB)
+	if err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	common.SuccessResponse(c, http.StatusOK, nil)
 }
 
 func UpdateDietHistory(c *gin.Context) {
+	diet_id := common.Str2Int(c.Param("diet_id"))
+	user_id := c.Request.Header.Get("X-User")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	diet_record, err := models.QueryDietHistory(map[string]interface{}{"id": diet_id}, common.DB)
+	if err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if diet_record[0].UserID != common.Str2Int(user_id) {
+		common.ErrorResponse(c, http.StatusForbidden, "当前用户无权操作")
+		return
+	}
+	var params map[string]interface{}
+	if err := c.ShouldBindJSON(&params); err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = models.UpdateDietHistory(diet_id, params, common.DB)
+	if err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	common.SuccessResponse(c, http.StatusOK, nil)
 }
 
 func GetDietHistory(c *gin.Context) {
-
+	// 查询训练饮食记录
+	user_id := c.Request.Header.Get("X-User")
+	if user_id == "" {
+		common.ErrorResponse(c, http.StatusUnauthorized, "请先登录")
+		return
+	}
+	var params = map[string][]string{}
+	if err := c.ShouldBindQuery(&params); err != nil {
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	fmt.Println("get diet history, conditions -> ", params)
+	condition_string := "created_at >= '" + params["start_time"][0] + "' and created_at <= '" + params["end_time"][0] + "' and user_id = '" + user_id + "'"
+	dietHistory, err := models.QueryDietHistory(condition_string, common.DB)
+	if err != nil {
+		fmt.Println("query diet history error -> ", err)
+		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	common.SuccessResponse(c, http.StatusOK, dietHistory)
 }
 
 func GetDietHistoryDetail(c *gin.Context) {
