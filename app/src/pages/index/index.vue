@@ -1,11 +1,13 @@
 <template>
   <view>
+    <!-- 当前训练提示框 -->
     <trainingNoticeBar
       style="width: 100%"
       ref="trainingNoticeBar"
     ></trainingNoticeBar>
 
     <view class="content">
+    <!-- 训练日志 -->
       <uni-section title="今日已完成训练 " type="line">
         <view
           v-show="isLogin() && trainDetailList && trainDetailList.length > 0"
@@ -28,24 +30,31 @@
           <text class="uni-h6">暂无完成的训练记录</text>
         </uni-card>
       </uni-section>
-      <uni-section title="今日饮食记录 TODO" type="line">
-        <uni-card :title="date" :extra="day">
-          <view class="food-detail">
-            <view class="food-total">
-              <text>已经进食{{ food_info.total }}卡路里</text>
-            </view>
-            <view class="type-detail">
-              <text class="type protein">蛋白质:{{ food_info.protein }}g</text>
-              <text class="type fat">脂肪:{{ food_info.fat }}g</text>
-              <text class="type carbohydrate new-row"
-                >碳:{{ food_info.carbohydrate }}g</text
-              >
-              <text class="type water new-row">水:{{ food_info.water }}g</text>
-            </view>
-          </view>
+
+      <!-- 饮食记录 -->
+      <uni-section title="今日饮食记录 " type="line">
+        <view class="diet-card"
+          ref = "diet-card-list" 
+          v-for="(item,index) in dietHistoryList"
+          :key="index"
+          >
+          <dietCard 
+            :dietContentItemProp="item"
+            >
+          </dietCard>
+        </view>
+        <uni-card :is-shadow="true" v-show="!isLogin()">
+          <text class="uni-h6">登录后可查看</text>
+        </uni-card>
+        <uni-card
+          :is-shadow="true"
+          v-show="isLogin() && dietHistoryList && dietHistoryList.length == 0"
+        >
+          <text class="uni-h6">暂无饮食记录</text>
         </uni-card>
       </uni-section>
-
+      
+      <!-- 教学视频 -->
       <uni-section
         title="教程推荐 TODO"
         type="line"
@@ -87,6 +96,7 @@
         </uni-pagination>
       </uni-section>
 
+      <!-- 音乐推荐 -->
       <uni-section title="来首音乐 TODO" type="line" padding></uni-section>
     </view>
   </view>
@@ -106,14 +116,16 @@ import {
   Music,
 } from "./apis";
 import { GetVideoInfo } from "./apis";
-import { GetTodayTrainHistory } from "@/pages/history/apis";
+import { GetTodayTrainHistory,GetTodayDietHistory } from "@/pages/history/apis";
 import TrainHistoryBriefCard from "@/conpoments/history/trainHistoryBriefCard.vue";
-import { TrainHistoryDetail } from "@/pages/history/apis";
+import { TrainHistoryDetail,DietContentItem } from "@/pages/history/apis";
 import { isLogin } from "@/store/local";
 import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
+import dietCard from "@/conpoments/history/dietCard.vue";
+import dietContent from  "@/conpoments/history/dietContent.vue"
 
 export default Vue.extend({
-  components: { uniSection, TrainHistoryBriefCard, trainingNoticeBar },
+  components: { uniSection, TrainHistoryBriefCard, trainingNoticeBar, dietCard,dietContent },
   data() {
     var trainDetailList: TrainHistoryDetail[] = [];
     var video_info: VideoInfoResponse = {
@@ -140,13 +152,8 @@ export default Vue.extend({
       type: [],
     };
 
-    var food_info: FoodRecord = {
-      total: 0,
-      protein: 0,
-      fat: 0,
-      carbohydrate: 0,
-      water: 0,
-    };
+    var dietHistoryList: DietContentItem[] = []
+
     var music: Music = {
       name: "歌曲名称",
       author: "歌手",
@@ -157,23 +164,34 @@ export default Vue.extend({
     return {
       date: "",
       day: "",
-      food_info,
+      dietHistoryList,
       video_info,
       getVideoInfoRequest,
       typeList: ["胸", "背", "腿", "肩", "手臂", "腹肌", "有氧", "臀"],
       selectType: Array<string>(),
       trainDetailList,
+      dietSelectedIndex:0
     };
   },
-  onLoad() {},
+  onLoad() {
+    //监听dietContent更新事件
+    // this.$on('dietContentUpdated',(dietContentItem:DietContentItem)=>{
+    //   console.log("dietContentUpdated -> ",dietContentItem)
+    //   this.dietHistoryList[this.dietSelectedIndex]=dietContentItem
+    //   this.closeDietDetail()
+    // })
+
+  },
   onShow() {
     this.getTodayTrainRecord();
+    this.getTodayDietRecord();
     this.$forceUpdate();
     let el = this.$refs["trainingNoticeBar"] as any
     if (el){
       el.refreshStatus()
     }
     console.debug("on index page show");
+
   },
   computed: {
     is_login() {
@@ -253,6 +271,17 @@ export default Vue.extend({
         }
       );
     },
+    getTodayDietRecord(){
+      GetTodayDietHistory(
+        (res) => {
+          console.log("get today diet history", res);
+          this.dietHistoryList = res.data as DietContentItem[];
+        },
+        (err) => {
+          console.log("get today diet history err", err);
+        }
+      );
+    },
     isLogin() {
       return isLogin();
     },
@@ -269,32 +298,32 @@ export default Vue.extend({
   justify-content: center; */
 }
 
-.food-detail {
-  display: flex;
-  flex-direction: row;
+// .food-detail {
+//   display: flex;
+//   flex-direction: row;
 
-  .food-total {
-    flex: 0 1 50%;
-    margin-top: 20px;
-  }
-  .type-detail {
-    flex: 0 1 50%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    /* flex-start:  默认从头开始排列*/
-    justify-content: flex-start;
-    .type {
-      flex: 0 1 50%;
-      width: 50%;
-      text-align: center;
-    }
-    .new-row {
-      margin-top: 10px;
-      text-align: center;
-    }
-  }
-}
+//   .food-total {
+//     flex: 0 1 50%;
+//     margin-top: 20px;
+//   }
+//   .type-detail {
+//     flex: 0 1 50%;
+//     display: flex;
+//     flex-direction: row;
+//     flex-wrap: wrap;
+//     /* flex-start:  默认从头开始排列*/
+//     justify-content: flex-start;
+//     .type {
+//       flex: 0 1 50%;
+//       width: 50%;
+//       text-align: center;
+//     }
+//     .new-row {
+//       margin-top: 10px;
+//       text-align: center;
+//     }
+//   }
+// }
 
 .move-tag-list {
   display: flex;

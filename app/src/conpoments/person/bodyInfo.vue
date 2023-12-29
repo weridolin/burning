@@ -22,17 +22,19 @@
       <view class="synthetic-data">
         <view class="synthetic-data__item" >
           <uni-title type="h3" title="输入身高:"></uni-title>
-          <uni-number-box :value="userBodyInfo.height" background="#2979FF" color="#fff" @change="updateUserInfo" />
-        <!-- <uni-easyinput v-model="userBodyInfo.weight" :styles="styles" :placeholderStyle="placeholderStyle" placeholder="输入体重" @input="updateUserInfo"></uni-easyinput> -->
+          <!-- <uni-number-box :value="userBodyInfo.height" background="#2979FF" color="#fff" @change="updateUserInfo" /> -->
+          <uni-easyinput v-model="userBodyInfo.height"  placeholder="输入体重" @input="updateUserInfo"></uni-easyinput>
         </view>
         <view class="synthetic-data__item" >
           <uni-title type="h3" title="输入体重:"></uni-title>
-          <uni-number-box :value="userBodyInfo.weight" background="#2979FF" color="#fff"  @change="updateUserInfo"/>
-        <!-- <uni-easyinput v-model="userBodyInfo.weight" :styles="styles" :placeholderStyle="placeholderStyle" placeholder="输入体重" @input="updateUserInfo"></uni-easyinput> -->
+          <!-- <uni-number-box :value="userBodyInfo.weight" background="#2979FF" color="#fff"  @change="updateUserInfo"/> -->
+          <uni-easyinput v-model="userBodyInfo.weight"  placeholder="输入体重" @input="updateUserInfo"></uni-easyinput>
         </view>
         <view class="synthetic-data__item" >
-          <uni-title type="h3" title="体脂比"></uni-title>
-          <uni-number-box :value="userBodyInfo.body_fat_rate" background="#2979FF" color="#fff"  @change="updateUserInfo" />
+          <uni-title type="h3" title="体脂比:"></uni-title>
+          <!-- <uni-number-box :value="userBodyInfo.body_fat_rate" background="#2979FF" color="#fff"  @change="updateUserInfo" /> -->
+          <uni-easyinput v-model="userBodyInfo.body_fat_rate"  placeholder="输入体脂" @input="updateUserInfo"></uni-easyinput>
+
         </view>
       </view>
     </uni-section>
@@ -278,6 +280,22 @@ export default Vue.extend({
         );
     },
     updateUserInfo() {
+      if (this.userBodyInfo.date == null || this.userBodyInfo.date == "") {
+        uni.showToast({
+          title: '请先新建档案',
+          icon: 'error'
+        });
+        return;
+      }
+      //当天没有数据
+      if (this.dateBodyInfoMap[this.date] == null){
+        uni.showToast({
+          title: '当天未记录数据!',
+          icon: 'error'
+        });
+        return;
+      }
+
       uni.showLoading({
         title: "更新身体数据中...",
       });
@@ -503,6 +521,14 @@ export default Vue.extend({
     padding-right: 10px;
     padding-left: 10px;
     border-bottom: 1px solid #eeeeee;
+
+    >uni-title {
+      flex: 0.3;
+    }
+
+    // >uni-easyinput{
+    //   flex: 5;
+    // }
 
   }
 }

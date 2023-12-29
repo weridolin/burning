@@ -126,16 +126,28 @@ export const BurningApis = {
     //饮食记录
     getFoodHistory: {
       method: "GET",
-      url: "/burning/api/v1/history/food",
+      url: "/burning/api/v1/history/diet",
       authenticated: true,
     },
     updateFoodHistory: {
       method: "PUT",
-      url: (foodID: number) => {
-        return `/burning/api/v1/history/food/${foodID}`;
+      url: (dietID: number) => {
+        return `/burning/api/v1/history/diet/${dietID}`;
       },
       authenticated: true,
     },
+    createFoodHistory: {
+      method: "POST",
+      url: "/burning/api/v1/history/diet",
+      authenticated: true,
+    },
+    deleteFoodHistory: {
+      method: "DELETE",
+      url: (dietID: number) => {
+        return `/burning/api/v1/history/diet/${dietID}`;
+      },
+      authenticated: true,
+    }
   },
   actions:{
     getActions:{

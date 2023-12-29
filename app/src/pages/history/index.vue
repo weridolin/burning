@@ -4,6 +4,7 @@
       style="width: 100%"
       ref="trainingNoticeBar"
     ></trainingNoticeBar> -->
+    <!-- 日历模块 -->
     <view>
       <uni-calendar
         :insert="true"
@@ -14,21 +15,45 @@
         :selected="transHistory"
       />
     </view>
-    <view v-if="trainDetailList.length == 0">
-      <uni-card :is-shadow="true">
-        <text class="uni-body">当天无训练日志</text>
-      </uni-card>
-    </view>
-    <view style="width: 100%" v-if="trainDetailList.length > 0">
-      <TrainHistoryBriefCard
-        v-for="(trainDetail, indextd) in trainDetailList"
-        :key="indextd"
-        :trainDetail="trainDetail"
-        @click.native="onCardClick(trainDetail)"
-        class="train-detail-card"
-      >
-      </TrainHistoryBriefCard>
-    </view>
+
+    <!-- 当天训练日志 --> 
+    <uni-section title="当天训练详情" type="line" style="width: 100%;">
+      <view v-if="trainDetailList.length == 0">
+        <uni-card :is-shadow="true">
+          <text class="uni-body">当天无训练日志</text>
+        </uni-card>
+      </view>
+      <view style="width: 100%" v-if="trainDetailList.length > 0">
+        <TrainHistoryBriefCard
+          v-for="(trainDetail, indextd) in trainDetailList"
+          :key="indextd"
+          :trainDetail="trainDetail"
+          @click.native="onTrainCardClick(indextd)"
+          class="train-detail-card"
+        >
+        </TrainHistoryBriefCard>
+      </view>
+    </uni-section>
+
+    <!-- 当天饮食记录 -->
+    <uni-section title="当天饮食详情" type="line" style="width: 100%;">
+      <view v-if="dietHistoryList.length == 0">
+        <uni-card :is-shadow="true">
+          <text class="uni-body">当天无饮食日志</text>
+        </uni-card>
+      </view>
+      <view class="diet-card"
+        ref = "diet-card-list" 
+        v-for="(item,index) in dietHistoryList"
+        :key="index"
+        @click.native="onDietCardClick(index)"
+        >
+        <dietCard 
+          :dietContentItemProp="dietHistoryList[index]"
+          >
+        </dietCard>
+      </view>
+    </uni-section>
 
     <!-- 右下角悬浮按钮 -->
     <view class="button">
@@ -58,12 +83,11 @@
       </scroll-view>
     </uni-drawer>
 
-    <!-- 卡片点击弹出菜单 -->
+    <!-- 卡片点击 菜单弹框 -->
     <view>
       <uni-popup
         ref="card-popup"
         background-color="#fff"
-        @change="cardPopMenuChange"
       >
         <view class="card-popup__btn_group">
           <view class="uni-popup-share">
@@ -91,6 +115,24 @@
         </view>
       </uni-popup>
     </view>
+
+    <!-- 饮食记录编辑弹框 -->
+    <uni-popup
+      ref="diet-edit-form"
+      title="修改饮食记录"
+      background-color="#fff"
+      >
+      <dietContent 
+        ref="diet-edit-form-dialog"
+        @dietContentUpdated="onDietUpdate"
+        @dietContentCreated="onDieCreated"
+        :dietContentItemProp="dietHistoryList[selectedItemIndex]"
+        > 
+      </dietContent>
+    </uni-popup>
+
+
+
   </view>
 </template>
 
@@ -106,18 +148,23 @@ import {
   AddTrainHistoryResponse,
   DeleteTrainHistory,
   TrainHistoryDetail,
+  DeleteDietHistory
 } from "./apis";
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
 import { isLogin } from "../../store/local";
 import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
+import dietContent from "@/conpoments/history/dietContent.vue";
+import dietCard from "@/conpoments/history/dietCard.vue";
+import { DietContentItem,GetTodayDietHistory,GetDietHistory } from "@/pages/history/apis";
 
 export default Vue.extend({
   data() {
     var transHistory: TrainHistoryBrief[] = []; //
     var trainHistoryMap: { [key: string]: TrainHistoryDetail[] } = {}; // {date: 训练列表}
     var trainDetailList: TrainHistoryDetail[] = []; // 当天的所有训练记录列表
-    var selectedItem: TrainHistoryDetail = {} as TrainHistoryDetail;
+    // var selectedItem: TrainHistoryDetail = {} as TrainHistoryDetail;
+    var dietHistoryList: DietContentItem[] = []
     return {
       title: "训练记录",
       transHistory,
@@ -139,22 +186,18 @@ export default Vue.extend({
         {
           iconPath: "/static/icons/add.png",
           selectedIconPath: "/static/icons/add.png",
-          text: "添加",
+          text: "训练",
+          active: false,
+        },
+        {
+          iconPath: "/static/icons/add.png",
+          selectedIconPath: "/static/icons/add.png",
+          text: "饮食",
           active: false,
         },
       ],
       status: "",
       trainHistoryId: 0,
-      test: [
-        {
-          date: "2023-12-03",
-          info: "打卡",
-        },
-        {
-          date: getDate(new Date(), -1).fullDate,
-          info: "已打卡",
-        },
-      ],
       bottomData: [
         {
           text: "分享",
@@ -178,7 +221,10 @@ export default Vue.extend({
         },
       ],
       selectedCardId: 0,
-      selectedItem,
+      selectedItemIndex:0,
+      dietHistoryList,
+      selectDate:"",
+      selectCardType:"train" // train or diet
     };
   },
   onLoad() {
@@ -214,6 +260,7 @@ export default Vue.extend({
       this.trainDetailList = [];
       this.trainHistoryMap = {};
       this.transHistory = [];
+      this.dietHistoryList = []
     }
     if (uni.getStorageSync("showDetail")){
       console.log("open training history detail")
@@ -225,7 +272,7 @@ export default Vue.extend({
         ele.open();
       }
       uni.removeStorageSync('showDetail')
-    }
+    } 
   },
   methods: {
     updateNoticeBar() {
@@ -234,6 +281,25 @@ export default Vue.extend({
         el.refreshStatus();
       }
     },
+    updateDietHistory(){
+      if (this.selectDate == ""){
+        this.selectDate = getDate(new Date(), 0).fullDate
+      }
+      // 获取当天的饮食记录
+      let startTime = this.selectDate
+      let endTime = getDate(new Date(startTime),1).fullDate
+      GetDietHistory(
+        startTime,
+        endTime,
+        (res) => {
+          console.log("get diet history", res);
+          this.dietHistoryList = res.data
+        },
+        (err) => {
+          console.log("get diet history err", err);
+        }
+      )
+    },
     refreshHistory() {
       uni.showLoading({
         title: "获取训练记录中...",
@@ -241,33 +307,24 @@ export default Vue.extend({
       this.trainDetailList = [];
       this.trainHistoryMap = {};
       this.transHistory = [];
+      this.dietHistoryList = []
+      //获取当天的饮食记录
+      this.updateDietHistory()
       this.getHistory();
       this.updateNoticeBar()
-      //
     },
     change(e: any) {
       let _trainHistory = this.trainHistoryMap[e.fulldate];
+      this.selectDate = e.fulldate
       console.log(
-        "select date is " + e.fulldate,
-        "trainHistory",
-        _trainHistory
-      );
+        "select date is " + e.fulldate,"trainHistory",_trainHistory);
       if (_trainHistory) {
         this.trainDetailList = _trainHistory;
-        // GetTrainHistoryDetail(
-        //   trainHistory.id,
-        //   (res) => {
-        //     console.log("get change history detail -> ", res);
-        //     // this.trainDetail = res;
-        //   },
-        //   (err) => {
-        //     console.log("get change history detail err -> ", err);
-        //     this.trainDetail = "获取训练日志出错";
-        //   }
-        // );
       } else {
         this.trainDetailList = [];
       }
+      // 获取当天的饮食记录
+      this.updateDietHistory()
     },
     getHistory() {
       // 获取历史记录
@@ -313,8 +370,9 @@ export default Vue.extend({
             });
           }
           //默认更新下当天的训练详情
+
           let _trainHistory =
-            this.trainHistoryMap[getDate(new Date(), 0).fullDate];
+            this.trainHistoryMap[this.selectDate];
           if (_trainHistory) {
             this.trainDetailList = _trainHistory;
             console.log(
@@ -333,9 +391,10 @@ export default Vue.extend({
         }
       );
     },
+
     trigger(e: any) {
       console.log("添加训练记录,当前登录状态 ->", isLogin());
-      if (this.content[e.index].text == "添加") {
+      if (this.content[e.index].text == "训练") {
         if (!isLogin()) {
           uni.showToast({
             title: "请先登录",
@@ -389,6 +448,19 @@ export default Vue.extend({
         );
         
       }
+      else if (this.content[e.index].text == "饮食") {
+        let ele = this.$refs["diet-edit-form"] as any
+            if (ele){
+              // 设置 编辑界面的值
+              let dietForm = this.$refs["diet-edit-form-dialog"] as any
+              if (dietForm){
+                dietForm.status="create"
+                dietForm.dietContentItem={}
+                // dietForm.dietContentItem=this.dietHistoryList[index]
+              }
+              ele.open("bottom")
+        }
+      }
     },
     drawChange(e: any) {
       if (!e) {
@@ -403,7 +475,6 @@ export default Vue.extend({
       console.log(width);
       return width;
     },
-
     OnActionSelect(item: any) {
       console.log("OnActionSelect", item);
       if (this.$refs.newRecordEditPage) {
@@ -411,16 +482,27 @@ export default Vue.extend({
         ele.ActionSelect(item);
       }
     },
-    onCardClick(item: TrainHistoryDetail) {
-      console.log("onCardClick", item);
-      this.selectedCardId = item.train_history.id;
-      this.selectedItem = item;
+    onTrainCardClick(itemIndex: number) {
+      console.log("onTrainCardClick", this.trainDetailList[itemIndex]);
+      this.selectCardType = "train"
+      this.selectedCardId =  this.trainDetailList[itemIndex].train_history.id;
+      this.selectedItemIndex = itemIndex;
       let ele = this.$refs["card-popup"] as any;
       if (ele) {
         ele.open("bottom");
       }
     },
-    onCardBtnClick(item: any, index: any, trainID: number) {
+    onDietCardClick(itemIndex: number) {
+      console.log("onDietCardClick", this.dietHistoryList[itemIndex]);
+      this.selectCardType = "diet"
+      this.selectedCardId =  this.dietHistoryList[itemIndex].id;
+      this.selectedItemIndex = itemIndex;
+      let ele = this.$refs["card-popup"] as any;
+      if (ele) {
+        ele.open("bottom");
+      }
+    },
+    onCardBtnClick(item: any, index: any, recordId: number) {
       switch (item.name) {
         case "share":
           uni.showToast({
@@ -435,40 +517,69 @@ export default Vue.extend({
         case "del":
           uni.showModal({
             title: "",
-            content: "确定删除该训练记录吗?",
+            content: "确定删除该记录吗?",
             success: (res) => {
               if (res.confirm) {
                 uni.showLoading({
                   title: "删除中...",
                 });
-                DeleteTrainHistory(
-                  trainID,
-                  (res) => {
-                    uni.hideLoading();
-                    uni.showToast({
-                      title: "删除成功",
-                      icon: "success",
-                      duration: 2000,
-                    });
-                    let ele = this.$refs["card-popup"] as any;
-                    if (ele) {
-                      ele.close();
-                    }
-                    //删除的是进行中的训练,删除本地缓存
-                    if (!this.selectedItem.train_history.finish) {
-                      clearDoingTrain();
-                    }
+                if (this.selectCardType=="train"){ 
+                    DeleteTrainHistory(
+                      recordId,
+                      (res) => {
+                        uni.hideLoading();
+                        uni.showToast({
+                          title: "删除成功",
+                          icon: "success",
+                          duration: 2000,
+                        });
+                        let ele = this.$refs["card-popup"] as any;
+                        if (ele) {
+                          ele.close();
+                        }
+                        //删除的是进行中的训练,删除本地缓存
+                        if (!this.trainDetailList[this.selectedItemIndex].train_history.finish) {
+                          clearDoingTrain();
+                        }
 
-                    this.refreshHistory();
-                  },
-                  (error) => {
-                    uni.hideLoading();
-                    let ele = this.$refs["card-popup"] as any;
-                    if (ele) {
-                      ele.close();
+                        this.refreshHistory();
+                      },
+                      (error) => {
+                        console.log("delete train history err", error)
+                        uni.hideLoading();
+                        let ele = this.$refs["card-popup"] as any;
+                        if (ele) {
+                          ele.close();
+                        }
+                      }
+                    );
+                }else{
+                  DeleteDietHistory(
+                    recordId,
+                    (res) => {
+                      uni.hideLoading();
+                      uni.showToast({
+                        title: "删除成功",
+                        icon: "success",
+                        duration: 2000,
+                      });
+                      let ele = this.$refs["card-popup"] as any;
+                      if (ele) {
+                        ele.close();
+                      }
+                      // this.refreshHistory();
+                      this.updateDietHistory()
+                    },
+                    (error) => {
+                      console.log("delete diet history err", error)
+                      uni.hideLoading();
+                      let ele = this.$refs["card-popup"] as any;
+                      if (ele) {
+                        ele.close();
+                      }
                     }
-                  }
-                );
+                  );
+                }
               } else if (res.cancel) {
                 console.log("用户点击取消");
               }
@@ -476,7 +587,7 @@ export default Vue.extend({
           });
           break;
         case "saveAsTem":
-          if (!this.selectedItem.train_history.finish) {
+          if (!this.trainDetailList[this.selectedItemIndex].train_history.finish) {
             uni.showToast({
               title: "未完成的训练记录不能保存为模板",
               icon: "error",
@@ -491,22 +602,36 @@ export default Vue.extend({
             return;
           }
         case "edit": {
-          //判断当前编辑的是否为已经完成训练记录
-          if (this.selectedItem.train_history.finish) {
-            this.status = "edit";
-          } else {
-            this.status = "created";
-          }
-          let ele = this.$refs["newRecordEditPage"] as any;
-          if (ele) {
-            ele.editData(
-              this.selectedItem.train_history,
-              this.selectedItem.train_content
-            );
-          }
-          let ele2 = this.$refs["newRecord"] as any;
-          if (ele2) {
-            ele2.open();
+          if (this.selectCardType=="diet"){
+            let ele = this.$refs["diet-edit-form"] as any
+            if (ele){
+              // 设置 编辑界面的值
+              let dietForm = this.$refs["diet-edit-form-dialog"] as any
+              if (dietForm){
+                dietForm.status="update"
+                // dietForm.dietContentItem=this.dietHistoryList[index]
+              }
+              ele.open("center")
+            }
+            return;
+          }else{
+            //判断当前编辑的是否为已经完成训练记录
+            if (this.trainDetailList[this.selectedItemIndex].train_history.finish) {
+              this.status = "edit";
+            }else{
+              this.status = "created";
+            }
+            let ele = this.$refs["newRecordEditPage"] as any;
+            if (ele) {
+              ele.editData(
+                this.trainDetailList[this.selectedItemIndex].train_history,
+                this.trainDetailList[this.selectedItemIndex].train_content
+              );
+            }
+            let ele2 = this.$refs["newRecord"] as any;
+            if (ele2) {
+              ele2.open();
+            }
           }
         }
         default:
@@ -518,15 +643,32 @@ export default Vue.extend({
         ele.close();
       }
     },
-    cardPopMenuChange() {
-      // console.log("cardPopMenuChange");
+    onDietUpdate(item:DietContentItem){
+      // this.dietHistoryList[this.selectedItemIndex] = item
+      this.dietHistoryList.splice(this.selectedItemIndex,1,item)
+      console.log("update diet history list",this.dietHistoryList,item)
+      // this.updateDietHistory()
+      this.closeDietDetail()
     },
+    onDieCreated(item:DietContentItem){
+      this.dietHistoryList.push(item)
+      console.log("create diet history list",this.dietHistoryList,item)
+      this.closeDietDetail()
+    },
+    closeDietDetail(){
+      let ele = this.$refs["diet-edit-form"] as any
+      if (ele){
+        ele.close()
+      }
+    }
   },
   components: {
     NewRecord,
     UniSection,
     TrainHistoryBriefCard,
     trainingNoticeBar,
+    dietContent,
+    dietCard
   },
 });
 </script>
@@ -567,26 +709,6 @@ export default Vue.extend({
   border-style:solid;
   border-color:rgba(103, 105, 98, 0.459); */
 }
-/* .train-detail-card::before, .train-detail-card::after {
-  box-sizing: inherit;
-  position: absolute;
-  content: '';
-  border: 2px solid transparent;
-  width: 0;
-  height: 0;
-}
-
-.train-detail-card:hover::before {
-  border-top-color: #4361ee;
-  border-right-color: #4361ee;
-  transition: width 0.3s ease-out, height 0.3s ease-out 0.3s;
-}
-
-.train-detail-card:hover::after {
-  border-bottom-color: #4361ee;
-  border-left-color: #4361ee;
-  transition: border-color 0s ease-out 0.6s, width 0.3s ease-out 0.6s, height 0.3s ease-out 1s;
-} */
 
 .card-popup__btn_group {
   margin: 10px 10px;

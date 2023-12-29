@@ -1,6 +1,5 @@
 import BaseApi from "@/services/base";
 import {BurningApis} from "@/services/api";
-import { forEach } from "lodash";
 
 export function getDate(date: any, AddDayCount = 0) {
   if (!date) {
@@ -92,6 +91,17 @@ export interface  TrainHistoryDetail {
   train_content: TrainContent[];
 }
 
+export interface DietContentItem {
+  id: number;
+  carbon:  string;
+	fat :    string;
+	protein :string; 
+	water :  string;
+	calorie: string;
+  created_at :   string;
+}
+
+
 
 const HistoryApis = new BaseApi();
 
@@ -134,7 +144,7 @@ export function GetTodayTrainHistory(successCallback: (res: any) => void, failCa
   return HistoryApis.request<TrainHistory[]>({
     url: BurningApis.history.getHistory.url,
     data: {
-      start_time: getDate(new Date(),-1).fullDate,
+      start_time: getDate(new Date(),0).fullDate,
       end_time: getDate(new Date(),1).fullDate,
     },
     requiredLogin: BurningApis.history.getHistory.authenticated,
@@ -244,4 +254,66 @@ export function FinishTrain(TrainHistory: TrainHistory,actionDetail:ActionDetail
     fail: failCallback,
     contentType: "application/json"
   });
+}
+
+export function CreateNewDietHistory(data:object,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.createFoodHistory.url,
+    requiredLogin: BurningApis.history.createFoodHistory.authenticated,
+    method: BurningApis.history.createFoodHistory.method,
+    data:data,
+    success: successCallback,
+    fail: failCallback,
+    contentType: "application/json"
+  })
+}
+
+export function GetDietHistory(start_time:string,end_time:string,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.getFoodHistory.url,
+    requiredLogin: BurningApis.history.getFoodHistory.authenticated,
+    method: BurningApis.history.getFoodHistory.method,
+    data:{
+      "start_time":start_time,
+      "end_time":end_time
+    },
+    success: successCallback,
+    fail: failCallback
+  })
+}
+
+export function DeleteDietHistory(id:number,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.deleteFoodHistory.url(id),
+    requiredLogin: BurningApis.history.deleteFoodHistory.authenticated,
+    method: BurningApis.history.deleteFoodHistory.method,
+    success: successCallback,
+    fail: failCallback
+  })
+}
+
+export function UpdateDietHistory(id:number,data:object,successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.updateFoodHistory.url(id),
+    requiredLogin: BurningApis.history.updateFoodHistory.authenticated,
+    method: BurningApis.history.updateFoodHistory.method,
+    data:data,
+    success: successCallback,
+    fail: failCallback,
+    contentType: "application/json"
+  })
+}
+
+export function GetTodayDietHistory(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+  return HistoryApis.request({
+    url: BurningApis.history.getFoodHistory.url,
+    requiredLogin: BurningApis.history.getFoodHistory.authenticated,
+    method: BurningApis.history.getFoodHistory.method,
+    data: {
+      start_time: getDate(new Date(),0).fullDate,
+      end_time: getDate(new Date(),1).fullDate,
+    },
+    success: successCallback,
+    fail: failCallback
+  })
 }
