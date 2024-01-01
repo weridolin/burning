@@ -1,11 +1,12 @@
 <template>
+  <view>
   <view class="content">
     <!-- <trainingNoticeBar
       style="width: 100%"
       ref="trainingNoticeBar"
     ></trainingNoticeBar> -->
     <!-- 日历模块 -->
-    <view>
+    <view >
       <uni-calendar
         :insert="true"
         :lunar="true"
@@ -17,7 +18,7 @@
     </view>
 
     <!-- 当天训练日志 --> 
-    <uni-section title="当天训练详情" type="line" style="width: 100%;">
+    <uni-section title="当天训练详情" type="line" style="width: 100%">
       <view v-if="trainDetailList.length == 0">
         <uni-card :is-shadow="true">
           <text class="uni-body">当天无训练日志</text>
@@ -28,7 +29,7 @@
           v-for="(trainDetail, indextd) in trainDetailList"
           :key="indextd"
           :trainDetail="trainDetail"
-          @click.native="onTrainCardClick(indextd)"
+          @showMenu = "onTrainCardClick(indextd)"
           class="train-detail-card"
         >
         </TrainHistoryBriefCard>
@@ -36,7 +37,7 @@
     </uni-section>
 
     <!-- 当天饮食记录 -->
-    <uni-section title="当天饮食详情" type="line" style="width: 100%;">
+    <uni-section title="当天饮食详情" type="line" style="width: 100%">
       <view v-if="dietHistoryList.length == 0">
         <uni-card :is-shadow="true">
           <text class="uni-body">当天无饮食日志</text>
@@ -56,7 +57,7 @@
     </uni-section>
 
     <!-- 右下角悬浮按钮 -->
-    <view class="button">
+    <view class="button" >
       <uni-fab
         ref="fab"
         :pattern="pattern"
@@ -84,7 +85,7 @@
     </uni-drawer>
 
     <!-- 卡片点击 菜单弹框 -->
-    <view>
+    <view >
       <uni-popup
         ref="card-popup"
         background-color="#fff"
@@ -121,6 +122,7 @@
       ref="diet-edit-form"
       title="修改饮食记录"
       background-color="#fff"
+      style="z-index: 1;"
       >
       <dietContent 
         ref="diet-edit-form-dialog"
@@ -130,9 +132,9 @@
         > 
       </dietContent>
     </uni-popup>
-
-
-
+   
+  </view>
+    <shareCard ref="shareCard" @cancel="onShareCardCancel" :posterData.sync="posterData" @previewImage='previewHandle' />
   </view>
 </template>
 
@@ -157,6 +159,8 @@ import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
 import dietContent from "@/conpoments/history/dietContent.vue";
 import dietCard from "@/conpoments/history/dietCard.vue";
 import { DietContentItem,GetTodayDietHistory,GetDietHistory } from "@/pages/history/apis";
+import shareCard from "@/conpoments/history/shareCard.vue";
+
 
 export default Vue.extend({
   data() {
@@ -224,7 +228,35 @@ export default Vue.extend({
       selectedItemIndex:0,
       dietHistoryList,
       selectDate:"",
-      selectCardType:"train" // train or diet
+      selectCardType:"train", // train or diet
+      shareImage:"",      
+      posterData: {
+        type:"",
+        content:[],
+        poster: {
+          //根据屏幕大小自动生成海报背景大小
+          // url: "../../static/icons/shareImageBG.png",//图片地址
+          r: 10, //圆角半径
+          w: 300, //海报宽度
+          h: 600, //海报高度
+          p: 20 //海报内边距padding
+        },
+        mainImg: {
+          //海报主商品图
+          url: "../../static/icons/shareImageBG.png",//图片地址
+          r: 10, //圆角半径
+          w: 300, //宽度
+          h: 400 //高度
+        },
+        title: {
+          //商品标题
+          text: "今日上新水果，牛奶草莓，颗粒饱满，每盒 200g",//文本
+          fontSize: 16, //字体大小
+          color: "#000", //颜色
+          lineHeight: 25, //行高
+          mt: 20 //margin-top
+        }
+      }
     };
   },
   onLoad() {
@@ -345,7 +377,6 @@ export default Vue.extend({
                   comment:""
                 }
                 if (training){
-                  // console.log(training,">>") 
                   // content会在进入详情页更新
                   item.train_history.title = training.title
                   item.train_history.total_time = training.consume_time
@@ -505,10 +536,19 @@ export default Vue.extend({
     onCardBtnClick(item: any, index: any, recordId: number) {
       switch (item.name) {
         case "share":
-          uni.showToast({
-            title: "暂不支持",
-            icon: "error",
-          });
+          // uni.showToast({
+          //   title: "暂不支持",
+          //   icon: "error",
+          // });
+          if (this.selectCardType=="train"){
+            this.posterData.type = "train"
+            this.posterData.content = this.trainDetailList[this.selectedItemIndex] as any
+          }else if (this.selectCardType=="diet"){
+            this.posterData.type = "diet"
+            this.posterData.content = this.dietHistoryList[this.selectedItemIndex] as any
+          }
+          console.log("share card",this.posterData)
+          this.createsShareImage()
           let ele = this.$refs["card-popup"] as any;
           if (ele) {
             ele.close();
@@ -660,7 +700,47 @@ export default Vue.extend({
       if (ele){
         ele.close()
       }
-    }
+    },
+    /* 分享图片生成 */
+		createsShareImage(){
+			// console.log(this.$refs.canvas)
+      // this.$refs.hchPoster.posterShow()
+      uni.hideTabBar()
+      let ele = this.$refs["shareCard"] as any
+      if (ele){
+        ele.posterData=this.posterData
+        ele.posterShow()
+      }
+		},
+		// 预览图片
+		previewHandle(){
+			uni.previewImage({
+				urls: [this.shareImage],
+			});
+		},
+		// 回调图片地址
+		shareSuccess(e:any){
+      console.log("share image success",e)
+			this.shareImage = e
+      uni.previewImage({
+				urls: [this.shareImage],
+        indicator: 'none',
+			});
+		},
+		// 分享
+		onShareAppMessage(res:any) {
+			// if (res.from === 'button') {
+			// 	console.log(res.target)
+			// }
+			return {
+				title: 'canvas图片分享',
+				path: this.shareImage
+			}
+		},
+    onShareCardCancel(){
+      
+    },
+
   },
   components: {
     NewRecord,
@@ -668,7 +748,8 @@ export default Vue.extend({
     TrainHistoryBriefCard,
     trainingNoticeBar,
     dietContent,
-    dietCard
+    dietCard,
+    shareCard
   },
 });
 </script>

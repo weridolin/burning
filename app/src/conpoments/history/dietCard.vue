@@ -1,5 +1,5 @@
 <template>
-  <uni-card :title="dietContentItem.created_at" >
+  <uni-card :title="`📅 ${dietContentItem.created_at}`" >
   <view class="food-detail">
     <view class="food-total">
       <text>已经进食{{ dietContentItem.calorie }}卡路里</text>

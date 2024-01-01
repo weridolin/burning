@@ -38,6 +38,7 @@
           class="train-item"
           ref="trainContent"
           @trainContentListUpdate="onTrainActionDetailUpdate"
+          @deleteActionContent = "onDeleteActionContent"
         ></trainContent>
       </scroll-view>
     </uni-section>
@@ -325,6 +326,10 @@ export default Vue.extend({
         setDoingTrain(this.trainHistory);
       }
       console.log("onTrainContentUpdate", item, index, this.trainHistory);
+    },
+    onDeleteActionContent(item: TrainContent) {
+      console.log("onDeleteActionContent", item,this.trainHistory);
+      // this.trainHistory.trainActionList.splice(item, 1);
     },
   },
 });

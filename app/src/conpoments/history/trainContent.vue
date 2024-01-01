@@ -6,41 +6,27 @@
       class="detail-item-title"
     ></uni-title>
 
-    <!-- <view class="detail-item-group"> -->
     <view class="detail-item-group detail-item-headline">
       <view class="detail-item-group-index item-headline">
         <text class="uni-h6 detail-item-group-left-weight__label"></text>
-        <!-- <uni-tag text="1" type="primary" /> -->
       </view>
       <view class="detail-item-group-left-weight item-headline">
         <text class="uni-h6 detail-item-group-left-weight__label"
           >左侧(kg)</text
         >
-        <!-- <uni-easyinput
-          class="detail-item-group-left-weight__input"
-          placeholder=""
-        ></uni-easyinput> -->
+
       </view>
       <view class="detail-item-group-right-weight item-headline">
         <text class="uni-h6 detail-item-group-right-weight__label"
           >右侧(kg)</text
         >
-        <!-- <uni-easyinput
-          class="detail-item-group-right-weight__input"
-          placeholder=""
-        ></uni-easyinput> -->
+
       </view>
       <view class="detail-item-group-count item-headline">
         <text class="uni-h6 detail-item-group-count__label">次数</text>
-        <!-- <uni-easyinput
-          class="detail-item-group-count__input"
-          placeholder=""
-        ></uni-easyinput> -->
       </view>
       <view class="detail-item-group-finish item-headline">
         <label class="detail-item-group-finish__check">
-          <!-- <checkbox value="cb" checked="true" /> -->
-          <!-- 完成 -->
         </label>
       </view>
       <view class="detail-item-group-menu">
@@ -54,7 +40,6 @@
       :key="index"
     >
       <view class="detail-item-group-index">
-        <!-- <text class="uni-h6 detail-item-group-left-weight__label"></text> -->
         <uni-tag
           class="item-content-index"
           :text="index + 1"
@@ -122,9 +107,6 @@
 import Vue from "vue";
 import {
   TrainContent,
-  AddTrainHistoryContent,
-  UpdateTrainHistoryContent,
-  DeleteTrainHistoryContent,
 } from "@/pages/history/apis";
 export default Vue.extend({
   props: [
@@ -138,12 +120,7 @@ export default Vue.extend({
   data() {
     return {
       // action_name: "动作名称",
-      trainContentList: this.initTrainContent,
-      trainHistoryId: this.trainHistoryId,
-      actionName: this.actionName,
-      listIndex: this.index,
-      actionInstrument: this.actionInstrument,
-      actionId: this.actionId,
+      trainContentList: this.initTrainContent
     };
   },
   watch: {
@@ -191,20 +168,8 @@ export default Vue.extend({
     //   })
     // },
     deleteActionContent(item:TrainContent){
-      console.log("deleteActionContent",item);
       this.trainContentList.splice(this.trainContentList.indexOf(item),1);
-
-      // DeleteTrainHistoryContent(this.trainHistoryId,item.id as number,(res:any)=>{
-      //   console.log("delete action success", res);
-      //   this.trainContentList.splice(this.trainContentList.indexOf(item),1);
-      // },(err)=>{
-      //   console.log("delete action content error - >", err);
-      //   uni.showToast({
-      //     title: "删除失败.",
-      //     icon: "error",
-      //     duration: 2000,
-      //   });
-      // })
+      this.$emit("deleteActionContent",item);
     }
   },
 });
