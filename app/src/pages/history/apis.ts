@@ -126,12 +126,12 @@ export function TrainContentToActionDetail(trainContent: TrainContent[]):ActionD
   return actionDetail
 }
 
-export function GetRecentMonthTrainHistory(successCallback: (res: any) => void, failCallback: (err: any) => void) {
+export function GetTrainHistory(startTime:string,endTime:string,successCallback: (res: any) => void, failCallback: (err: any) => void) {
   return HistoryApis.request<TrainHistory[]>({
     url: BurningApis.history.getHistory.url,
     data: {
-      start_time: getDate(getStartOfMonth(),-1).fullDate,
-      end_time: getDate(new Date(),1).fullDate,
+      start_time: startTime,
+      end_time: endTime,
     },
     requiredLogin: BurningApis.history.getHistory.authenticated,
     method: BurningApis.history.getHistory.method,

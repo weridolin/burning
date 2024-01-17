@@ -57,10 +57,7 @@
 import { TrainHistory, TrainContent } from "../../pages/history/apis";
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import Vue from "vue";
-interface TrainHistoryDetail {
-  train_history: TrainHistory;
-  train_content: TrainContent[];
-}
+
 interface BriefItem {
   action_name: string;
   number: string;

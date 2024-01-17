@@ -13,6 +13,7 @@
         :start-date="'2019-3-2'"
         :end-date="'3099-5-20'"
         @change="change"
+        @monthSwitch ="switchMonth"
         :selected="transHistory"
       />
     </view>
@@ -144,13 +145,14 @@ import NewRecord from "./NewRecord.vue";
 import TrainHistoryBriefCard from "../../conpoments/history/trainHistoryBriefCard.vue";
 import {
   getDate,
-  GetRecentMonthTrainHistory,
+  GetTrainHistory,
   TrainHistoryBrief,
   AddTrainHistory,
   AddTrainHistoryResponse,
   DeleteTrainHistory,
   TrainHistoryDetail,
-  DeleteDietHistory
+  DeleteDietHistory,
+  getStartOfMonth
 } from "./apis";
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
@@ -164,17 +166,15 @@ import shareCard from "@/conpoments/history/shareCard.vue";
 
 export default Vue.extend({
   data() {
-    var transHistory: TrainHistoryBrief[] = []; //
+    var transHistory: TrainHistoryBrief[] = []; // 日志组件展示简要信息
     var trainHistoryMap: { [key: string]: TrainHistoryDetail[] } = {}; // {date: 训练列表}
-    var trainDetailList: TrainHistoryDetail[] = []; // 当天的所有训练记录列表
-    // var selectedItem: TrainHistoryDetail = {} as TrainHistoryDetail;
-    var dietHistoryList: DietContentItem[] = []
+    var trainDetailList: TrainHistoryDetail[] = []; // 选中的当天的所有训练记录列表
+    var dietHistoryList: DietContentItem[] = [] // 选中的当天所有饮食记录
     return {
       title: "训练记录",
       transHistory,
-      trainHistoryMap,
+      trainHistoryMap, 
       trainDetailList,
-      directionStr: "垂直",
       horizontal: "left",
       vertical: "bottom",
       direction: "horizontal",
@@ -186,6 +186,8 @@ export default Vue.extend({
         iconColor: "#fff",
       },
       is_color_type: false,
+      
+      // 悬浮按钮菜单项
       content: [
         {
           iconPath: "/static/icons/add.png",
@@ -201,7 +203,9 @@ export default Vue.extend({
         },
       ],
       status: "",
-      trainHistoryId: 0,
+      trainHistoryId: 0, //当前选中的历史记录ID
+        
+      //弹出框菜单
       bottomData: [
         {
           text: "分享",
@@ -224,11 +228,14 @@ export default Vue.extend({
           name: "edit",
         },
       ],
+
       selectedCardId: 0,
       selectedItemIndex:0,
       dietHistoryList,
       selectDate:"",
       selectCardType:"train", // train or diet
+      
+      //分享记录或者饮食
       shareImage:"",      
       posterData: {
         type:"",
@@ -287,6 +294,7 @@ export default Vue.extend({
   onShow() {
     console.log("on train index page show");
     if (isLogin()) {
+      //登录的情况直接拉取最新的训练记录
       this.refreshHistory();
     } else {
       this.trainDetailList = [];
@@ -294,6 +302,7 @@ export default Vue.extend({
       this.transHistory = [];
       this.dietHistoryList = []
     }
+    //从主页直接跳转到训练详情
     if (uni.getStorageSync("showDetail")){
       console.log("open training history detail")
       this.status = "created";
@@ -340,10 +349,13 @@ export default Vue.extend({
       this.trainHistoryMap = {};
       this.transHistory = [];
       this.dietHistoryList = []
+      let start_time = getDate(getStartOfMonth(),-1).fullDate
+      let end_time = getDate(new Date(),1).fullDate
       //获取当天的饮食记录
       this.updateDietHistory()
-      this.getHistory();
-      this.updateNoticeBar()
+      this.getHistory(start_time,end_time);
+      //当前正在训练通知栏
+      this.updateNoticeBar()  
     },
     change(e: any) {
       let _trainHistory = this.trainHistoryMap[e.fulldate];
@@ -358,9 +370,22 @@ export default Vue.extend({
       // 获取当天的饮食记录
       this.updateDietHistory()
     },
-    getHistory() {
+    switchMonth(e:any){
+      this.trainDetailList = [];
+      this.trainHistoryMap = {};
+      this.transHistory = [];
+      this.dietHistoryList = []
+      console.log("switch month",e)
+      let start_time = getDate(new Date(e.year,e.month-1),-1).fullDate
+      let end_time = getDate(new Date(e.year,e.month),0).fullDate
+      this.getHistory(start_time,end_time);
+    },
+    getHistory(start_time:string,end_time:string) {
+      console.log("get train history from ",start_time," to " ,end_time)
       // 获取历史记录
-      GetRecentMonthTrainHistory(
+      GetTrainHistory(
+        start_time,
+        end_time,
         (res) => {
           console.log("get train history", res);
           uni.hideLoading();
@@ -370,7 +395,9 @@ export default Vue.extend({
           for (let i = 0; i < res.data.length; i++) {
             let item = res.data[i];
             if (!item.train_history.finish){
-                //更新下当前正在训练的内容到当天的训练详情里面 
+                //更新下当前正在训练的内容到当天的训练详情里面,因为当天未完成的训练
+                // 只有在完成才会更新到后台
+                // TODO 非当天的训练记录？
                 let training = getDoingTrain()  as {
                   title:"",
                   consume_time:"",
@@ -383,15 +410,13 @@ export default Vue.extend({
                   item.train_history.comment = training.comment
                 }
             }
-            let n_date = getDate(
-              new Date(item.train_history.created_at),
-              0
-            ).fullDate;
+            let n_date = getDate(new Date(item.train_history.created_at),0).fullDate;
             if (n_date in this.trainHistoryMap) {
               this.trainHistoryMap[n_date].push(item);
             } else {
               this.trainHistoryMap[n_date] = [item];
             }
+            // 日历组件简要数据展示
             this.transHistory.push({
               date: getDate(n_date, 0).fullDate,
               info:
@@ -401,19 +426,8 @@ export default Vue.extend({
             });
           }
           //默认更新下当天的训练详情
-
-          let _trainHistory =
-            this.trainHistoryMap[this.selectDate];
-          if (_trainHistory) {
-            this.trainDetailList = _trainHistory;
-            console.log(
-              "now day train detail ->",
-              this.trainDetailList,
-              this.trainHistoryMap,
-              getDate(new Date(), 0).fullDate
-            );
-          }
-
+          this.trainDetailList  = this.trainHistoryMap[this.selectDate];
+          console.log(`当天(${getDate(new Date(), 0).fullDate})训练详情 ->`,this.trainDetailList,this.trainHistoryMap);
 
         },
         (err) => {
@@ -423,6 +437,7 @@ export default Vue.extend({
       );
     },
 
+    /** 点击新建按钮中的菜单 */
     trigger(e: any) {
       console.log("添加训练记录,当前登录状态 ->", isLogin());
       if (this.content[e.index].text == "训练") {
@@ -493,6 +508,7 @@ export default Vue.extend({
         }
       }
     },
+
     drawChange(e: any) {
       if (!e) {
         this.status = "";
@@ -506,6 +522,8 @@ export default Vue.extend({
       console.log(width);
       return width;
     },
+
+
     OnActionSelect(item: any) {
       console.log("OnActionSelect", item);
       if (this.$refs.newRecordEditPage) {
@@ -513,6 +531,9 @@ export default Vue.extend({
         ele.ActionSelect(item);
       }
     },
+
+
+
     onTrainCardClick(itemIndex: number) {
       console.log("onTrainCardClick", this.trainDetailList[itemIndex]);
       this.selectCardType = "train"
@@ -533,6 +554,8 @@ export default Vue.extend({
         ele.open("bottom");
       }
     },
+
+
     onCardBtnClick(item: any, index: any, recordId: number) {
       switch (item.name) {
         case "share":
