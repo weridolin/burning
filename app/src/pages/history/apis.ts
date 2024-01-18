@@ -47,6 +47,7 @@ export interface AddTrainHistoryRequest {
   title: string;
   finish: boolean;
   force: boolean; //是否强制新建一个新的记录，如果为false，则如果存在未完成的记录，则不会新建，而是返回该记录
+  created_at:string
 }
 
 export interface AddTrainHistoryResponse  {

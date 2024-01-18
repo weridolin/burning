@@ -1,3 +1,5 @@
+import { map } from "lodash";
+
 export interface UserProfile {
   name: string;
   avatar: string;
@@ -68,15 +70,25 @@ export function isLogin(): boolean {
   return !!getToken();
 }
 
-export function setDoingTrain(plan: object) {
-  console.log("setDoingTrain", plan);
-  uni.setStorageSync("doingTrain", JSON.stringify(plan));
+export function setDoingTrain(plan: object,date:string) {
+  var exist_train_history: { [key: string]: any } |  null = {};
+  exist_train_history = getDoingTrain(date);
+  if (!exist_train_history) {
+    exist_train_history = {} ;
+  }
+  exist_train_history[date] = plan;
+  console.log("setDoingTrain", exist_train_history);
+  uni.setStorageSync("doingTrain", JSON.stringify(exist_train_history));
 }
 
-export function getDoingTrain(): object | null {
+export function getDoingTrain(date:string): object | null {
   const plan = uni.getStorageSync("doingTrain");
   if (plan) {
-    return JSON.parse(plan);
+    let planJson =  JSON.parse(plan);
+    console.log("getDoingTrain", planJson);
+    if (planJson[date]) {
+      return planJson[date];
+    }
   }
   return null;
 }

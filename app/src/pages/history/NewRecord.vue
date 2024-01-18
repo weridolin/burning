@@ -85,6 +85,7 @@ import {
 import trainContent from "@/conpoments/history/trainContent.vue";
 import { Action } from "@/pages/action/apis";
 import { setDoingTrain, getDoingTrain, clearDoingTrain } from "@/store/local";
+import { da } from "date-fns/locale";
 
 export default Vue.extend({
   components: { trainContent },
@@ -101,9 +102,11 @@ export default Vue.extend({
         title: "",
         comment: "",
         trainActionList,
+        created_at:""
         // unWatchTrainHistory:null
       },
       status: "created", // 新建记录情况下为created 修改记录情况为edit edit时不会清空/更新本地缓存
+      date:""
     };
   },
   mounted() {
@@ -121,7 +124,7 @@ export default Vue.extend({
           new_value.consume_time
         );
         if (this.status == "created") {
-          setDoingTrain(new_value);
+          setDoingTrain(new_value,this.date);
         }
       },
       deep: true,
@@ -266,7 +269,7 @@ export default Vue.extend({
                   clearDoingTrain();
                   this.status = ""; // 防止watch里面在进行修改
                 }
-                console.log("local store clear", getDoingTrain);
+                console.log("local store clear");
               },
               (err) => {
                 console.log("finish train error", err);
@@ -279,12 +282,12 @@ export default Vue.extend({
         },
       });
     },
-    initData(data: AddTrainHistoryResponse) {
-      console.log("initData", data);
+    initData(data: AddTrainHistoryResponse,date:string) {
+      console.log("initData", data,date);
       this.status = "created";
       //加载本地保留的未完成的trainContent
       if (data == null || data.existed) {
-        let unfinishedTrainRecord = getDoingTrain() as any;
+        let unfinishedTrainRecord = getDoingTrain(date) as any;
         console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
         if (unfinishedTrainRecord != null) {
           // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
@@ -292,13 +295,16 @@ export default Vue.extend({
         }
       } else {
         console.log("新建一条新的训练记录");
+        this.date = data.train_history.created_at;
         this.trainHistory.title = data.train_history.title;
         this.trainHistory.trainHistoryId = data.train_history.id;
         this.trainHistory.comment = data.train_history.comment;
         this.trainHistory.consume_time = data.train_history.total_time;
+        this.trainHistory.created_at = date
       }
     },
     editData(trainHistory: TrainHistory, trainContent: TrainContent[]) {
+      this.date = trainHistory.created_at;
       if (trainHistory.finish) {
         this.status = "edit";
         let ActionDetailList = TrainContentToActionDetail(trainContent);
@@ -308,11 +314,12 @@ export default Vue.extend({
           title: trainHistory.title,
           comment: trainHistory.comment,
           trainActionList: ActionDetailList,
+          created_at:trainHistory.created_at
         };
       } else {
         this.status = "created";
         //加载本地保留的未完成的trainContent
-        let unfinishedTrainRecord = getDoingTrain() as any;
+        let unfinishedTrainRecord = getDoingTrain(trainHistory.created_at) as any;
         console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
         if (unfinishedTrainRecord != null) {
           // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
@@ -323,7 +330,7 @@ export default Vue.extend({
     onTrainActionDetailUpdate(item: TrainContent[], index: number) {
       this.trainHistory.trainActionList[index].action_content = item;
       if (this.status == "created") {
-        setDoingTrain(this.trainHistory);
+        setDoingTrain(this.trainHistory,this.date);
       }
       console.log("onTrainContentUpdate", item, index, this.trainHistory);
     },

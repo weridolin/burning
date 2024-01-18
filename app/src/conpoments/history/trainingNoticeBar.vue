@@ -13,6 +13,7 @@
 import Vue from "vue";
 import { getDoingTrain } from "@/store/local";
 import { isLogin } from "@/store/local";
+import {getDate} from "@/pages/history/apis";
 export default Vue.extend({
   data() {
     return {
@@ -44,13 +45,15 @@ export default Vue.extend({
     
     },
     refreshStatus() {
-      console.log("refresh notice bar..",getDoingTrain() )
+      //
+      let date = getDate(new Date(),0).fullDate
+      console.log("refresh notice bar..",getDoingTrain(date) )
       this.text="当前有正在进行的训练计划，点击查看详情"
       if (!isLogin()){
         this.isTrainingPlanExist=false
         return
       }
-      if (getDoingTrain() == null) {
+      if (getDoingTrain(date) == null) {
         this.isTrainingPlanExist = false;
       }else{
       this.isTrainingPlanExist = true;}

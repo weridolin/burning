@@ -20,12 +20,12 @@
 
     <!-- 当天训练日志 --> 
     <uni-section title="当天训练详情" type="line" style="width: 100%">
-      <view v-if="trainDetailList.length == 0">
+      <view v-if="!trainDetailList || trainDetailList.length == 0">
         <uni-card :is-shadow="true">
           <text class="uni-body">当天无训练日志</text>
         </uni-card>
       </view>
-      <view style="width: 100%" v-if="trainDetailList.length > 0">
+      <view style="width: 100%" v-if="trainDetailList && trainDetailList.length > 0">
         <TrainHistoryBriefCard
           v-for="(trainDetail, indextd) in trainDetailList"
           :key="indextd"
@@ -39,7 +39,7 @@
 
     <!-- 当天饮食记录 -->
     <uni-section title="当天饮食详情" type="line" style="width: 100%">
-      <view v-if="dietHistoryList.length == 0">
+      <view v-if="!dietHistoryList || dietHistoryList.length == 0">
         <uni-card :is-shadow="true">
           <text class="uni-body">当天无饮食日志</text>
         </uni-card>
@@ -160,7 +160,7 @@ import { isLogin } from "../../store/local";
 import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
 import dietContent from "@/conpoments/history/dietContent.vue";
 import dietCard from "@/conpoments/history/dietCard.vue";
-import { DietContentItem,GetTodayDietHistory,GetDietHistory } from "@/pages/history/apis";
+import { DietContentItem,GetDietHistory } from "@/pages/history/apis";
 import shareCard from "@/conpoments/history/shareCard.vue";
 
 
@@ -360,8 +360,7 @@ export default Vue.extend({
     change(e: any) {
       let _trainHistory = this.trainHistoryMap[e.fulldate];
       this.selectDate = e.fulldate
-      console.log(
-        "select date is " + e.fulldate,"trainHistory",_trainHistory);
+      console.log("select date is " + e.fulldate,"trainHistory",_trainHistory);
       if (_trainHistory) {
         this.trainDetailList = _trainHistory;
       } else {
@@ -398,7 +397,7 @@ export default Vue.extend({
                 //更新下当前正在训练的内容到当天的训练详情里面,因为当天未完成的训练
                 // 只有在完成才会更新到后台
                 // TODO 非当天的训练记录？
-                let training = getDoingTrain()  as {
+                let training = getDoingTrain(item.train_history.created_at)  as {
                   title:"",
                   consume_time:"",
                   comment:""
@@ -459,6 +458,7 @@ export default Vue.extend({
             title: "",
             finish: false,
             force: false,
+            created_at: this.selectDate
           },
           (res) => {
             res = res.data as AddTrainHistoryResponse;
@@ -476,7 +476,7 @@ export default Vue.extend({
             this.trainHistoryId = res.train_history.id;
             this.status = "created";
             let ele1 = this.$refs["newRecordEditPage"] as any;
-            ele1.initData(res);
+            ele1.initData(res,this.selectDate);
             let ele = this.$refs["newRecord"] as any;
             if (ele) {
               ele.open();
@@ -523,7 +523,6 @@ export default Vue.extend({
       return width;
     },
 
-
     OnActionSelect(item: any) {
       console.log("OnActionSelect", item);
       if (this.$refs.newRecordEditPage) {
@@ -531,8 +530,6 @@ export default Vue.extend({
         ele.ActionSelect(item);
       }
     },
-
-
 
     onTrainCardClick(itemIndex: number) {
       console.log("onTrainCardClick", this.trainDetailList[itemIndex]);

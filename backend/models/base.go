@@ -19,7 +19,7 @@ func (t LocalTime) Format(format string) string {
 
 func (t LocalTime) MarshalJSON() ([]byte, error) {
 	//do your serializing here
-	stamp := time.Time(t).Format("2006-01-02 15:04:05")
+	stamp := time.Time(t).Format("2006-01-02")
 	// fmt.Println("marshal json -> ", stamp)
 	return []byte(fmt.Sprintf(`"%s"`, stamp)), nil
 }
@@ -27,7 +27,9 @@ func (t LocalTime) MarshalJSON() ([]byte, error) {
 func (t *LocalTime) UnmarshalJSON(data []byte) error {
 	//do your deserializing here
 	// fmt.Println("unmarshal json -> ", string(data))
-	now, err := time.ParseInLocation(`"2006-01-02 15:04:05"`, string(data), time.Local)
+	// now, err := time.ParseInLocation(`"2006-01-02 15:04:05"`, string(data), time.Local)
+	now, err := time.ParseInLocation(`"2006-01-02"`, string(data), time.Local)
+
 	*t = LocalTime(now)
 	return err
 }
