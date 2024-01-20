@@ -52,7 +52,7 @@ func AddNewTrainHistory(c *gin.Context) {
 		}
 	}
 	fmt.Println("add train history, new -> ", new)
-	record, err := models.CreateTrainingHistory(models.TrainingHistory{UserID: _user_id, Comment: "", Title: "", TotalTime: 0}, common.DB)
+	record, err := models.CreateTrainingHistory(models.TrainingHistory{UserID: _user_id, Comment: "", Title: "", TotalTime: 0, BaseModel: models.BaseModel{CreatedAt: new.CreatedAt}}, common.DB)
 	if err != nil {
 		common.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
