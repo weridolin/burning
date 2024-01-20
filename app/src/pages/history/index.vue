@@ -152,7 +152,8 @@ import {
   DeleteTrainHistory,
   TrainHistoryDetail,
   DeleteDietHistory,
-  getStartOfMonth
+  getStartOfMonth,
+  getMonthStartAndEndDate
 } from "./apis";
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
@@ -349,8 +350,15 @@ export default Vue.extend({
       this.trainHistoryMap = {};
       this.transHistory = [];
       this.dietHistoryList = []
-      let start_time = getDate(getStartOfMonth(),-1).fullDate
-      let end_time = getDate(new Date(),1).fullDate
+
+      if (this.selectDate == ""){
+        var start_time = getDate(getStartOfMonth(),-1).fullDate
+        var end_time = getDate(new Date(),1).fullDate      
+      }else{
+        var [start_time,end_time] = getMonthStartAndEndDate(this.selectDate)
+        // console.log("select date is ",this.selectDate,"start_time",start_time,"end_time",end_time)
+      }
+
       //获取当天的饮食记录
       this.updateDietHistory()
       this.getHistory(start_time,end_time);
@@ -551,7 +559,6 @@ export default Vue.extend({
         ele.open("bottom");
       }
     },
-
 
     onCardBtnClick(item: any, index: any, recordId: number) {
       switch (item.name) {

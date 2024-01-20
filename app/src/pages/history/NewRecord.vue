@@ -84,8 +84,7 @@ import {
 } from "./apis";
 import trainContent from "@/conpoments/history/trainContent.vue";
 import { Action } from "@/pages/action/apis";
-import { setDoingTrain, getDoingTrain, clearDoingTrain } from "@/store/local";
-import { da } from "date-fns/locale";
+import { setDoingTrain, getDoingTrain, clearDoingTrain,getAllDoingTrain } from "@/store/local";
 
 export default Vue.extend({
   components: { trainContent },

@@ -31,6 +31,34 @@ export function getStartOfMonth(): Date {
   return startOfMonth;
 }
 
+export function getMonthStartAndEndDate(inputDate:string) {
+  // 创建一个新的 Date 对象，使用传入的日期字符串
+  const date = new Date(inputDate);
+
+  // 获取当前月份的第一天
+  const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+
+  // 获取下个月的第一天
+  const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+  // 将结束日期减去一天，得到当前月份的最后一天
+  endDate.setDate(endDate.getDate() - 1);
+
+  // 格式化日期字符串
+  const formattedStartDate = formatDate(startDate);
+  const formattedEndDate = formatDate(endDate);
+
+  return [formattedStartDate, formattedEndDate];
+}
+
+function formatDate(date:any) {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+}
+
+
 export interface TrainHistory {
   comment: string;
   total_time: number;

@@ -93,6 +93,17 @@ export function getDoingTrain(date:string): object | null {
   return null;
 }
 
+export function getAllDoingTrain(): object | null {
+  const plan = uni.getStorageSync("doingTrain");
+  if (plan) {
+    let planJson =  JSON.parse(plan);
+    console.log("getAllDoingTrain", planJson);
+    return planJson;
+  }
+  return null;
+}
+
+
 export function clearDoingTrain() {
   uni.removeStorageSync("doingTrain");
 }
