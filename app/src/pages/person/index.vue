@@ -22,7 +22,7 @@
       </view>
       <view class="info">
         <view class="nick">
-          <text>{{ profile.name }}</text>
+          <text>{{ profile.name || '未登录' }}</text>
           <view class="sex">
             <u-icon name="man" color="#ffffff" size="24"></u-icon>
           </view>
@@ -43,7 +43,7 @@
           src="../../static/icons/attendance.png" 
 
           />
-        <text class="text">目前已经连续签到{{ sign_days }}天</text>
+        <text class="text">目前已经连续签到{{ sign_days || ' (未登录) ' }}天</text>
         <text class="button" @click="sign">{{
           alreadySign ? "已签到" : "签到"
         }}</text>

@@ -291,18 +291,19 @@ export default Vue.extend({
         if (unfinishedTrainRecord != null) {
           // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
           this.trainHistory = unfinishedTrainRecord;
-        }
-      } else {
-        console.log("新建一条新的训练记录");
-        this.date = data.train_history.created_at;
-        this.trainHistory.title = data.train_history.title;
-        this.trainHistory.trainHistoryId = data.train_history.id;
-        this.trainHistory.comment = data.train_history.comment;
-        this.trainHistory.consume_time = data.train_history.total_time;
-        this.trainHistory.created_at = date
+          return;
+        } 
       }
+      console.log("新建一条新的训练记录");
+      this.date = data.train_history.created_at;
+      this.trainHistory.title = data.train_history.title;
+      this.trainHistory.trainHistoryId = data.train_history.id;
+      this.trainHistory.comment = data.train_history.comment;
+      this.trainHistory.consume_time = data.train_history.total_time;
+      this.trainHistory.created_at = date
+      
     },
-    editData(trainHistory: TrainHistory, trainContent: TrainContent[]) {
+    editData(trainHistory: TrainHistory, trainContent: TrainContent[],date:string) {
       this.date = trainHistory.created_at;
       if (trainHistory.finish) {
         this.status = "edit";
@@ -318,11 +319,22 @@ export default Vue.extend({
       } else {
         this.status = "created";
         //加载本地保留的未完成的trainContent
+        console.log("加载本地保留的未完成的trainContent",trainHistory,trainContent);
         let unfinishedTrainRecord = getDoingTrain(trainHistory.created_at) as any;
-        console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
+        // console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
         if (unfinishedTrainRecord != null) {
           // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
           this.trainHistory = unfinishedTrainRecord;
+        }else {
+          this.trainHistory = {
+            trainHistoryId: trainHistory.id,
+            consume_time: trainHistory.total_time,
+            title: trainHistory.title,
+            comment: trainHistory.comment,
+            trainActionList: TrainContentToActionDetail(trainContent),
+            created_at:trainHistory.created_at
+          };
+        
         }
       }
     },

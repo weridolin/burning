@@ -427,7 +427,7 @@ export default Vue.extend({
             this.transHistory.push({
               date: getDate(n_date, 0).fullDate,
               info:
-                item.train_history.title == ""
+                (item.train_history.title == ""||item.train_history.finish==false)
                   ? "进行中.."
                   : item.train_history.title,
             });
