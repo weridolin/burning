@@ -198,7 +198,7 @@ export default Vue.extend({
           uni.showToast({
             title: "当前计划存在相同动作,已经合并",
             icon: "error",
-            // duration:2000
+            duration:2000
           });
           return;
         }
@@ -301,6 +301,7 @@ export default Vue.extend({
       this.trainHistory.comment = data.train_history.comment;
       this.trainHistory.consume_time = data.train_history.total_time;
       this.trainHistory.created_at = date
+      this.trainHistory.trainActionList = []
       
     },
     editData(trainHistory: TrainHistory, trainContent: TrainContent[],date:string) {

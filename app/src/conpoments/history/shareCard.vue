@@ -12,7 +12,6 @@
   <view
     class="canvas-content"
     v-show="canvasShow"
-    :style="'width:' + system.w + 'px; height:' + system.h + 'px;'"
   >
     <!-- 遮罩层 -->
     <view class="canvas-mask"></view>
@@ -23,9 +22,8 @@
       class="canvas"
       canvas-id="shareImage"
       id="shareImage"
-      :style="'width:' + system.w + 'px; height:' + system.h  + 'px;'"
-      :width="system.w"
-      :height="system.h"
+      :style="style"
+
     ></canvas>
     <view class="button-wrapper">
       <!-- 保存海报按钮 -->
@@ -73,6 +71,7 @@ export default {
         "想放弃了的时候，想想当初为什么开始✊",
       ],
       canvas_h:0,
+      style:""
     };
   },
   props: {
@@ -155,7 +154,7 @@ export default {
   created() {
     // 获取设备信息
     this.system = this.getSystem();
-    // this.canvas
+    // 获取动作列表
   },
   methods: {
     getSystem() {
@@ -190,13 +189,6 @@ export default {
       ctx.clearRect(0, 0, this.system.w, this.system.h); //清空之前的海报
       ctx.draw(); //清空之前的海报
 
-      // if (this.posterData.type == "train") {
-      //   this.posterData.poster.h =  this.mainImg.h + 100 *Object.keys (this.contentFormat).length
-      //   this.canvas_h = this.posterData.poster.h * this.system.scale
-      // }else{
-      //   this.canvas_h = this.system.h
-      // }
-
       // 根据设备屏幕大小和距离屏幕上下左右距离，及圆角绘制背景
       let poster = this.poster;
       let mainImg = this.mainImg;
@@ -228,7 +220,7 @@ export default {
       ctx.beginPath();
       ctx.fillStyle = "#fff";
       ctx.font = "20px Arial";
-      ctx.fillText("Burning", poster.x + 20, poster.y + 30);
+      ctx.fillText("Air-body", poster.x + 20, poster.y + 30);
 
       ctx.draw(true);
 
@@ -278,9 +270,11 @@ export default {
       ctx.restore(); //恢复之前被切割的canvas，否则切割之外的就没办法用
       ctx.draw(true);
     },
-    // 绘制具体的内容
+    // 绘制具体的内容n b
     drawContent(ctx, type,content, x, y, w, h, r) {
-      console.log("drawContent -> content", content);
+      h=h+this.getContentHeight()
+      this.style = `width:${this.system.w}px;height:${this.system.h+this.getContentHeight()}px;`
+      // console.log("drawContent -> content", this.contentFormat);
       // 画图
       ctx.save();
       ctx.beginPath();
@@ -338,6 +332,8 @@ export default {
             }
           }
         }
+        // this.style = `width:${this.system.w}px;height:${this.system.h+axis_y}px;`
+
       }else if (type=="diet"){
         // 饮食记录时间
         // 内容标题
@@ -429,6 +425,20 @@ export default {
         }
       },that)
 
+    },
+    getContentHeight(){
+      let axis_y = 0
+      for (const key in this.contentFormat) {
+          if (Object.hasOwnProperty.call(this.contentFormat, key)) {
+            axis_y = axis_y + 20
+            const element = this.contentFormat[key];
+            let loop_count = Math.ceil(element.length/3)
+            for (let index2 = 0; index2 < loop_count; index2++) {
+              axis_y = axis_y + 20
+            }
+          }
+        }      
+      return axis_y
     },
     handleCanvasCancel(){
       this.canvasShow = false
