@@ -135,7 +135,7 @@
     </uni-popup>
    
   </view>
-    <shareCard ref="shareCard" @cancel="onShareCardCancel" :posterData.sync="posterData" @previewImage='previewHandle' />
+    <shareCard ref="shareCard" @cancel="onShareCardCancel" :posterData.sync="posterData" @previewImage='previewHandle' v-if="showShare" />
   </view>
 </template>
 
@@ -163,6 +163,7 @@ import dietContent from "@/conpoments/history/dietContent.vue";
 import dietCard from "@/conpoments/history/dietCard.vue";
 import { DietContentItem,GetDietHistory } from "@/pages/history/apis";
 import shareCard from "@/conpoments/history/shareCard.vue";
+import { tr } from "date-fns/locale";
 
 
 export default Vue.extend({
@@ -264,7 +265,8 @@ export default Vue.extend({
           lineHeight: 25, //行高
           mt: 20 //margin-top
         }
-      }
+      },
+      showShare:true
     };
   },
   onLoad() {
@@ -732,6 +734,7 @@ export default Vue.extend({
 		createsShareImage(){
 			// console.log(this.$refs.canvas)
       // this.$refs.hchPoster.posterShow()
+      // this.showShare = true
       uni.hideTabBar()
       let ele = this.$refs["shareCard"] as any
       if (ele){
@@ -765,7 +768,12 @@ export default Vue.extend({
 			}
 		},
     onShareCardCancel(){
-      
+      console.log("on share card cancel")
+      // let ele = this.$refs["shareCard"] as any
+      // if (ele){
+      //   // ele.posterData=this.posterData
+      //   ele.handleCanvasCancel()
+      // }
     },
 
   },

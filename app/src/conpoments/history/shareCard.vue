@@ -11,14 +11,15 @@
 <template>
   <view
     class="canvas-content"
-    v-show="canvasShow"
+    v-if ="canvasShow"
   >
     <!-- 遮罩层 -->
-    <view class="canvas-mask"></view>
+    <view class="canvas-mask"   
+      >
+    </view>
     <!-- 海报 -->
     <!-- :width="system.w" :height="system.h" 支付宝必须要这样设置宽高才有效果 -->
     <canvas
-      ref="shareImage"
       class="canvas"
       canvas-id="shareImage"
       id="shareImage"
@@ -46,6 +47,7 @@
 </template>
 
 <script>
+import { set } from 'date-fns';
 // import { drawSquarePic, drawTextReturnH, getSystem } from "./utils";
 // import { DietContentItem,GetTodayDietHistory,GetDietHistory } from "@/pages/history/apis";
 
@@ -71,7 +73,8 @@ export default {
         "想放弃了的时候，想想当初为什么开始✊",
       ],
       canvas_h:0,
-      style:""
+      style:"",
+      // canvasCtx:any
     };
   },
   props: {
@@ -154,7 +157,7 @@ export default {
   created() {
     // 获取设备信息
     this.system = this.getSystem();
-    // 获取动作列表
+    // this.ctx = uni.createCanvasContext("shareImage", this);
   },
   methods: {
     getSystem() {
@@ -171,8 +174,14 @@ export default {
      */
     posterShow() {
       this.canvasShow = true;
-      this.createPoster();
-      this.shareWeChat()
+      this.$nextTick(function () {
+        // 此时已经渲染完成
+        console.log("nextTick -> this", this)
+        this.createPoster();
+        // this.shareWeChat()
+      });
+      // this.createPoster();
+      // this.shareWeChat()
     },
     /**
      * @description: 生成海报
@@ -185,7 +194,8 @@ export default {
       });
       uni.pageScrollTo({ scrollTop: 0,duration:0 })
       const ctx = uni.createCanvasContext("shareImage", this);
-      this.ctx = ctx;
+      
+      // this.canvasCtx = ctx;
       ctx.clearRect(0, 0, this.system.w, this.system.h); //清空之前的海报
       ctx.draw(); //清空之前的海报
 
@@ -238,6 +248,7 @@ export default {
       // 绘制语录
       this.drawSentence(ctx,poster.w/3 - 20,(poster.y + mainImg.h)/3+10) 
       uni.hideLoading();
+      // ctx.destroy()
     },
     // 绘制背景图片
     drawPicture(ctx, x, y, w, h, r, url) {
@@ -364,7 +375,10 @@ export default {
         const element = arr[index];
         ctx.fillText(`${element}`, x + index*30, y + index * 30);
       }
-      ctx.draw(true)
+      ctx.draw(true,(res)=>{
+        console.log("draw share image finish")
+        this.shareWeChat()
+      })
     },
 
     reformatTrainContent(contentList){
@@ -399,11 +413,12 @@ export default {
       console.log("shareWeChatImage")
       // 分享canvas生成的图片
       let that = this
-      var shareImage = uni.createSelectorQuery().in(this).select('#shareImage')
-      console.log("shareWeChat -> canvas", shareImage)
+      // that.handleCanvasCancel()
+      // var shareImage = uni.createSelectorQuery().in(this).select('#shareImage')
+      // console.log("shareWeChat -> canvas", shareImage)
       wx.canvasToTempFilePath({
         canvasId: 'shareImage',
-        // canvas: canvas,
+        // canvas: shareImage,
         success: (res) => { // 成功回调
          // 在H5平台下，tempFilePath 为 base64
           console.log('share file path', res.tempFilePath)
@@ -424,7 +439,24 @@ export default {
           that.handleCanvasCancel()
         }
       },that)
-
+      // uni.canvasToTempFilePath({
+      //   x: 0,
+      //   y: 0,
+      //   width: this.system.w,
+      //   height: this.canvas_h,
+      //   destWidth: this.system.w,
+      //   destHeight: this.canvas_h,
+      //   canvasId: 'shareImage',
+      //   success: function(res) {
+      //     // 在H5平台下，tempFilePath 为 base64
+      //     console.log("save canvas",res.tempFilePath)
+      //     that.handleCanvasCancel()
+      //     },
+      //   fail: (err) => { // 失败回调
+      //     console.log('share file path err', err,this.system)
+      //     that.handleCanvasCancel()
+      //   }
+      // },that)    
     },
     getContentHeight(){
       let axis_y = 0
@@ -442,7 +474,14 @@ export default {
     },
     handleCanvasCancel(){
       this.canvasShow = false
-      this.$emit('cancel', true)
+      // console.log("handleCanvasCancel",this.canvasCtx)
+      // this.style = "width:0px;height:0px;"
+      // this.$emit('cancel', true)
+    },
+    onLoadReady(){
+      console.log("on canvas content load ready ->")
+      this.createPoster();
+      this.shareWeChat()
     }
 
   },
