@@ -1,11 +1,11 @@
 <template>
-  <view class="content">
-    <view class="header">
+  <view class="container">
+    <view class="container__header">
       <image src="/static/images/login/logo.jpg"></image>
     </view>
 
-    <view class="list">
-      <view class="list-call">
+    <view class="container__list">
+      <view class="container__list-call">
         <input
           class="sl-input"
           v-model="registerForm.email"
@@ -14,7 +14,7 @@
           placeholder="邮箱"
         />
       </view>
-      <view class="list-call">
+      <view class="container__list-call">
         <input
           class="sl-input"
           v-model="registerForm.username"
@@ -23,7 +23,7 @@
           placeholder="用户名"
         />
       </view>
-      <view class="list-call">
+      <view class="container__list-call">
         <input
           class="sl-input"
           v-model="registerForm.password"
@@ -33,7 +33,7 @@
           :password="!showPassword"
         />
       </view>
-      <view class="list-call">
+      <view class="container__list-call">
         <input
           class="sl-input"
           v-model="registerForm.checkcode"
@@ -85,11 +85,19 @@ export default Vue.extend({
   },
   methods: {
     register() {
-      uni.showToast({ title: "测试阶段不开放注册", icon: "error" ,duration:10000 });
+      uni.showToast({
+        title: "测试阶段不开放注册",
+        icon: "error",
+        duration: 10000,
+      });
       return;
     },
     getcode() {
-      uni.showToast({ title: "测试阶段不开放注册", icon: "error" ,duration:10000 });
+      uni.showToast({
+        title: "测试阶段不开放注册",
+        icon: "error",
+        duration: 10000,
+      });
       return;
       if (this.state.second > 0) {
         return;
@@ -109,55 +117,54 @@ export default Vue.extend({
   },
 });
 </script>
-<style>
+<style lang="scss">
 page {
   background-color: #fff;
 }
 
-.content {
+.container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
+  .container__header {
+    width: 161rpx;
+    height: 161rpx;
+    border-radius: 50%;
+    margin-top: 30rpx;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-.header {
-  width: 161rpx;
-  height: 161rpx;
-  border-radius: 50%;
-  margin-top: 30rpx;
-  margin-left: auto;
-  margin-right: auto;
-}
+  .container__header image {
+    width: 161rpx;
+    height: 161rpx;
+    border-radius: 50%;
+  }
 
-.header image {
-  width: 161rpx;
-  height: 161rpx;
-  border-radius: 50%;
-}
+  .container__list {
+    display: flex;
+    flex-direction: column;
+    padding-top: 50rpx;
+    padding-left: 70rpx;
+    padding-right: 70rpx;
+  }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  padding-top: 50rpx;
-  padding-left: 70rpx;
-  padding-right: 70rpx;
-}
+  .container__list-call {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 100rpx;
+    color: #333333;
+    border-bottom: 0.5px solid #e2e2e2;
+  }
 
-.list-call {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  height: 100rpx;
-  color: #333333;
-  border-bottom: 0.5px solid #e2e2e2;
-}
-
-.list-call .sl-input {
-  flex: 1;
-  text-align: left;
-  font-size: 32rpx;
-  margin-left: 16rpx;
+  .container__list-call .sl-input {
+    flex: 1;
+    text-align: left;
+    font-size: 32rpx;
+    margin-left: 16rpx;
+  }
 }
 
 .yzm {

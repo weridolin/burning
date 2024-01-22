@@ -1,9 +1,9 @@
 <template>
-  <view class="content">
-    <view class="header">
+  <view class="container">
+    <view class="container__header">
       <image src="/static/icons/login1.png"></image>
     </view>
-    <view class="list">
+    <view class="container__list">
       <!-- <view class="list-call">
         <input
           class="sl-input"
@@ -13,7 +13,7 @@
           placeholder="输入邮箱"
         />
       </view> -->
-      <view class="list-call">
+      <view class="container__list-call">
         <input
           class="sl-input"
           v-model="loginForm.count"
@@ -22,7 +22,7 @@
           placeholder="输入账号/邮箱/手机号"
         />
       </view>
-      <view class="list-call">
+      <view class="container__list-call">
         <input
           class="sl-input"
           v-model="loginForm.password"
@@ -47,14 +47,19 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { setToken, setUserProfile,UserBodyInfo } from "../../store/local";
-import { LoginRequestForm,Login,LoginResponsePayload,GetUserProfileResponsePayload } from "./apis";
-import {GetUserProfile} from "@/pages/person/apis";
+import { setToken, setUserProfile, UserBodyInfo } from "../../store/local";
+import {
+  LoginRequestForm,
+  Login,
+  LoginResponsePayload,
+  GetUserProfileResponsePayload,
+} from "./apis";
+import { GetUserProfile } from "@/pages/person/apis";
 // import {}
 
 export default Vue.extend({
   data() {
-    var loginForm:LoginRequestForm = {
+    var loginForm: LoginRequestForm = {
       phone: "",
       password: "",
       email: "",
@@ -66,112 +71,115 @@ export default Vue.extend({
   },
   methods: {
     bindLogin() {
-      Login(this.loginForm,
-      (res) => {
-        console.log("登录请求结果 -> ",res);
-        if (res.code != 0) {
+      Login(
+        this.loginForm,
+        (res) => {
+          console.log("登录请求结果 -> ", res);
+          if (res.code != 0) {
+            uni.showToast({
+              title: "账号或密码错误",
+              icon: "error",
+              duration: 2000,
+            });
+            return;
+          }
+          let loginData = res.data as LoginResponsePayload;
+          setToken({
+            access_token: loginData.access_token,
+            refresh_token: loginData.refresh_token,
+          });
+          GetUserProfile(
+            (res) => {
+              console.log("获取用户信息 -> ", res);
+              let userBodyProfile = res.data as GetUserProfileResponsePayload;
+              setUserProfile({
+                name: loginData.username,
+                avatar: loginData.avatar,
+                email: loginData.email,
+                phone: loginData.phone,
+                gender: loginData.gender,
+                uuid: userBodyProfile.uuid,
+                days: userBodyProfile.days,
+                // bodyInfo: userBodyProfile
+              });
+              uni.showToast({
+                title: "登录成功",
+                icon: "success",
+                duration: 2000,
+              });
+              uni.navigateBack({ delta: 1 });
+            },
+            (error) => {
+              console.log("获取用户信息异常 -> ", error);
+              uni.showToast({
+                title: "获取用户信息异常",
+                icon: "error",
+                duration: 2000,
+              });
+            }
+          );
+        },
+        (error) => {
+          console.log("登录异常 -> ", error);
           uni.showToast({
-            title: "账号或密码错误",
+            title: "登录异常",
             icon: "error",
             duration: 2000,
           });
-          return;
         }
-        let loginData = res.data as LoginResponsePayload;
-        setToken({
-          access_token: loginData.access_token,
-          refresh_token: loginData.refresh_token,
-        });
-        GetUserProfile((res)=>{
-          console.log("获取用户信息 -> ",res)
-          let userBodyProfile = res.data as GetUserProfileResponsePayload;
-          setUserProfile({
-            name: loginData.username,
-            avatar: loginData.avatar,
-            email: loginData.email,
-            phone: loginData.phone,
-            gender:loginData.gender,
-            uuid:userBodyProfile.uuid,
-            days:userBodyProfile.days,
-            // bodyInfo: userBodyProfile
-          });
-          uni.showToast({
-            title: "登录成功",
-            icon: "success",
-            duration: 2000,
-          });
-          uni.navigateBack({ delta: 1 });
-        },(error)=>{
-          console.log("获取用户信息异常 -> ",error);
-          uni.showToast({
-            title: "获取用户信息异常",
-            icon: "error",
-            duration: 2000,
-          });
-        });
-
-      },(error)=>{
-        console.log("登录异常 -> ",error);
-        uni.showToast({
-          title: "登录异常",
-          icon: "error",
-          duration: 2000,
-        });
-      });
+      );
     },
   },
 });
 </script>
 
-<style>
+<style lang="scss">
 page {
   background-color: #fff;
 }
 
-.content {
+.container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.header {
-  /* width: 161rpx;
+  .container__header {
+    /* width: 161rpx;
 		height: 161rpx; */
-  border-radius: 50%;
-  margin-top: 30rpx;
-  margin-left: auto;
-  margin-right: auto;
-}
+    border-radius: 50%;
+    margin-top: 30rpx;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-.header image {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 50%;
-}
+  .container__header image {
+    width: 100rpx;
+    height: 100rpx;
+    border-radius: 50%;
+  }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  padding-top: 50rpx;
-  padding-left: 70rpx;
-  padding-right: 70rpx;
-}
+  .container__list {
+    display: flex;
+    flex-direction: column;
+    padding-top: 50rpx;
+    padding-left: 70rpx;
+    padding-right: 70rpx;
+    .container__list-call {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      height: 100rpx;
+      color: #333333;
+      border-bottom: 0.5px solid #e2e2e2;
+    }
 
-.list-call {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  height: 100rpx;
-  color: #333333;
-  border-bottom: 0.5px solid #e2e2e2;
-}
-
-.list-call .sl-input {
-  flex: 1;
-  text-align: left;
-  font-size: 32rpx;
-  margin-left: 16rpx;
+    .container__list-call .sl-input {
+      flex: 1;
+      text-align: left;
+      font-size: 32rpx;
+      margin-left: 16rpx;
+    }
+  }
 }
 
 .button-login {

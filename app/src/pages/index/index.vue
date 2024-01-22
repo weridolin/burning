@@ -6,9 +6,13 @@
       ref="trainingNoticeBar"
     ></trainingNoticeBar>
 
-    <view class="content">
-    <!-- 训练日志 -->
-      <uni-section title="今日已完成训练 " type="line">
+    <view class="container">
+      <!-- 训练日志 -->
+      <uni-section
+        title="今日已完成训练 "
+        type="line"
+        class="container__finish-train"
+      >
         <view
           v-show="isLogin() && trainDetailList && trainDetailList.length > 0"
         >
@@ -32,16 +36,14 @@
       </uni-section>
 
       <!-- 饮食记录 -->
-      <uni-section title="今日饮食记录 " type="line">
-        <view class="diet-card"
-          ref = "diet-card-list" 
-          v-for="(item,index) in dietHistoryList"
+      <uni-section title="今日饮食记录 " type="line" class="container__diet">
+        <view
+          class="container__diet_card"
+          ref="diet-card-list"
+          v-for="(item, index) in dietHistoryList"
           :key="index"
-          >
-          <dietCard 
-            :dietContentItemProp="item"
-            >
-          </dietCard>
+        >
+          <dietCard :dietContentItemProp="item"> </dietCard>
         </view>
         <uni-card :is-shadow="true" v-show="!isLogin()">
           <text class="uni-h6">登录后可查看</text>
@@ -53,16 +55,17 @@
           <text class="uni-h6">暂无饮食记录</text>
         </uni-card>
       </uni-section>
-      
+
       <!-- 教学视频 -->
       <uni-section
         title="教程推荐 TODO"
         type="line"
         subTitle="数据更新于2022-11-27"
         padding
+        class="container__video"
       >
-        <view class="move-tag-list">
-          <view class="tag-view" v-for="type in typeList" :key="type">
+        <view class="container__video__tag_list">
+          <view class="tag-view" :key="type" v-for="type in typeList">
             <uni-tag
               :text="type"
               type="primary"
@@ -71,13 +74,13 @@
             />
           </view>
         </view>
-        <view class="video-list">
+        <view>
           <uni-card
             :title="video_detail.title"
             :sub-title="video_detail.up"
             extra="查看"
             :thumbnail="video_detail.thumbnail"
-            class="video-card"
+            class="container__video__card"
             style="margin: 0px 5px"
             v-for="(video_detail, index) in video_info.list"
             :key="index"
@@ -97,7 +100,12 @@
       </uni-section>
 
       <!-- 音乐推荐 -->
-      <uni-section title="来首音乐 TODO" type="line" padding></uni-section>
+      <uni-section
+        title="来首音乐 TODO"
+        type="line"
+        padding
+        class="container__music"
+      ></uni-section>
     </view>
   </view>
 </template>
@@ -116,16 +124,25 @@ import {
   Music,
 } from "./apis";
 import { GetVideoInfo } from "./apis";
-import { GetTodayTrainHistory,GetTodayDietHistory } from "@/pages/history/apis";
+import {
+  GetTodayTrainHistory,
+  GetTodayDietHistory,
+} from "@/pages/history/apis";
 import TrainHistoryBriefCard from "@/conpoments/history/trainHistoryBriefCard.vue";
-import { TrainHistoryDetail,DietContentItem } from "@/pages/history/apis";
+import { TrainHistoryDetail, DietContentItem } from "@/pages/history/apis";
 import { isLogin } from "@/store/local";
 import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
 import dietCard from "@/conpoments/history/dietCard.vue";
-import dietContent from  "@/conpoments/history/dietContent.vue"
+import dietContent from "@/conpoments/history/dietContent.vue";
 
 export default Vue.extend({
-  components: { uniSection, TrainHistoryBriefCard, trainingNoticeBar, dietCard,dietContent },
+  components: {
+    uniSection,
+    TrainHistoryBriefCard,
+    trainingNoticeBar,
+    dietCard,
+    dietContent,
+  },
   data() {
     var trainDetailList: TrainHistoryDetail[] = [];
     var video_info: VideoInfoResponse = {
@@ -152,7 +169,7 @@ export default Vue.extend({
       type: [],
     };
 
-    var dietHistoryList: DietContentItem[] = []
+    var dietHistoryList: DietContentItem[] = [];
 
     var music: Music = {
       name: "歌曲名称",
@@ -170,7 +187,7 @@ export default Vue.extend({
       typeList: ["胸", "背", "腿", "肩", "手臂", "腹肌", "有氧", "臀"],
       selectType: Array<string>(),
       trainDetailList,
-      dietSelectedIndex:0
+      dietSelectedIndex: 0,
     };
   },
   onLoad() {
@@ -180,18 +197,16 @@ export default Vue.extend({
     //   this.dietHistoryList[this.dietSelectedIndex]=dietContentItem
     //   this.closeDietDetail()
     // })
-
   },
   onShow() {
     this.getTodayTrainRecord();
     this.getTodayDietRecord();
     this.$forceUpdate();
-    let el = this.$refs["trainingNoticeBar"] as any
-    if (el){
-      el.refreshStatus()
+    let el = this.$refs["trainingNoticeBar"] as any;
+    if (el) {
+      el.refreshStatus();
     }
     console.debug("on index page show");
-
   },
   computed: {
     is_login() {
@@ -271,7 +286,7 @@ export default Vue.extend({
         }
       );
     },
-    getTodayDietRecord(){
+    getTodayDietRecord() {
       GetTodayDietHistory(
         (res) => {
           console.log("get today diet history", res);
@@ -290,52 +305,24 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-.content {
+.container {
   display: flex;
   flex-direction: column;
   margin: 10px 10px;
-  /* align-items: center;
-  justify-content: center; */
-}
-
-// .food-detail {
-//   display: flex;
-//   flex-direction: row;
-
-//   .food-total {
-//     flex: 0 1 50%;
-//     margin-top: 20px;
-//   }
-//   .type-detail {
-//     flex: 0 1 50%;
-//     display: flex;
-//     flex-direction: row;
-//     flex-wrap: wrap;
-//     /* flex-start:  默认从头开始排列*/
-//     justify-content: flex-start;
-//     .type {
-//       flex: 0 1 50%;
-//       width: 50%;
-//       text-align: center;
-//     }
-//     .new-row {
-//       margin-top: 10px;
-//       text-align: center;
-//     }
-//   }
-// }
-
-.move-tag-list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  .tag-view {
-    margin-left: 5px;
+  .container__video {
+    .container__video__tag_list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      .tag-view {
+        margin-left: 5px;
+      }
+    }
+    .container__video__card {
+      margin-left: 0px;
+      margin: 0px 0px;
+    }
   }
-}
-.video-card {
-  margin-left: 0px;
-  margin: 0px 0px;
 }
 </style>

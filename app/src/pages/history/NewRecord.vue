@@ -1,9 +1,13 @@
 <template>
-  <view class="edit-page">
-    <uni-section type="line" title="输入标题信息" class="edit-page-header">
-      <view class="header">
+  <view class="container">
+    <uni-section
+      type="line"
+      title="输入标题信息"
+      class="container__page-header"
+    >
+      <view class="container__page-header__row">
         <input
-          class="title-input"
+          class="container__page-header__row__title-input"
           placeholder="输入该次训练标题"
           maxlength="10"
           v-model="trainHistory.title"
@@ -12,20 +16,20 @@
           type="h1"
           :title="format_consume_time"
           color="#027fff"
-          class="consume-time"
+          class="container__page-header__row__consume-time"
         ></uni-title>
         <button
           type="default"
           plain="true"
           size="mini"
-          class="start-button"
+          class="container__page-header__row__start-button"
           @click="start"
         >
           {{ started ? "暂停" : "Go!" }}
         </button>
       </view>
     </uni-section>
-    <uni-section type="line" title="动作" class="edit-page-actions">
+    <uni-section type="line" title="动作" class="container__train-actions">
       <scroll-view scroll-y>
         <trainContent
           :key="index"
@@ -35,14 +39,14 @@
           :initTrainContent="item.action_content"
           :trainHistoryId="trainHistory.trainHistoryId"
           :actionInstrument="item.action_instrument"
-          class="train-item"
+          class="container__train-actions__train-item"
           ref="trainContent"
           @trainContentListUpdate="onTrainActionDetailUpdate"
-          @deleteActionContent = "onDeleteActionContent"
+          @deleteActionContent="onDeleteActionContent"
         ></trainContent>
       </scroll-view>
     </uni-section>
-    <view class="edit-page-footer">
+    <view class="container__footer">
       <view class="tool">
         <button type="default" plain="true" size="mini" @click="minimize">
           最小化
@@ -84,7 +88,12 @@ import {
 } from "./apis";
 import trainContent from "@/conpoments/history/trainContent.vue";
 import { Action } from "@/pages/action/apis";
-import { setDoingTrain, getDoingTrain, clearDoingTrain,getAllDoingTrain } from "@/store/local";
+import {
+  setDoingTrain,
+  getDoingTrain,
+  clearDoingTrain,
+  getAllDoingTrain,
+} from "@/store/local";
 
 export default Vue.extend({
   components: { trainContent },
@@ -101,18 +110,18 @@ export default Vue.extend({
         title: "",
         comment: "",
         trainActionList,
-        created_at:""
+        created_at: "",
         // unWatchTrainHistory:null
       },
       status: "created", // 新建记录情况下为created 修改记录情况为edit edit时不会清空/更新本地缓存
-      date:""
+      date: "",
     };
   },
   mounted() {
     console.log("mounted....");
     // this.unWatchTrainHistory
   },
-  onLoad(){
+  onLoad() {
     // this.unWatchTrainHistory
   },
   watch: {
@@ -123,7 +132,7 @@ export default Vue.extend({
           new_value.consume_time
         );
         if (this.status == "created") {
-          setDoingTrain(new_value,this.date);
+          setDoingTrain(new_value, this.date);
         }
       },
       deep: true,
@@ -198,7 +207,7 @@ export default Vue.extend({
           uni.showToast({
             title: "当前计划存在相同动作,已经合并",
             icon: "error",
-            duration:2000
+            duration: 2000,
           });
           return;
         }
@@ -281,8 +290,8 @@ export default Vue.extend({
         },
       });
     },
-    initData(data: AddTrainHistoryResponse,date:string) {
-      console.log("initData", data,date);
+    initData(data: AddTrainHistoryResponse, date: string) {
+      console.log("initData", data, date);
       this.status = "created";
       //加载本地保留的未完成的trainContent
       if (data == null || data.existed) {
@@ -292,7 +301,7 @@ export default Vue.extend({
           // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
           this.trainHistory = unfinishedTrainRecord;
           return;
-        } 
+        }
       }
       console.log("新建一条新的训练记录");
       this.date = data.train_history.created_at;
@@ -300,11 +309,14 @@ export default Vue.extend({
       this.trainHistory.trainHistoryId = data.train_history.id;
       this.trainHistory.comment = data.train_history.comment;
       this.trainHistory.consume_time = data.train_history.total_time;
-      this.trainHistory.created_at = date
-      this.trainHistory.trainActionList = []
-      
+      this.trainHistory.created_at = date;
+      this.trainHistory.trainActionList = [];
     },
-    editData(trainHistory: TrainHistory, trainContent: TrainContent[],date:string) {
+    editData(
+      trainHistory: TrainHistory,
+      trainContent: TrainContent[],
+      date: string
+    ) {
       this.date = trainHistory.created_at;
       if (trainHistory.finish) {
         this.status = "edit";
@@ -315,39 +327,44 @@ export default Vue.extend({
           title: trainHistory.title,
           comment: trainHistory.comment,
           trainActionList: ActionDetailList,
-          created_at:trainHistory.created_at
+          created_at: trainHistory.created_at,
         };
       } else {
         this.status = "created";
         //加载本地保留的未完成的trainContent
-        console.log("加载本地保留的未完成的trainContent",trainHistory,trainContent);
-        let unfinishedTrainRecord = getDoingTrain(trainHistory.created_at) as any;
+        console.log(
+          "加载本地保留的未完成的trainContent",
+          trainHistory,
+          trainContent
+        );
+        let unfinishedTrainRecord = getDoingTrain(
+          trainHistory.created_at
+        ) as any;
         // console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
         if (unfinishedTrainRecord != null) {
           // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
           this.trainHistory = unfinishedTrainRecord;
-        }else {
+        } else {
           this.trainHistory = {
             trainHistoryId: trainHistory.id,
             consume_time: trainHistory.total_time,
             title: trainHistory.title,
             comment: trainHistory.comment,
             trainActionList: TrainContentToActionDetail(trainContent),
-            created_at:trainHistory.created_at
+            created_at: trainHistory.created_at,
           };
-        
         }
       }
     },
     onTrainActionDetailUpdate(item: TrainContent[], index: number) {
       this.trainHistory.trainActionList[index].action_content = item;
       if (this.status == "created") {
-        setDoingTrain(this.trainHistory,this.date);
+        setDoingTrain(this.trainHistory, this.date);
       }
       console.log("onTrainContentUpdate", item, index, this.trainHistory);
     },
     onDeleteActionContent(item: TrainContent) {
-      console.log("onDeleteActionContent", item,this.trainHistory);
+      console.log("onDeleteActionContent", item, this.trainHistory);
       // this.trainHistory.trainActionList.splice(item, 1);
     },
   },
@@ -355,53 +372,47 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-.header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.title-input {
-  flex: 8;
-  margin-left: 10px;
-}
-
-.train-item {
-  margin-top: 10px;
-  // margin-bottom: 10px;
-}
-.consume-time {
-  flex: 2;
-}
-.start-button {
-  flex: 1;
-  margin: 15px 15px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-.edit-page {
+.container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  .edit-page-header {
+  .container__page-header {
     flex: 2;
+    width: 100%;
+    .container__page-header__row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .container__page-header__row__title-input {
+        flex: 8;
+        margin-left: 10px;
+      }
+
+      .container__page-header__row__consume-time {
+        flex: 2;
+      }
+      .container__page-header__row__start-button {
+        flex: 1;
+        margin: 15px 15px;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+    }
   }
-  .edit-page-actions {
+  .container__train-actions {
     flex: 25;
     margin-bottom: 10%;
     z-index: 1;
+    width: 100%;
+    .container__train-actions__train-item {
+      margin-top: 10px;
+    }
   }
-  .edit-page-footer {
-    // display: flex;
-    // margin-top: 10px;
-    // margin-bottom: 8%;
-    // margin-left: 20px;
-    // margin-right: 20px;
+  .container__footer {
     flex: 1;
-    // bottom: 2%;
     bottom: 0;
     position: sticky;
     z-index: 10;
+    width: 100%;
     background-color: rgba(255, 255, 255, 1);
     .tool {
       display: flex;
