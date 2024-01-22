@@ -86,7 +86,7 @@ export default Vue.extend({
   watch: {
   },
   computed: {
-    getShowList() {
+    getShowList(): {[key: string]: BriefItem[]}{
       if (this.showDetail) {
         return this.TrainContentBriefInfoTotal;
       } else {

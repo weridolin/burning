@@ -22,7 +22,7 @@
       </view>
       <view class="info">
         <view class="nick">
-          <text>{{ profile.name || '未登录' }}</text>
+          <text>{{ profile.name || "未登录" }}</text>
           <view class="sex">
             <u-icon name="man" color="#ffffff" size="24"></u-icon>
           </view>
@@ -39,11 +39,10 @@
     </view>
     <view class="infos">
       <view class="open-vip attendance">
-        <image 
-          src="../../static/icons/attendance.png" 
-
-          />
-        <text class="text">目前已经连续签到{{ sign_days || ' (未登录) ' }}天</text>
+        <image src="../../static/icons/attendance.png" />
+        <text class="text"
+          >目前已经连续签到{{ sign_days || " (未登录) " }}天</text
+        >
         <text class="button" @click="sign">{{
           alreadySign ? "已签到" : "签到"
         }}</text>
@@ -68,10 +67,7 @@
       </view>
       <view class="service">
         <view>
-          <image
-            class="icon"
-            src="../../static/icons/kefu.png"
-          />
+          <image class="icon" src="../../static/icons/kefu.png" />
           <text>在线客服</text>
           <!-- <image
             class="right"
@@ -79,10 +75,7 @@
           /> -->
         </view>
         <view>
-          <image
-            class="icon"
-            src="../../static/icons/share2.png"
-          />
+          <image class="icon" src="../../static/icons/share2.png" />
           <text>分享小程序</text>
           <!-- <image
             class="right"
@@ -93,10 +86,7 @@
 
       <view class="service">
         <view @click="logout">
-          <image
-            class="icon"
-            src="../../static/icons/logout.png"
-          />
+          <image class="icon" src="../../static/icons/logout.png" />
           <text>{{ status }}</text>
         </view>
       </view>
@@ -112,11 +102,9 @@ import {
   getUserProfile,
   UserBodyInfo,
 } from "@/store/local";
-import { GetUserProfile, Sign,GetLastSign } from "@/pages/person/apis";
+import { GetUserProfile, Sign, GetLastSign } from "@/pages/person/apis";
 import {
   setUserProfile,
-  getString,
-  setString,
   clearToken,
   clearDoingTrain,
   clearUserProfile,
@@ -131,30 +119,38 @@ export default Vue.extend({
       value1: 0,
       alreadySign: false,
       profile,
-      status:"登录",
+      status: "登录",
     };
   },
   computed: {
     user_uuid() {
-      return this.profile?.uuid.slice(1, 7);
+      var profile: UserProfile = this.profile;
+      if (profile == null) {
+        return "";
+      } else {
+        return profile.uuid.slice(1, 7);
+      }
     },
     sign_days() {
-      return this.profile?.days;
+      var profile: UserProfile = this.profile;
+      if (profile == null) {
+        return "";
+      } else {
+        return profile.days;
+      }
     },
     is_login() {
       return isLogin();
     },
   },
 
-  onLoad() {
-
-  },
+  onLoad() {},
   onShow() {
-    console.log("person page on show -> ", this.profile, isLogin())
+    console.log("person page on show -> ", this.profile, isLogin());
     if (!isLogin()) {
       this.profile.name = "未登录";
       this.status = "登录";
-      console.log("profile ->",this.profile)
+      console.log("profile ->", this.profile);
     } else {
       // 获取用户档案信息
       this.status = "注销";
@@ -182,8 +178,8 @@ export default Vue.extend({
           });
         }
       );
-        
-      this.getLastSign()
+
+      this.getLastSign();
     }
     this.$forceUpdate();
   },
@@ -255,7 +251,7 @@ export default Vue.extend({
         });
       }
     },
-    copyUUid(){
+    copyUUid() {
       uni.setClipboardData({
         data: this.user_uuid as string,
         success: function () {
@@ -267,28 +263,29 @@ export default Vue.extend({
         },
       });
     },
-    getLastSign(){
+    getLastSign() {
       GetLastSign(
         (res) => {
-          let lastSignDate = res.data
-          console.log("获取最近一次签到日志 -> ", res,lastSignDate);
+          let lastSignDate = res.data;
+          console.log("获取最近一次签到日志 -> ", res, lastSignDate);
           let today = getDate(new Date(), 0).fullDate;
           if (today == lastSignDate) {
             this.alreadySign = true;
           } else {
             this.alreadySign = false;
-        }},
+          }
+        },
         (err) => {
           console.log("获取最近一次签到日志失败 -> ", err);
           this.alreadySign = false;
         }
-      )
+      );
     },
-    showBodyInfo(){
+    showBodyInfo() {
       uni.navigateTo({
         url: "/pages/person/bodyInfoDetail",
       });
-    }
+    },
   },
 });
 </script>
@@ -352,12 +349,12 @@ export default Vue.extend({
       background-color: #8cbef0d2; /* 头像的背景颜色 */
       border-radius: 30%; /* 圆形头像 */
       overflow: hidden;
-      margin-right: 10px ;
+      margin-right: 10px;
       .avatar {
-      color: white; /* 字母的颜色 */
-      font-size: 18px; /* 字母的大小 */
-      font-weight: bold; /* 字母的粗细 */
-}
+        color: white; /* 字母的颜色 */
+        font-size: 18px; /* 字母的大小 */
+        font-weight: bold; /* 字母的粗细 */
+      }
     }
 
     .info {
