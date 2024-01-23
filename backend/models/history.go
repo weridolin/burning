@@ -42,13 +42,16 @@ import (
 
 //饮食记录
 type FoodHistory struct {
-	BaseModel
-	UserID  int    `json:"user_id" yaml:"user_id" gorm:"comment:用户ID"`
-	Carbon  string `json:"carbon" yaml:"carbon" gorm:"comment:碳水"`
-	Fat     string `json:"fat" yaml:"fat" gorm:"comment:脂肪(g)"`
-	Protein string `json:"protein" yaml:"protein" gorm:"comment:蛋白质(g)"`
-	Water   string `json:"water" yaml:"water" gorm:"comment:水分(g)"`
-	Calorie string `json:"calorie" yaml:"calorie" gorm:"comment:卡路里(kcal)"`
+	ID        int            `gorm:"primarykey" json:"id" yaml:"id"`
+	CreatedAt *LocalDateTime `json:"created_at" yaml:"created_at"`
+	UpdatedAt *LocalDateTime `json:"updated_at" yaml:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at" yaml:"deleted_at"`
+	UserID    int            `json:"user_id" yaml:"user_id" gorm:"comment:用户ID"`
+	Carbon    string         `json:"carbon" yaml:"carbon" gorm:"comment:碳水"`
+	Fat       string         `json:"fat" yaml:"fat" gorm:"comment:脂肪(g)"`
+	Protein   string         `json:"protein" yaml:"protein" gorm:"comment:蛋白质(g)"`
+	Water     string         `json:"water" yaml:"water" gorm:"comment:水分(g)"`
+	Calorie   string         `json:"calorie" yaml:"calorie" gorm:"comment:卡路里(kcal)"`
 }
 
 // 训练计划日志
