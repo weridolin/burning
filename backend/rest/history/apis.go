@@ -37,7 +37,7 @@ func AddNewTrainHistory(c *gin.Context) {
 	if !new.Force {
 		//先查看当天是否有未完成的记录
 		// date := time.Now().Format("2006-01-02")
-		conditions_string := "created_at >= '" + new.CreatedAt.Format("2006-01-02") + "'" + " and user_id = '" + user_id + "'" + " and  finish='0'"
+		conditions_string := "created_at = '" + new.CreatedAt.Format("2006-01-02") + "'" + " and user_id = '" + user_id + "'" + " and  finish='0'"
 		fmt.Println("get exist un finished train history, conditions -> ", conditions_string)
 		record, _ := models.QueryTrainingHistory(conditions_string, common.DB)
 		fmt.Println("get exist un finished train history content detail")
