@@ -30,10 +30,10 @@
       </view>
     </uni-section>
     <uni-section type="line" title="动作" class="container__train-actions">
-      <scroll-view scroll-y>
+      <scroll-view  v-if="showContent" scroll-y>
         <trainContent
-          :key="index"
-          v-for="(item, index) in trainHistory.trainActionList"
+          :key="item.key"
+          v-for="(item, index) in trainActionList"
           :index="index"
           :actionName="item.action_name"
           :initTrainContent="item.action_content"
@@ -94,6 +94,7 @@ import {
   clearDoingTrain,
   getAllDoingTrain,
 } from "@/store/local";
+// import { v1 as uuid } from 'uuid';  
 
 export default Vue.extend({
   components: { trainContent },
@@ -115,6 +116,7 @@ export default Vue.extend({
       },
       status: "created", // 新建记录情况下为created 修改记录情况为edit edit时不会清空/更新本地缓存
       date: "",
+      showContent:true
     };
   },
   mounted() {
@@ -124,10 +126,22 @@ export default Vue.extend({
   onLoad() {
     // this.unWatchTrainHistory
   },
+  computed: {
+    trainActionList() {
+      console.log("trainActionList", this.trainHistory.trainActionList)
+      // 添加唯一的key
+      this.trainHistory.trainActionList.forEach((element) => {
+        if (element.key==null||element.key==undefined||element.key==""){
+          element.key = Math.random().toString(36);
+        }
+      });
+      return this.trainHistory.trainActionList;
+    },
+  },
   watch: {
     trainHistory: {
       handler(new_value, _) {
-        console.log("train history change ...", new_value.trainHistoryId);
+        console.log("train history change ...", new_value,this.trainHistory);
         this.format_consume_time = this.formatConsumeTime(
           new_value.consume_time
         );
@@ -232,6 +246,7 @@ export default Vue.extend({
         consume_time: 0,
         action_instrument: item.action_instrument,
         action_id: item.id,
+        key: Math.random().toString(36),
       };
       this.trainHistory.trainActionList.push(actionDetail);
     },
@@ -274,7 +289,7 @@ export default Vue.extend({
                 uni.$emit("finishTrain"); //close drawer
                 uni.hideLoading();
                 if (this.status == "created") {
-                  clearDoingTrain();
+                  clearDoingTrain(this.trainHistory.created_at);
                   this.status = ""; // 防止watch里面在进行修改
                 }
                 console.log("local store clear");
@@ -293,13 +308,15 @@ export default Vue.extend({
     initData(data: AddTrainHistoryResponse, date: string) {
       console.log("initData", data, date);
       this.status = "created";
+      this.date=date
       //加载本地保留的未完成的trainContent
       if (data == null || data.existed) {
-        let unfinishedTrainRecord = getDoingTrain(date) as any;
-        console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
+          let unfinishedTrainRecord = getDoingTrain(date) as any;
+          console.log("有未完成的记录,加载本地记录 -> ", unfinishedTrainRecord);
         if (unfinishedTrainRecord != null) {
           // this.trainHistory.trainActionList = this.trainHistory.trainActionList.concat(unfinishedTrainContent);
           this.trainHistory = unfinishedTrainRecord;
+
           return;
         }
       }
@@ -366,6 +383,10 @@ export default Vue.extend({
     onDeleteActionContent(item: TrainContent) {
       console.log("onDeleteActionContent", item, this.trainHistory);
       // this.trainHistory.trainActionList.splice(item, 1);
+    },
+    getLoopKey() {
+      // 返回UUID
+      return Math.random().toString(36);
     },
   },
 });

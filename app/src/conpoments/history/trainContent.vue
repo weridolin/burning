@@ -36,7 +36,7 @@
 
     <view
       class="detail-item-group detail-item-content"
-      v-for="(item  , index) in trainContentList"
+      v-for="(item,index) in trainContentList"
       :key="index"
     >
       <view class="detail-item-group-index">

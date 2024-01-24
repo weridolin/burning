@@ -4,16 +4,15 @@
     :scrollable="false"
     :text="text"
     @click="switchToTrainDetail"
-    v-show="isTrainingPlanExist"
+    v-if="isTrainingPlanExist"
   >
   </uni-notice-bar>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { getDoingTrain } from "@/store/local";
 import { isLogin } from "@/store/local";
-import {getDate} from "@/pages/history/apis";
+import { getAllDoingTrain } from "../../store/local";
 export default Vue.extend({
   data() {
     return {
@@ -31,7 +30,7 @@ export default Vue.extend({
   methods: {
     switchToTrainDetail() {
       console.log("跳转到训练详情页");
-      uni.setStorageSync("showDetail",true)
+      // uni.setStorageSync("showDetail",true)
       //判断当前页
       // let pages = getCurrentPages();
       // if (pages[pages.length - 1].$page.fullPath == "/pages/history/index") {
@@ -46,14 +45,15 @@ export default Vue.extend({
     },
     refreshStatus() {
       //
-      let date = getDate(new Date(),0).fullDate
-      console.log("refresh notice bar..",getDoingTrain(date) )
-      this.text="当前有正在进行的训练计划，点击查看详情"
+      // let date = getDate(new Date(),0).fullDate
+      // console.log("refresh notice bar..",getDoingTrain(date) )
+      console.log("refresh notice bar..",getAllDoingTrain())
+      this.text="存在未完成的训练计划，点击查看详情"
       if (!isLogin()){
         this.isTrainingPlanExist=false
         return
       }
-      if (getDoingTrain(date) == null) {
+      if (getAllDoingTrain() == null) {
         this.isTrainingPlanExist = false;
       }else{
       this.isTrainingPlanExist = true;}

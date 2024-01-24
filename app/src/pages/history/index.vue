@@ -280,7 +280,7 @@ export default Vue.extend({
         ele.close();
       }
       this.status = "";
-      clearDoingTrain();
+      // clearDoingTrain();
       this.refreshHistory();
     });
     uni.$on("minimizeDrawer", () => {
@@ -309,17 +309,17 @@ export default Vue.extend({
       this.dietHistoryList = [];
     }
     //从主页直接跳转到训练详情
-    if (uni.getStorageSync("showDetail")) {
-      console.log("open training history detail");
-      this.status = "created";
-      let ele1 = this.$refs["newRecordEditPage"] as any;
-      ele1.initData(null);
-      let ele = this.$refs["newRecord"] as any;
-      if (ele) {
-        ele.open();
-      }
-      uni.removeStorageSync("showDetail");
-    }
+    // if (uni.getStorageSync("showDetail")) {
+    //   console.log("open training history detail");
+    //   this.status = "created";
+    //   let ele1 = this.$refs["newRecordEditPage"] as any;
+    //   ele1.initData(null);
+    //   let ele = this.$refs["newRecord"] as any;
+    //   if (ele) {
+    //     ele.open();
+    //   }
+    //   uni.removeStorageSync("showDetail");
+    // }
   },
   methods: {
     updateNoticeBar() {
@@ -476,6 +476,7 @@ export default Vue.extend({
         uni.showLoading({
           title: "初始化训练中...",
         });
+        console.log("add train history,date is ", this.selectDate)
         AddTrainHistory(
           {
             comment: "",
@@ -624,11 +625,9 @@ export default Vue.extend({
                         ele.close();
                       }
                       //删除的是进行中的训练,删除本地缓存
-                      if (
-                        !this.trainDetailList[this.selectedItemIndex]
-                          .train_history.finish
+                      if (!this.trainDetailList[this.selectedItemIndex].train_history.finish
                       ) {
-                        clearDoingTrain();
+                        clearDoingTrain(this.trainDetailList[this.selectedItemIndex].train_history.created_at);
                       }
 
                       this.refreshHistory();

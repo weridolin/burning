@@ -72,7 +72,7 @@ export function isLogin(): boolean {
 
 export function setDoingTrain(plan: object,date:string) {
   var exist_train_history: { [key: string]: any } |  null = {};
-  exist_train_history = getDoingTrain(date);
+  exist_train_history = getAllDoingTrain();
   if (!exist_train_history) {
     exist_train_history = {} ;
   }
@@ -104,8 +104,18 @@ export function getAllDoingTrain(): object | null {
 }
 
 
-export function clearDoingTrain() {
-  uni.removeStorageSync("doingTrain");
+export function clearDoingTrain(date:string) {
+  var allTrainRecord: { [key: string]: any } |  null = {};
+  allTrainRecord = getAllDoingTrain();
+  if (allTrainRecord) {
+    delete allTrainRecord[date];
+    console.log("clearDoingTrain", allTrainRecord);
+    uni.setStorageSync("doingTrain", JSON.stringify(allTrainRecord));
+    //如果为空，直接删除
+    if (Object.keys(allTrainRecord).length == 0) {
+      uni.removeStorageSync("doingTrain");
+    }
+  }
 }
 
 export function setObject(key:string,val:object){

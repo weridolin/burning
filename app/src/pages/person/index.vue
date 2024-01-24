@@ -239,7 +239,7 @@ export default Vue.extend({
           content: "确定要退出登录吗？",
           success: (res) => {
             if (res.confirm) {
-              clearDoingTrain();
+              // clearDoingTrain();
               clearToken();
               clearUserProfile();
               this.profile = {} as UserProfile;

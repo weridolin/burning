@@ -113,6 +113,7 @@ export interface ActionDetail {
   consume_time: number;
   action_instrument: string;
   action_id: number;
+  key:string
 }
 
 export interface  TrainHistoryDetail {
@@ -146,6 +147,7 @@ export function TrainContentToActionDetail(trainContent: TrainContent[]):ActionD
         consume_time: item.consume_time,
         action_instrument: item.action_instrument,
         action_id: item.action_id,
+        key:""
       })
     }else{
       actionDetail[index].action_content.push(item)

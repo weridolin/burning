@@ -206,7 +206,6 @@ export default Vue.extend({
     if (el) {
       el.refreshStatus();
     }
-    console.debug("on index page show");
   },
   computed: {
     is_login() {
