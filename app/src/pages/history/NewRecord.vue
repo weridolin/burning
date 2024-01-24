@@ -33,7 +33,7 @@
       <scroll-view  v-if="showContent" scroll-y>
         <trainContent
           :key="item.key"
-          v-for="(item, index) in trainActionList"
+          v-for="(item, index) in trainHistory.trainActionList"
           :index="index"
           :actionName="item.action_name"
           :initTrainContent="item.action_content"
@@ -127,16 +127,16 @@ export default Vue.extend({
     // this.unWatchTrainHistory
   },
   computed: {
-    trainActionList() {
-      console.log("trainActionList", this.trainHistory.trainActionList)
-      // 添加唯一的key
-      this.trainHistory.trainActionList.forEach((element) => {
-        if (element.key==null||element.key==undefined||element.key==""){
-          element.key = Math.random().toString(36);
-        }
-      });
-      return this.trainHistory.trainActionList;
-    },
+    // trainActionList() {
+    //   console.log("trainActionList", this.trainHistory.trainActionList)
+    //   // 添加唯一的key
+    //   this.trainHistory.trainActionList.forEach((element) => {
+    //     if (element.key==null||element.key==undefined||element.key==""){
+    //       element.key = Math.random().toString(36);
+    //     }
+    //   });
+    //   return this.trainHistory.trainActionList;
+    // },
   },
   watch: {
     trainHistory: {
@@ -379,6 +379,13 @@ export default Vue.extend({
         setDoingTrain(this.trainHistory, this.date);
       }
       console.log("onTrainContentUpdate", item, index, this.trainHistory);
+      // 删除 trainActionList 中的空的action_content
+      for (let index = 0; index < this.trainHistory.trainActionList.length; index++) {
+        const element = this.trainHistory.trainActionList[index];
+        if (element.action_content.length == 0) {
+          this.trainHistory.trainActionList.splice(index, 1);
+        }
+      }     
     },
     onDeleteActionContent(item: TrainContent) {
       console.log("onDeleteActionContent", item, this.trainHistory);
