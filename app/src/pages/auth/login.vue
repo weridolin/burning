@@ -71,10 +71,15 @@ export default Vue.extend({
   },
   methods: {
     bindLogin() {
+      uni.showLoading({
+        title: '登陆中',
+        mask: true
+      })
       Login(
         this.loginForm,
         (res) => {
           console.log("登录请求结果 -> ", res);
+          uni.hideLoading()
           if (res.code != 0) {
             uni.showToast({
               title: "账号或密码错误",
@@ -121,6 +126,7 @@ export default Vue.extend({
         },
         (error) => {
           console.log("登录异常 -> ", error);
+          uni.hideLoading()
           uni.showToast({
             title: "登录异常",
             icon: "error",
