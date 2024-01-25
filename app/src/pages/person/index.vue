@@ -122,10 +122,20 @@ export default Vue.extend({
       status: "登录",
     };
   },
+  watch: {
+    // profile: {
+    //   handler: function (val, oldVal) {
+    //     console.log("profile change -> ", val, oldVal);
+    //     this.profile = val;
+    //     this.$forceUpdate();
+    //   },
+    //   deep: true,
+    // },
+  },
   computed: {
     user_uuid() {
       var profile: UserProfile = this.profile;
-      if (profile == null) {
+      if (profile == null || profile.uuid == null || profile.uuid == undefined) {
         return "";
       } else {
         return profile.uuid.slice(1, 7);
@@ -133,7 +143,7 @@ export default Vue.extend({
     },
     sign_days() {
       var profile: UserProfile = this.profile;
-      if (profile == null) {
+      if (profile == null || profile.days == null || profile.days == undefined) {
         return "";
       } else {
         return profile.days;
@@ -141,12 +151,15 @@ export default Vue.extend({
     },
     is_login() {
       return isLogin();
-    },
+    }
+    // button_status(){
+    //   return this.status
+    // }
   },
 
   onLoad() {},
   onShow() {
-    console.log("person page on show -> ", this.profile, isLogin());
+    console.log("person page on show -> ", this.profile, isLogin(),this.status);
     if (!isLogin()) {
       this.profile.name = "未登录";
       this.status = "登录";
@@ -242,10 +255,14 @@ export default Vue.extend({
               // clearDoingTrain();
               clearToken();
               clearUserProfile();
-              this.profile = {} as UserProfile;
-              uni.switchTab({
-                url: "/pages/index/index",
+              // this.profile = {} as UserProfile;
+              this.$nextTick(() => {
+                this.profile = {} as UserProfile;
               });
+              this.status = "登录";
+              // uni.switchTab({
+              //   url: "/pages/index/index",
+              // });
             }
           },
         });
