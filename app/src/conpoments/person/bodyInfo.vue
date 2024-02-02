@@ -271,6 +271,8 @@ export default Vue.extend({
           },
           (error) => {
             console.log("(body info detail page) get body info error -> ",error);
+            this.userBodyInfo = {} as UserBodyInfo;
+            this.drawInfo();
             uni.hideLoading();
             uni.showToast({
               title: '当天未记录数据!',
@@ -289,10 +291,12 @@ export default Vue.extend({
       }
       //当天没有数据
       if (this.dateBodyInfoMap[this.date] == null){
+        this.userBodyInfo = {} as UserBodyInfo;
+        this.drawInfo();
         uni.showToast({
           title: '当天未记录数据!',
           icon: 'error'
-        });
+        })
         return;
       }
 

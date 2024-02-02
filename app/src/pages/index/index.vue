@@ -101,11 +101,16 @@
 
       <!-- 音乐推荐 -->
       <uni-section
-        title="来首音乐 TODO"
+        title="来首音乐"
         type="line"
         padding
         class="container__music"
-      ></uni-section>
+      >
+        <!-- <view class="container__music__player" >
+          <audio style="text-align: left;width: 100%;" :src="current.src" :poster="current.poster" :name="current.name" :author="current.author" :action="audioAction" controls></audio>
+        </view>     -->
+        <MusicPlayer></MusicPlayer>
+      </uni-section>
     </view>
   </view>
 </template>
@@ -134,6 +139,7 @@ import { isLogin } from "@/store/local";
 import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
 import dietCard from "@/conpoments/history/dietCard.vue";
 import dietContent from "@/conpoments/history/dietContent.vue";
+import MusicPlayer from "@/conpoments/index/musicPlayer.vue";
 
 export default Vue.extend({
   components: {
@@ -142,6 +148,8 @@ export default Vue.extend({
     trainingNoticeBar,
     dietCard,
     dietContent,
+    MusicPlayer
+    // LeAudio,
   },
   data() {
     var trainDetailList: TrainHistoryDetail[] = [];
@@ -188,6 +196,15 @@ export default Vue.extend({
       selectType: Array<string>(),
       trainDetailList,
       dietSelectedIndex: 0,
+      current: {
+				poster: 'https://qiniu-web-assets.dcloud.net.cn/unidoc/zh/music-a.png',
+				name: '致爱丽丝',
+				author: '暂无',
+				src: 'https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-hello-uniapp/2cc220e0-c27a-11ea-9dfb-6da8e309e0d8.mp3',
+			},
+			audioAction: {
+				method: 'pause'
+			}
     };
   },
   onLoad() {

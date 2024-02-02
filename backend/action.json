@@ -98,6 +98,12 @@
         "action_type": "T字划船",
         "action_en_name": "TBarbellRow",
         "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/tzihuachuan.png"
+      },
+      {
+        "action_name": "传统硬拉",
+        "action_type": "传统硬拉",
+        "action_en_name": "TraditionalBarbellRow",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/chuantongyingla.png"
       }
     ],
     "哑铃":[
@@ -236,6 +242,14 @@
         "action_en_name": "tuijv",
         "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/tuiju.png"
       }
+    ],
+    "徒手":[
+      {
+        "action_name": "徒手深蹲",
+        "action_type": "徒手深蹲",
+        "action_en_name": "barbellSquat",
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/ganglingshendun.png"
+      }
     ]
 
   },
@@ -253,7 +267,7 @@
         "action_name": "哑铃推举",
         "action_type": "哑铃推举",
         "action_en_name": "YaLingTuiJv",
-        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/yalingtuijv.png"
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/yalingtuijian.png"
       },
       {
         "action_name": "哑铃侧平举",
@@ -273,7 +287,7 @@
         "action_name": "器械推举",
         "action_type": "器械推举",
         "action_en_name": "QiXieTuiJu",
-        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/qixietuiju.png"
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/qixietuijian.png"
       },
       {
         "action_name": "器械侧平举",
@@ -285,7 +299,7 @@
         "action_name": "器械前平举",
         "action_type": "器械前平举",
         "action_en_name": "QiXieQianPingJu",
-        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/qixieqianpingju.png"
+        "action_img": "https://www.weridolin.cn/burning/api/v1/image/actions/qianpingju.png"
       },
       {
         "action_name": "蝴蝶机反向飞鸟",

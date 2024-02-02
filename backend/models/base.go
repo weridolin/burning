@@ -105,3 +105,9 @@ type BaseModel struct {
 	UpdatedAt *LocalDate     `json:"updated_at" yaml:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at" yaml:"deleted_at"`
 }
+
+type Setting struct {
+	BaseModel
+	Key   string `json:"key" yaml:"key"`
+	Value string `json:"value" yaml:"value"`
+}

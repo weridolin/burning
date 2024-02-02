@@ -185,9 +185,10 @@ export default Vue.extend({
   methods: {
     change() {},
     onNav(e: any, kk: string | number) {
-      console.log("选择了" + kk, e, this.actionsList);
       this.currentSelectType = kk as string;
       this.selectActionsList = this.actionsList[kk];
+      console.log("选择了" + kk, e, this.actionsList,this.selectActionsList);
+      // this.$forceUpdate();
     },
     _onReadyApi() {
       console.log("--------------------------------");
@@ -331,6 +332,10 @@ export default Vue.extend({
           icon: "none",
         });
       })
+    },
+    getKey(name:string){
+      //返回UUID
+      return Math.random().toString(36)+name
     }
   },
 
