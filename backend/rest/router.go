@@ -84,7 +84,7 @@ func RegisterImageRouter(r *gin.RouterGroup) {
 }
 
 func RegisterMediaRouter(r *gin.RouterGroup) {
-	r.Use(users.AuthMiddleware(true))
+	r.Use(users.AuthMiddleware(false))
 	r.GET("/media/music", media.GetMusicHandler)
 	// r = r.Group("/image")
 	// r.GET("/video", users.GetHomePage)
