@@ -85,23 +85,29 @@ class BaseApi {
           config.success && config.success(res.data as ResponseBase);
         } else {
           if (res.statusCode == 401) {
-            // uni.showModal({
-            //   title: "登录已过期",
-            //   content: "登录过期,请重新登录",
-            //   // showCancel: ,
-            //   success: (res) => {
-            //     if (res.confirm) {
-            //       clearToken();
-            //       uni.navigateTo({
-            //         url: "/pages/auth/login",
-            //       });
-            //     }else{
-            //       uni.reLaunch({
-            //         url: "/pages/index/index",
-            //       });
-            //     }
-            //   },
-            // })
+              clearToken();
+              uni.showToast({
+                title: "请先登录",
+                icon: "error",
+                duration: 3000,
+              });
+              // uni.showModal({
+              //   title: "未登录",
+              //   content: "请重新登录",
+              //   // showCancel: ,
+              //   success: (res) => {
+              //     if (res.confirm) {
+              //       clearToken();
+              //       uni.navigateTo({
+              //         url: "/pages/auth/login",
+              //       });
+              //     }else{
+              //       uni.reLaunch({
+              //         url: "/pages/index/index",
+              //       });
+              //     }
+              //   },
+              // })
           } else {
             uni.showToast({
               title: "API请求失败",

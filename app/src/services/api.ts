@@ -199,4 +199,11 @@ export const BurningApis = {
       authenticated: true,
     },
   },
+  media:{
+    getMusicList:{
+      method: "GET",
+      url: "/burning/api/v1/media/music",
+      authenticated: false,
+    },
+  }
 };

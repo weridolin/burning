@@ -63,16 +63,39 @@
         >x{{ speed }}</text
       >
     </view>
+    <view class="music-list-popup" > 
+      <uni-popup ref="musicList" background-color="#fff" style="width: 100%;" >  
+        <uni-list class="music-list-popup_list" >
+          <uni-list-item 
+            v-for="(item, index) in audioList"
+            :key="item.id"
+            :title="item.title" 
+            :rightText="item.singer"
+            @click="onSelectMusic(index)"
+            clickable
+          />
+        </uni-list>
+        <view class="music-list-popup_pagination">
+          <uni-pagination :total=total :current="pageInfo.page" :pageSize=pageInfo.size @change="musicListChange"  />
+        </view>
+      </uni-popup>  
+    </view>  
   </view>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import {innerAudioContext} from '@/store/gloabal'
+import {getMusicList,GetMusicListResponse,Music,GetMusicListRequest} from "./apis"
 
 export default Vue.extend({
   name: "musicPlayer",
   data() {
+    var audioList:Music[] = []
+    var pageInfo:GetMusicListRequest = {
+      size:10,
+      page:1
+    }
     return {
       isPaused: true, //是否暂停中
       duration: 0, //音频时长
@@ -81,25 +104,12 @@ export default Vue.extend({
       speed: 1, //倍速
       isSlidering: false, //是否移动中
       isEndAcudio: false, //最后一个音频结束
-      audioList: [
-        {
-          title:"测试",
-          fileUrl:'https://web-ext-storage.dcloud.net.cn/uni-app/ForElise.mp3',
-          image:"https://img-cdn-qiniu.dcloud.net.cn/uniapp/audio/music.jpg",
-          enpame:"专辑名",
-          singer:"歌手名",
-        },
-        {
-          title:"测试",
-          fileUrl:'http://music.163.com/song/media/outer/url?id=34341360.mp3',
-          image:"https://img-cdn-qiniu.dcloud.net.cn/uniapp/audio/music.jpg",
-          enpame:"专辑名",
-          singer:"歌手名",
-        }
-      ],
+      audioList,
       isAutoplay: false,
       showAudioSpeedIcon:true,
-      showAudioListIcon:true
+      showAudioListIcon:true,
+      pageInfo,
+      total:0 
     }
   },
   watch: {
@@ -116,7 +126,7 @@ export default Vue.extend({
   mounted() {
     this.$nextTick(() => {
       this.startPlay();
-      this.setAudioInfo();
+      this.getMusicList()
     });
   },
   methods:{
@@ -130,6 +140,8 @@ export default Vue.extend({
     onOpenList() {
       console.log("打开播放列表")
       this.$emit("onOpenAudioList");
+      let musicList = this.$refs["musicList"] as any;
+      musicList.open("bottom");
     },
     startPlay() {
       innerAudioContext.autoplay = false;
@@ -314,6 +326,54 @@ export default Vue.extend({
       this.isPaused = true;
       innerAudioContext.pause();
     },
+    
+    onSelectMusic(index:number) {
+      console.log('选择音乐',index)
+      this.onSwitchAudio(index);
+      let musicList = this.$refs["musicList"] as any;
+      musicList.close()
+    },
+
+    // 音乐列表切换音乐
+    onSwitchAudioList(index:number) {
+      console.log('音乐列表切换音乐',index)
+      this.onSwitchAudio(index);
+    },
+    musicListChange(e:any) {
+      console.log('音乐列表分页切换',e,this.pageInfo)
+      if (!this.isPaused) {
+        innerAudioContext.pause();
+        this.isPaused = true;  
+      }
+      let {type,current} = e
+      // if (type === 'next') {
+      //   // 
+      //   this.pageInfo.page = current+1
+      // } else {
+      //   // 获取上一页
+      // }
+      this.pageInfo.page = current
+      this.getMusicList()    
+    },
+    getMusicList() {
+      console.log('获取音乐列表')
+      getMusicList(this.pageInfo,(res:GetMusicListResponse)=>{
+        console.log('获取音乐列表成功',res)
+        if (!this.isPaused) {
+          innerAudioContext.stop();
+          innerAudioContext.seek(0);
+          this.currentTime=0
+          this.duration=0
+        }
+        this.audioList = res.data.list
+        this.total = res.data.total
+        console.log("audioList ->", this.audioList)
+        this.setAudioInfo();
+      },(err)=>{
+        console.log('获取音乐列表失败',err)
+      })
+    }
+
   },
 })
 
@@ -407,5 +467,13 @@ export default Vue.extend({
       font-weight: 600;
     }
   }
+
+  .music-list-popup {
+    .music-list-popup_pagination {
+      padding: 2% 2%;
+    }
+  }
 }
+
+
 </style>

@@ -24,6 +24,8 @@
         <view v-if="!trainDetailList || trainDetailList.length == 0">
           <uni-card :is-shadow="true">
             <text class="uni-body">当天无训练日志</text>
+            <!-- <text class="uni-body"  v-show="!isLogin()" >登录后可查看</text> -->
+
           </uni-card>
         </view>
         <view
@@ -39,7 +41,11 @@
           >
           </TrainHistoryBriefCard>
         </view>
+        <!-- <uni-card :is-shadow="true" v-show="!isLogin()">
+          <text class="uni-h6">登录后可查看</text>
+        </uni-card> -->
       </uni-section>
+      
 
       <!-- 当天饮食记录 -->
       <uni-section title="当天饮食详情" type="line" style="width: 100%" class="container__diet">
@@ -161,7 +167,7 @@ import {
 } from "./apis";
 import UniSection from "../../uni_modules/uni-section/components/uni-section/uni-section.vue";
 import { getDoingTrain, clearDoingTrain } from "@/store/local";
-import { isLogin } from "../../store/local";
+import { isLogin } from "@/store/local";
 import trainingNoticeBar from "@/conpoments/history/trainingNoticeBar.vue";
 import dietContent from "@/conpoments/history/dietContent.vue";
 import dietCard from "@/conpoments/history/dietCard.vue";
@@ -463,8 +469,7 @@ export default Vue.extend({
     /** 点击新建按钮中的菜单 */
     trigger(e: any) {
       console.log("添加训练记录,当前登录状态 ->", isLogin());
-      if (this.content[e.index].text == "训练") {
-        if (!isLogin()) {
+      if (!isLogin()) {
           uni.showToast({
             title: "请先登录",
             icon: "error",
@@ -472,6 +477,7 @@ export default Vue.extend({
           });
           return;
         }
+      if (this.content[e.index].text == "训练") {
         //先判断是否有未完成的训练记录 #
         uni.showLoading({
           title: "初始化训练中...",
