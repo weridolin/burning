@@ -19,3 +19,7 @@ func GetUUID() string {
 	uuid, _ := uuid.NewV4()
 	return uuid.String()
 }
+
+func Int2Str(i int) string {
+	return strconv.Itoa(i)
+}

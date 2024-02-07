@@ -5,6 +5,7 @@ import (
 	"github.com/weridolin/burning/rest/actions"
 	"github.com/weridolin/burning/rest/history"
 	"github.com/weridolin/burning/rest/images"
+	"github.com/weridolin/burning/rest/media"
 	"github.com/weridolin/burning/rest/users"
 )
 
@@ -21,6 +22,7 @@ func RegisterActionRouter(r *gin.RouterGroup) {
 	r.POST("/custom", actions.AddCustomAction)
 	r.PUT("/custom/:custom_action_id", actions.UpdateCustomAction)
 	r.DELETE("/custom/:custom_action_id", actions.DeleteCustomAction)
+
 }
 
 func RegisterUsersRouter(r *gin.RouterGroup) {
@@ -75,6 +77,15 @@ func RegisterHomePageRouter(r *gin.RouterGroup) {
 func RegisterImageRouter(r *gin.RouterGroup) {
 	r.Use(users.AuthMiddleware(false))
 	r.GET("/image/*filepath", images.GetImageHandler)
+	// r = r.Group("/image")
+	// r.GET("/video", users.GetHomePage)
+	// r.GET("/video/:id", users.GetVideoDetail)
+	// r.POST("/music", users.AddVideo)
+}
+
+func RegisterMediaRouter(r *gin.RouterGroup) {
+	r.Use(users.AuthMiddleware(true))
+	r.GET("/media/music", media.GetMusicHandler)
 	// r = r.Group("/image")
 	// r.GET("/video", users.GetHomePage)
 	// r.GET("/video/:id", users.GetVideoDetail)

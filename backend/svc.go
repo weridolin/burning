@@ -24,6 +24,7 @@ func DbMigrate(db *gorm.DB, conf configs.Config) {
 	db.AutoMigrate(&models.TrainingHistory{})
 	db.AutoMigrate(&models.TrainingContentDetail{})
 	db.AutoMigrate(&models.UserSign{})
+	db.AutoMigrate(&models.Music{})
 }
 
 // 初始化动作列表
@@ -99,6 +100,7 @@ func main() {
 	rest.RegisterHistoryRouter(v1)
 	rest.RegisterHomePageRouter(v1)
 	rest.RegisterUsersRouter(v1)
+	rest.RegisterMediaRouter(v1)
 	addr := fmt.Sprintf("%s:%s", conf.ServerAddr, conf.ServerPort)
 	fmt.Println("addr -> ", addr)
 	r.Run(addr) // listen and serve on 0.0.0.0:8080
